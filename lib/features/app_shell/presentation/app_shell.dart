@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../widgets/kinetic_bottom_nav.dart';
+
+// SCREENS
+import '../../home/presentation/home_screen.dart';
 import '../../dashboard/dashboard_screen.dart';
+import '../../orders/presentation/pages/order_history_screen.dart';
+import '../../profile/presentation/pages/user_profile_screen.dart';
 import '../../editorial/presentation/editorial_screen.dart';
 import '../../gallery/presentation/gallery_filter_screen.dart';
-import '../../home/presentation/home_screen.dart';
-import '../../products/presentation/add_product_screen.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -17,25 +20,44 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int currentIndex = 0;
 
+  void _navigateTo(int index) {
+    setState(() => currentIndex = index);
+  }
+
   @override
   Widget build(BuildContext context) {
     final screens = <Widget>[
+      /// HOME
       HomeScreen(
-        onOpenEditorial: () => setState(() => currentIndex = 3),
-        onOpenGallery: () => setState(() => currentIndex = 1),
+        onOpenEditorial: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const EditorialScreen()),
+          );
+        },
+
+        /// 👉 chuyển sang tab Gallery (Admin nếu bạn muốn đổi)
+        onOpenGallery: () => _navigateTo(1),
       ),
-      const GalleryFilterScreen(),
-      const AddProductScreen(),
-      const EditorialScreen(),
+
+      /// ADMIN / DASHBOARD
       const DashboardScreen(),
+
+      /// ORDERS
+      const OrderHistoryScreen(),
+
+      /// PROFILE
+      const UserProfileScreen(),
     ];
 
     return Scaffold(
       body: IndexedStack(index: currentIndex, children: screens),
+
       extendBody: true,
+
       bottomNavigationBar: KineticBottomNav(
         currentIndex: currentIndex,
-        onTap: (index) => setState(() => currentIndex = index),
+        onTap: _navigateTo,
       ),
     );
   }
