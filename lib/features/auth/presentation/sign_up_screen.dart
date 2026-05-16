@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../widgets/app_button.dart';
+import '../../../services/auth_service.dart';
+import '../../app_shell/presentation/app_shell.dart';
+import 'login.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -12,8 +14,86 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  bool earlyAccess = false;
-  bool agreeTerms = true;
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  
+  bool _earlyAccess = false;
+  bool _agreeTerms = false;
+  bool _isLoading = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
+  Future<void> _handleSignUp() async {
+    if (_fullNameController.text.isEmpty) {
+      _showError('Please enter your full name');
+      return;
+    }
+    
+    if (_emailController.text.isEmpty || !_emailController.text.contains('@')) {
+      _showError('Please enter a valid email address');
+      return;
+    }
+    
+    if (_passwordController.text.length < 8) {
+      _showError('Password must be at least 8 characters');
+      return;
+    }
+    
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _showError('Passwords do not match');
+      return;
+    }
+    
+    if (!_agreeTerms) {
+      _showError('Please agree to the Terms of Service');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final authService = Provider.of<AuthService>(context, listen: false);
+    
+    try {
+      final success = await authService.signUp(
+        fullName: _fullNameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+        confirmPassword: _confirmPasswordController.text,
+        isEarlyAccess: _earlyAccess,
+      );
+
+      if (success) {
+        // Navigate to AppShell
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const AppShell()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,17 +185,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
               const SizedBox(height: 28),
-              _buildField('FULL NAME', 'Enter your name'),
+              _buildField('FULL NAME', 'Enter your name', _fullNameController),
               const SizedBox(height: 22),
-              _buildField('EMAIL ADDRESS', 'player@kinetic.app'),
+              _buildField('EMAIL ADDRESS', 'player@kinetic.app', _emailController,
+                  keyboardType: TextInputType.emailAddress),
               const SizedBox(height: 22),
-              _buildField('PASSWORD', 'Minimum 8 characters', obscure: true),
+              _buildField('PASSWORD', 'Minimum 8 characters', _passwordController,
+                  obscure: true, isPassword: true),
               const SizedBox(height: 22),
-              _buildField('CONFIRM PASSWORD', 'Repeat password', obscure: true),
+              _buildField('CONFIRM PASSWORD', 'Repeat password', _confirmPasswordController,
+                  obscure: true, isConfirmPassword: true),
               const SizedBox(height: 28),
               CheckboxListTile(
-                value: earlyAccess,
-                onChanged: (v) => setState(() => earlyAccess = v ?? false),
+                value: _earlyAccess,
+                onChanged: (v) => setState(() => _earlyAccess = v ?? false),
                 activeColor: AppColors.volt,
                 checkColor: Colors.black,
                 contentPadding: EdgeInsets.zero,
@@ -126,8 +209,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 controlAffinity: ListTileControlAffinity.leading,
               ),
               CheckboxListTile(
-                value: agreeTerms,
-                onChanged: (v) => setState(() => agreeTerms = v ?? false),
+                value: _agreeTerms,
+                onChanged: (v) => setState(() => _agreeTerms = v ?? false),
                 activeColor: AppColors.volt,
                 checkColor: Colors.black,
                 contentPadding: EdgeInsets.zero,
@@ -138,37 +221,69 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 controlAffinity: ListTileControlAffinity.leading,
               ),
               const SizedBox(height: 28),
-              AppButton(
-                text: 'CREATE ACCOUNT',
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Account created (demo)')),
-                  );
-                },
-                height: 72,
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _handleSignUp,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.volt,
+                    foregroundColor: AppColors.background,
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40),
+                    ),
+                    textStyle: GoogleFonts.spaceGrotesk(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                    ),
+                    elevation: 0,
+                    disabledBackgroundColor: AppColors.border,
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.background,
+                          ),
+                        )
+                      : const Text('CREATE ACCOUNT'),
+                ),
               ),
               const SizedBox(height: 24),
               Center(
-                child: Text(
-                  'ALREADY HAVE AN ACCOUNT? SIGN IN',
-                  style: GoogleFonts.spaceGrotesk(
-                    color: Colors.white70,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    );
+                  },
+                  child: Text.rich(
+                    TextSpan(
+                      text: 'ALREADY HAVE AN ACCOUNT? ',
+                      style: GoogleFonts.spaceGrotesk(
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.2,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'SIGN IN',
+                          style: GoogleFonts.spaceGrotesk(
+                            color: AppColors.neon,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 80),
-              Center(
-                child: Text(
-                  'KINETIC',
-                  style: GoogleFonts.spaceGrotesk(
-                    color: Colors.white10,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 42,
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -176,7 +291,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget _buildField(String label, String hint, {bool obscure = false}) {
+  Widget _buildField(
+    String label,
+    String hint,
+    TextEditingController controller, {
+    bool obscure = false,
+    TextInputType? keyboardType,
+    bool isPassword = false,
+    bool isConfirmPassword = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -189,10 +312,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
             letterSpacing: 2,
           ),
         ),
+        const SizedBox(height: 8),
         TextField(
+          controller: controller,
           obscureText: obscure,
-          decoration: InputDecoration(hintText: hint),
+          keyboardType: keyboardType,
           style: GoogleFonts.inter(color: Colors.white, fontSize: 18),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.inter(color: AppColors.textMuted),
+            suffixIcon: (isPassword || isConfirmPassword)
+                ? IconButton(
+                    onPressed: () {
+                      setState(() {
+                        if (isPassword) {
+                          _obscurePassword = !_obscurePassword;
+                        } else if (isConfirmPassword) {
+                          _obscureConfirmPassword = !_obscureConfirmPassword;
+                        }
+                      });
+                    },
+                    icon: Icon(
+                      (isPassword ? _obscurePassword : _obscureConfirmPassword)
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: AppColors.textSecondary,
+                      size: 20,
+                    ),
+                  )
+                : null,
+          ),
         ),
       ],
     );
