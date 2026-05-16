@@ -15,7 +15,7 @@ class KineticBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     const items = <_NavItem>[
       _NavItem(icon: Icons.home_rounded, label: 'Home'),
-      _NavItem(icon: Icons.admin_panel_settings_rounded, label: 'Admin'),
+      _NavItem(icon: Icons.search, label: 'Discover'),
       _NavItem(icon: Icons.local_shipping_rounded, label: 'Orders'),
       _NavItem(icon: Icons.person_rounded, label: 'Profile'),
     ];
