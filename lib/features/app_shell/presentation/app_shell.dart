@@ -1,13 +1,7 @@
 import 'package:doanltdd/features/discover/discover.dart';
 import 'package:doanltdd/features/profile/profile.dart';
 import 'package:flutter/material.dart';
-
 import '../../../widgets/kinetic_bottom_nav.dart';
-import '../../dashboard/dashboard_screen.dart';
-import '../../editorial/presentation/editorial_screen.dart';
-import '../../gallery/presentation/gallery_filter_screen.dart';
-import '../../home/presentation/home_screen.dart';
-import '../../products/presentation/add_product_screen.dart';
 import '../../homeuser/homeuser.dart';
 import '../../discover/discover.dart';
 import '../../orderhistory/orderhistory.dart';
