@@ -31,7 +31,7 @@ class ProfileScreen extends StatelessWidget {
               _NavigationMenu(onMenuTap: onMenuTap),
               const SizedBox(height: 40),
               const _SignOutButton(),
-              const SizedBox(height: 32),
+              const SizedBox(height: 112),
             ],
           ),
         ),

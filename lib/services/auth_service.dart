@@ -6,6 +6,8 @@ class AuthService extends ChangeNotifier {
   factory AuthService() => _instance;
   AuthService._internal();
 
+  static const String adminEmail = 'admin@kinetic.app';
+
   UserModel? _currentUser;
   bool _isAuthenticated = false;
 
@@ -19,12 +21,18 @@ class AuthService extends ChangeNotifier {
     
     // Demo validation
     if (email.isNotEmpty && password.isNotEmpty) {
+      final normalizedEmail = email.trim().toLowerCase();
+      final role = normalizedEmail == adminEmail
+          ? UserRole.admin
+          : UserRole.user;
+
       _currentUser = UserModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        email: email,
-        fullName: email.split('@')[0],
+        email: normalizedEmail,
+        fullName: normalizedEmail.split('@')[0],
         createdAt: DateTime.now(),
-        isEarlyAccess: true,
+        isEarlyAccess: role == UserRole.user,
+        role: role,
       );
       _isAuthenticated = true;
       notifyListeners();
@@ -60,10 +68,11 @@ class AuthService extends ChangeNotifier {
     
     _currentUser = UserModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      email: email,
+      email: email.trim().toLowerCase(),
       fullName: fullName,
       createdAt: DateTime.now(),
       isEarlyAccess: isEarlyAccess,
+      role: UserRole.user,
     );
     _isAuthenticated = true;
     notifyListeners();

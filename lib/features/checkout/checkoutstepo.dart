@@ -13,7 +13,7 @@ class CheckoutShippingScreen extends StatefulWidget {
 }
 
 class _CheckoutShippingScreenState extends State<CheckoutShippingScreen> {
-  String? selectedCountry = 'UNITED STATES';
+  String? selectedCountry = 'VIET NAM';
   String? selectedShipping = 'free';
   bool billingMatchesShipping = true;
 
@@ -22,7 +22,6 @@ class _CheckoutShippingScreenState extends State<CheckoutShippingScreen> {
   final TextEditingController streetController = TextEditingController();
   final TextEditingController cityController = TextEditingController();
   final TextEditingController stateController = TextEditingController();
-  final TextEditingController zipController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
 
   @override
@@ -56,7 +55,6 @@ class _CheckoutShippingScreenState extends State<CheckoutShippingScreen> {
                 streetController: streetController,
                 cityController: cityController,
                 stateController: stateController,
-                zipController: zipController,
                 phoneController: phoneController,
               ),
               const SizedBox(height: 32),
@@ -85,7 +83,6 @@ class _CheckoutShippingScreenState extends State<CheckoutShippingScreen> {
                 streetController: streetController,
                 cityController: cityController,
                 stateController: stateController,
-                zipController: zipController,
                 phoneController: phoneController,
                 onMenuTap: widget.onMenuTap,
               ),
@@ -104,7 +101,6 @@ class _CheckoutShippingScreenState extends State<CheckoutShippingScreen> {
     streetController.dispose();
     cityController.dispose();
     stateController.dispose();
-    zipController.dispose();
     phoneController.dispose();
     super.dispose();
   }
@@ -381,7 +377,7 @@ class _PersonalInfoSection extends StatelessWidget {
                       fontSize: 16,
                       color: Colors.white,
                     ),
-                    items: ['UNITED STATES', 'UNITED KINGDOM', 'GERMANY', 'JAPAN']
+                    items: ['VIET NAM']
                         .map((country) => DropdownMenuItem(
                               value: country,
                               child: Text(country),
@@ -404,14 +400,12 @@ class _DeliveryAddressSection extends StatelessWidget {
   final TextEditingController streetController;
   final TextEditingController cityController;
   final TextEditingController stateController;
-  final TextEditingController zipController;
   final TextEditingController phoneController;
 
   const _DeliveryAddressSection({
     required this.streetController,
     required this.cityController,
     required this.stateController,
-    required this.zipController,
     required this.phoneController,
   });
 
@@ -438,7 +432,8 @@ class _DeliveryAddressSection extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         _InputField(
-          label: 'STREET NAME *',
+          label: 'STREET ADDRESS *',
+          hint: 'House number, street name',
           controller: streetController,
         ),
         const SizedBox(height: 16),
@@ -447,13 +442,15 @@ class _DeliveryAddressSection extends StatelessWidget {
             Expanded(
               child: _InputField(
                 label: 'CITY *',
+                hint: 'Ho Chi Minh City',
                 controller: cityController,
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: _InputField(
-                label: 'STATE / PROVINCE *',
+                label: 'DISTRICT *',
+                hint: 'District 1',
                 controller: stateController,
               ),
             ),
@@ -464,14 +461,8 @@ class _DeliveryAddressSection extends StatelessWidget {
           children: [
             Expanded(
               child: _InputField(
-                label: 'ZIP-CODE *',
-                controller: zipController,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _InputField(
                 label: 'PHONE NUMBER *',
+                hint: '09xxxxxxxx',
                 controller: phoneController,
                 keyboardType: TextInputType.phone,
               ),
@@ -573,8 +564,8 @@ class _ShippingMethodSection extends StatelessWidget {
         const SizedBox(height: 24),
         _ShippingOption(
           value: 'free',
-          title: 'Free Delivery to home',
-          subtitle: '3 - 7 business days',
+          title: 'Giao hang tieu chuan',
+          subtitle: '2 - 5 ngay lam viec',
           price: 'FREE',
           isSelected: selectedShipping == 'free',
           onTap: () => onShippingChanged('free'),
@@ -582,9 +573,9 @@ class _ShippingMethodSection extends StatelessWidget {
         const SizedBox(height: 12),
         _ShippingOption(
           value: 'standard',
-          title: 'Standard Delivery',
-          subtitle: '2 - 4 business days',
-          price: '\$9.90',
+          title: 'Giao hang nhanh',
+          subtitle: '1 - 2 ngay lam viec',
+          price: '30.000d',
           isSelected: selectedShipping == 'standard',
           onTap: () => onShippingChanged('standard'),
         ),
@@ -745,7 +736,6 @@ class _ContinueButton extends StatelessWidget {
   final TextEditingController streetController;
   final TextEditingController cityController;
   final TextEditingController stateController;
-  final TextEditingController zipController;
   final TextEditingController phoneController;
   final VoidCallback onMenuTap;
   const _ContinueButton(
@@ -756,7 +746,6 @@ class _ContinueButton extends StatelessWidget {
     required this.streetController,
     required this.cityController,
     required this.stateController,
-    required this.zipController,
     required this.phoneController,
     required this.onMenuTap,
     }
@@ -778,8 +767,7 @@ class _ContinueButton extends StatelessWidget {
                             'country': selectedCountry ?? '',
                             'street': streetController.text,
                             'city': cityController.text,
-                            'state': stateController.text,
-                            'zip': zipController.text,
+                            'district': stateController.text,
                             'phone': phoneController.text,
                           }, onMenuTap: onMenuTap,
                         ),

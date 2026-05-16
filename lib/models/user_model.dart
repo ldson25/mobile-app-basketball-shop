@@ -1,3 +1,8 @@
+enum UserRole {
+  user,
+  admin,
+}
+
 class UserModel {
   final String id;
   final String email;
@@ -6,6 +11,7 @@ class UserModel {
   final String? avatarUrl;
   final DateTime createdAt;
   final bool isEarlyAccess;
+  final UserRole role;
 
   UserModel({
     required this.id,
@@ -15,7 +21,10 @@ class UserModel {
     this.avatarUrl,
     required this.createdAt,
     this.isEarlyAccess = false,
+    this.role = UserRole.user,
   });
+
+  bool get isAdmin => role == UserRole.admin;
 
   Map<String, dynamic> toJson() {
     return {
@@ -26,10 +35,13 @@ class UserModel {
       'avatarUrl': avatarUrl,
       'createdAt': createdAt.toIso8601String(),
       'isEarlyAccess': isEarlyAccess,
+      'role': role.name,
     };
   }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    final roleName = json['role'] as String?;
+
     return UserModel(
       id: json['id'],
       email: json['email'],
@@ -38,6 +50,10 @@ class UserModel {
       avatarUrl: json['avatarUrl'],
       createdAt: DateTime.parse(json['createdAt']),
       isEarlyAccess: json['isEarlyAccess'] ?? false,
+      role: UserRole.values.firstWhere(
+        (role) => role.name == roleName,
+        orElse: () => UserRole.user,
+      ),
     );
   }
 }

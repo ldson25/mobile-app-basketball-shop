@@ -30,37 +30,23 @@ class GlowButton extends StatelessWidget {
         elevation: 0,
         backgroundColor: isPrimary ? AppColors.neon : AppColors.surfaceHighest,
         foregroundColor: isPrimary ? Colors.black : Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        minimumSize: const Size.fromHeight(58),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(999),
           side: BorderSide(
-            color: isPrimary ? AppColors.neon : AppColors.border,
+            color: isPrimary ? Colors.black : AppColors.border,
+            width: isPrimary ? 2 : 1,
           ),
         ),
         textStyle: const TextStyle(
-          fontWeight: FontWeight.w800,
-          fontSize: 14,
+          fontWeight: FontWeight.w900,
+          fontSize: 15,
+          letterSpacing: 1.1,
         ),
       ),
     );
 
-    final wrapped = isPrimary
-        ? DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(999),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x55CCFD00),
-                  blurRadius: 24,
-                  spreadRadius: 0,
-                  offset: Offset(0, 10),
-                ),
-              ],
-            ),
-            child: child,
-          )
-        : child;
-
-    return expanded ? SizedBox(width: double.infinity, child: wrapped) : wrapped;
+    return expanded ? SizedBox(width: double.infinity, child: child) : child;
   }
 }

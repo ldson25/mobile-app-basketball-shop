@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../services/auth_service.dart';
+import '../../admin/presentation/admin_shell.dart';
 import '../../app_shell/presentation/app_shell.dart';
 import 'sign_up_screen.dart';
 
@@ -188,10 +189,14 @@ class _LoginFormState extends State<_LoginForm> {
     });
 
     if (success) {
-      // Navigate to AppShell
+      final currentUser = authService.currentUser;
+      final destination = currentUser?.isAdmin ?? false
+          ? const AdminShell()
+          : const AppShell();
+
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const AppShell()),
+        MaterialPageRoute(builder: (context) => destination),
         (route) => false,
       );
     } else {

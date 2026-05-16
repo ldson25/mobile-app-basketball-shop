@@ -11,6 +11,7 @@ class ProductModel {
   final bool isMemberExclusive;
   final bool isBestSeller;
   final bool isSignatureSeries;
+  final int stockQuantity;
 
   ProductModel({
     required this.id,
@@ -22,6 +23,7 @@ class ProductModel {
     this.isMemberExclusive = false,
     this.isBestSeller = false,
     this.isSignatureSeries = false,
+    this.stockQuantity = 24,
   });
 
   String get badgeText {
@@ -49,6 +51,7 @@ class ProductData {
       price: '\$180.00',
       imageAsset: 'assets/images/products/hypervolt_v1.webp',
       isSignatureSeries: true,
+      stockQuantity: 18,
     ),
     ProductModel(
       id: '2',
@@ -56,6 +59,7 @@ class ProductData {
       price: '\$165.00',
       imageAsset: 'assets/images/products/gravity_shift.webp',
       isNewArrival: true,
+      stockQuantity: 12,
     ),
     ProductModel(
       id: '3',
@@ -63,6 +67,7 @@ class ProductData {
       price: '\$210.00',
       imageAsset: 'assets/images/products/apex_core.webp',
       isMemberExclusive: true,
+      stockQuantity: 8,
     ),
     ProductModel(
       id: '4',
@@ -70,6 +75,7 @@ class ProductData {
       price: '\$140.00',
       imageAsset: 'assets/images/products/zenith_pro.webp',
       isBestSeller: true,
+      stockQuantity: 31,
     ),
     ProductModel(
       id: '5',
@@ -77,6 +83,7 @@ class ProductData {
       price: '\$195.00',
       imageAsset: 'assets/images/products/velocity_x.webp',
       isSignatureSeries: true,
+      stockQuantity: 6,
     ),
     ProductModel(
       id: '6',
@@ -84,6 +91,7 @@ class ProductData {
       price: '\$225.00',
       imageAsset: 'assets/images/products/phantom_elite.webp',
       isNewArrival: true,
+      stockQuantity: 14,
     ),
     ProductModel(
       id: '7',
@@ -91,6 +99,7 @@ class ProductData {
       price: '\$159.00',
       imageAsset: 'assets/images/products/ignite_pro.jpg',
       isMemberExclusive: true,
+      stockQuantity: 9,
     ),
     ProductModel(
       id: '8',
@@ -98,6 +107,7 @@ class ProductData {
       price: '\$189.00',
       imageAsset: 'assets/images/products/thunder_strike.jpg',
       isBestSeller: true,
+      stockQuantity: 22,
     ),
   ];
 
@@ -109,6 +119,7 @@ class ProductData {
       price: '\$89.00',
       imageAsset: 'assets/images/products/kinetic_elite_jersey.webp',
       isSignatureSeries: true,
+      stockQuantity: 40,
     ),
     ProductModel(
       id: '10',
@@ -116,6 +127,7 @@ class ProductData {
       price: '\$45.00',
       imageAsset: 'assets/images/products/compression_tee.webp',
       isNewArrival: true,
+      stockQuantity: 28,
     ),
     ProductModel(
       id: '11',
@@ -123,6 +135,7 @@ class ProductData {
       price: '\$65.00',
       imageAsset: 'assets/images/products/elite_shorts.jpg',
       isMemberExclusive: true,
+      stockQuantity: 16,
     ),
     ProductModel(
       id: '12',
@@ -130,6 +143,7 @@ class ProductData {
       price: '\$120.00',
       imageAsset: 'assets/images/products/warmup_hoodie.webp',
       isBestSeller: true,
+      stockQuantity: 11,
     ),
   ];
 
@@ -141,6 +155,7 @@ class ProductData {
       price: '\$55.00',
       imageAsset: 'assets/images/products/pro_basketball.png',
       isSignatureSeries: true,
+      stockQuantity: 35,
     ),
     ProductModel(
       id: '14',
@@ -148,6 +163,7 @@ class ProductData {
       price: '\$25.00',
       imageAsset: 'assets/images/products/training_cones.jpg',
       isNewArrival: true,
+      stockQuantity: 50,
     ),
     ProductModel(
       id: '15',
@@ -155,6 +171,7 @@ class ProductData {
       price: '\$35.00',
       imageAsset: 'assets/images/products/resistance_bands.webp',
       isMemberExclusive: true,
+      stockQuantity: 20,
     ),
   ];
 

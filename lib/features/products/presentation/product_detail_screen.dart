@@ -22,6 +22,7 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   String _selectedSize = '10';
+  int _quantity = 1;
   bool _isDescriptionExpanded = false;
   bool _isShippingExpanded = false;
 
@@ -44,12 +45,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               _buildProductInfo(),
               const SizedBox(height: 32),
               _buildSizeSelector(),
+              const SizedBox(height: 24),
+              _buildQuantitySelector(),
               const SizedBox(height: 32),
               _buildTechnicalSpecs(),
               const SizedBox(height: 32),
               _buildActionButtons(),
               const SizedBox(height: 32),
               _buildExpandableSections(),
+              const SizedBox(height: 32),
+              _buildReviewsSection(),
               const SizedBox(height: 40),
             ],
           ),
@@ -227,6 +232,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             color: AppColors.neon,
           ),
         ),
+        const SizedBox(height: 14),
+        _StockBadge(quantity: widget.product.stockQuantity),
       ],
     );
   }
@@ -307,6 +314,62 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
+  Widget _buildQuantitySelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'QUANTITY',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.2,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: 160,
+          height: 52,
+          decoration: BoxDecoration(
+            color: AppColors.surface2,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: AppColors.border.withOpacity(0.35)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                onPressed: _quantity == 1
+                    ? null
+                    : () => setState(() => _quantity--),
+                icon: const Icon(Icons.remove_rounded),
+                color: AppColors.textPrimary,
+                disabledColor: AppColors.textMuted,
+              ),
+              Text(
+                '$_quantity',
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              IconButton(
+                onPressed: _quantity >= widget.product.stockQuantity
+                    ? null
+                    : () => setState(() => _quantity++),
+                icon: const Icon(Icons.add_rounded),
+                color: AppColors.neon,
+                disabledColor: AppColors.textMuted,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSpecItem(String label, String value) {
     return Expanded(
       child: Padding(
@@ -348,10 +411,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             // Add to Cart button
             GestureDetector(
               onTap: () {
-                cartService.addToCart(widget.product, _selectedSize);
+                for (var i = 0; i < _quantity; i++) {
+                  cartService.addToCart(widget.product, _selectedSize);
+                }
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('${widget.product.name} added to cart (Size $_selectedSize)'),
+                    content: Text(
+                      '${widget.product.name} x$_quantity added to cart (Size $_selectedSize)',
+                    ),
                     duration: const Duration(seconds: 2),
                     action: SnackBarAction(
                       label: 'VIEW CART',
@@ -548,6 +615,199 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildReviewsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        Text(
+          'REVIEWS',
+          style: TextStyle(
+            fontFamily: 'Space Grotesk',
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        SizedBox(height: 14),
+        _ReviewSummary(),
+        SizedBox(height: 12),
+        _ReviewTile(
+          name: 'Minh T.',
+          rating: 5,
+          comment:
+              'Form chac chan, dem em va bam san tot. Rat hop khi choi bong ro ngoai troi.',
+        ),
+        SizedBox(height: 12),
+        _ReviewTile(
+          name: 'Anh K.',
+          rating: 4,
+          comment:
+              'Thiet ke dep, chat lieu tot. Nen tang nua size neu chan be ngang.',
+        ),
+      ],
+    );
+  }
+}
+
+class _ReviewSummary extends StatelessWidget {
+  const _ReviewSummary();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.surface2,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border.withOpacity(0.25)),
+      ),
+      child: Row(
+        children: [
+          const Text(
+            '4.8',
+            style: TextStyle(
+              color: AppColors.neon,
+              fontSize: 38,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                _Stars(rating: 5),
+                SizedBox(height: 6),
+                Text(
+                  'Based on 128 reviews',
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReviewTile extends StatelessWidget {
+  const _ReviewTile({
+    required this.name,
+    required this.rating,
+    required this.comment,
+  });
+
+  final String name;
+  final int rating;
+  final String comment;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.surface2,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  name,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              _Stars(rating: rating),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            comment,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              height: 1.45,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Stars extends StatelessWidget {
+  const _Stars({required this.rating});
+
+  final int rating;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(5, (index) {
+        return Icon(
+          index < rating ? Icons.star_rounded : Icons.star_border_rounded,
+          color: AppColors.neon,
+          size: 18,
+        );
+      }),
+    );
+  }
+}
+
+class _StockBadge extends StatelessWidget {
+  const _StockBadge({required this.quantity});
+
+  final int quantity;
+
+  @override
+  Widget build(BuildContext context) {
+    final lowStock = quantity <= 10;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: lowStock
+            ? AppColors.warning.withOpacity(0.12)
+            : AppColors.neon.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: lowStock
+              ? AppColors.warning.withOpacity(0.35)
+              : AppColors.neon.withOpacity(0.35),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            lowStock ? Icons.error_outline_rounded : Icons.inventory_2_outlined,
+            color: lowStock ? AppColors.warning : AppColors.neon,
+            size: 16,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            lowStock ? 'Only $quantity left' : '$quantity items in stock',
+            style: TextStyle(
+              color: lowStock ? AppColors.warning : AppColors.neon,
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.6,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

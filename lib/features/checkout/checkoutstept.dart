@@ -22,7 +22,7 @@ class CheckoutPaymentScreen extends StatefulWidget {
 }
 
 class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
-  String selectedPaymentMethod = 'credit_card';
+  String selectedPaymentMethod = 'cash';
   bool _isProcessing = false;
 
   // Credit card controllers
@@ -40,7 +40,7 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
         builder: (context, cartService, orderService, child) {
           final selectedItems = cartService.selectedItems;
           final subtotal = cartService.selectedTotalAmount;
-          final shippingCost = 10.0; // Giả định, có thể lấy từ shippingData
+          final shippingCost = 0.0;
           final total = subtotal + shippingCost;
 
           return SingleChildScrollView(
@@ -72,6 +72,10 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
                     ),
                   if (selectedPaymentMethod == 'cash')
                     const _CashOnDeliveryInfo(),
+                  if (selectedPaymentMethod == 'bank_transfer')
+                    const _BankTransferInfo(),
+                  if (selectedPaymentMethod == 'e_wallet')
+                    const _EWalletInfo(),
                   const SizedBox(height: 32),
                   _OrderSummary(
                     subtotal: subtotal,
@@ -260,7 +264,7 @@ class _HeaderSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Payment',
+          'Thanh toan',
           style: TextStyle(
             fontFamily: 'Space Grotesk',
             fontSize: 48,
@@ -272,7 +276,7 @@ class _HeaderSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Select your preferred payment method',
+          'Chon phuong thuc thanh toan phu hop tai Viet Nam',
           style: TextStyle(
             fontSize: 18,
             height: 1.6,
@@ -313,7 +317,7 @@ class _CashOnDeliveryInfo extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Cash on Delivery',
+                  'Thanh toan khi nhan hang',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -322,8 +326,95 @@ class _CashOnDeliveryInfo extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Pay with cash directly to the delivery driver',
+                  'Kiem tra hang va thanh toan truc tiep cho shipper',
                   style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BankTransferInfo extends StatelessWidget {
+  const _BankTransferInfo();
+
+  @override
+  Widget build(BuildContext context) {
+    return const _PaymentNotice(
+      icon: Icons.account_balance_rounded,
+      title: 'Chuyen khoan ngan hang',
+      message: 'Thong tin tai khoan se duoc gui sau khi don hang duoc tao.',
+    );
+  }
+}
+
+class _EWalletInfo extends StatelessWidget {
+  const _EWalletInfo();
+
+  @override
+  Widget build(BuildContext context) {
+    return const _PaymentNotice(
+      icon: Icons.account_balance_wallet_rounded,
+      title: 'Vi dien tu',
+      message: 'Ho tro MoMo, ZaloPay va VNPay trong giai doan tich hop sau.',
+    );
+  }
+}
+
+class _PaymentNotice extends StatelessWidget {
+  const _PaymentNotice({
+    required this.icon,
+    required this.title,
+    required this.message,
+  });
+
+  final IconData icon;
+  final String title;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface2,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.neon.withAlpha(51)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.neon.withAlpha(26),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: AppColors.neon, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  message,
+                  style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                   ),
@@ -351,39 +442,39 @@ class _PaymentMethodSection extends StatelessWidget {
     return Column(
       children: [
         _PaymentOption(
-          value: 'credit_card',
-          icon: Icons.credit_card,
-          title: 'Credit / Debit Card',
-          subtitle: 'Pay with Visa, Mastercard, Amex',
-          isSelected: selectedMethod == 'credit_card',
-          onTap: () => onMethodChanged('credit_card'),
-        ),
-        const SizedBox(height: 12),
-        _PaymentOption(
-          value: 'paypal',
-          icon: Icons.payments,
-          title: 'PayPal',
-          subtitle: 'Fast checkout with PayPal',
-          isSelected: selectedMethod == 'paypal',
-          onTap: () => onMethodChanged('paypal'),
-        ),
-        const SizedBox(height: 12),
-        _PaymentOption(
-          value: 'digital_wallet',
-          icon: Icons.wallet,
-          title: 'Digital Wallet',
-          subtitle: 'Apple Pay, Google Pay',
-          isSelected: selectedMethod == 'digital_wallet',
-          onTap: () => onMethodChanged('digital_wallet'),
-        ),
-        const SizedBox(height: 12),
-        _PaymentOption(
           value: 'cash',
           icon: Icons.money,
-          title: 'Cash on Delivery',
-          subtitle: 'Pay when you receive the order',
+          title: 'Thanh toan khi nhan hang',
+          subtitle: 'Nhan hang roi thanh toan cho shipper',
           isSelected: selectedMethod == 'cash',
           onTap: () => onMethodChanged('cash'),
+        ),
+        const SizedBox(height: 12),
+        _PaymentOption(
+          value: 'bank_transfer',
+          icon: Icons.account_balance_rounded,
+          title: 'Chuyen khoan ngan hang',
+          subtitle: 'Phu hop voi don gia tri cao',
+          isSelected: selectedMethod == 'bank_transfer',
+          onTap: () => onMethodChanged('bank_transfer'),
+        ),
+        const SizedBox(height: 12),
+        _PaymentOption(
+          value: 'e_wallet',
+          icon: Icons.account_balance_wallet_rounded,
+          title: 'Vi dien tu',
+          subtitle: 'MoMo, ZaloPay, VNPay',
+          isSelected: selectedMethod == 'e_wallet',
+          onTap: () => onMethodChanged('e_wallet'),
+        ),
+        const SizedBox(height: 12),
+        _PaymentOption(
+          value: 'credit_card',
+          icon: Icons.credit_card,
+          title: 'The tin dung / ghi no',
+          subtitle: 'Visa, Mastercard',
+          isSelected: selectedMethod == 'credit_card',
+          onTap: () => onMethodChanged('credit_card'),
         ),
       ],
     );
@@ -722,8 +813,16 @@ class _PlaceOrderButton extends StatelessWidget {
 
                 // Process checkout
                 final checkoutService = CheckoutService();
+                final shippingAddress = [
+                  shippingData?['street'],
+                  shippingData?['district'],
+                  shippingData?['city'],
+                  shippingData?['country'],
+                ].where((part) => part != null && part.isNotEmpty).join(', ');
                 final success = await checkoutService.processCheckout(
-                  shippingAddress: shippingData?['address'] ?? 'No address provided',
+                  shippingAddress: shippingAddress.isEmpty
+                      ? 'No address provided'
+                      : shippingAddress,
                   phoneNumber: shippingData?['phone'] ?? 'No phone provided',
                   shippingCost: shippingCost,
                 );
@@ -771,7 +870,7 @@ class _PlaceOrderButton extends StatelessWidget {
                 ),
               )
             : const Text(
-                'PLACE ORDER',
+                'DAT HANG',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 18,
