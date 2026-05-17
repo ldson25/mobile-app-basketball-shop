@@ -93,6 +93,14 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateAvatar(String avatarPath) {
+    final user = _currentUser;
+    if (user == null) return;
+
+    _currentUser = user.copyWith(avatarUrl: avatarPath);
+    notifyListeners();
+  }
+
   // Check if user is logged in
   Future<bool> checkAuthStatus() async {
     // Check saved token/session here

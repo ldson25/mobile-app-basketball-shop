@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../core/theme/app_colors.dart';
 import '../../../services/auth_service.dart';
+import '../about/about_us.dart';
 import '../cart/mycart.dart';
-import '../profile/profile.dart';
 import '../auth/presentation/login.dart';
 
 class MenuDrawer extends StatelessWidget {
@@ -15,6 +17,7 @@ class MenuDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     final user = authService.currentUser;
+    final avatarUrl = user?.avatarUrl;
 
     return Drawer(
       backgroundColor: AppColors.surface2,
@@ -41,30 +44,25 @@ class MenuDrawer extends StatelessWidget {
                       border: Border.all(color: AppColors.neon, width: 2),
                     ),
                     child: ClipOval(
-                      child: user?.avatarUrl != null
-                          ? Image.network(
-                              user!.avatarUrl!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => Container(
-                                color: AppColors.background,
-                                child: const Icon(
-                                  Icons.person,
-                                  size: 30,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            )
+                      child: avatarUrl != null
+                          ? avatarUrl.startsWith('http')
+                              ? Image.network(
+                                  avatarUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const _DrawerAvatarFallback(),
+                                )
+                              : Image.file(
+                                  File(avatarUrl),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const _DrawerAvatarFallback(),
+                                )
                           : Image.asset(
                               'assets/images/profile/avatar.png',
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => Container(
-                                color: AppColors.background,
-                                child: const Icon(
-                                  Icons.person,
-                                  size: 30,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const _DrawerAvatarFallback(),
                             ),
                     ),
                   ),
@@ -133,7 +131,13 @@ class MenuDrawer extends StatelessWidget {
             _MenuDrawerItem(
               icon: Icons.shopping_bag,
               label: 'My Cart',
-              onTap: () => onMenuItemTap(2),
+              onTap: () {
+                final rootNavigator = Navigator.of(context, rootNavigator: true);
+                Navigator.pop(context);
+                rootNavigator.push(
+                  MaterialPageRoute(builder: (context) => const CartScreen()),
+                );
+              },
             ),
             _MenuDrawerItem(
               icon: Icons.person,
@@ -177,8 +181,10 @@ class MenuDrawer extends StatelessWidget {
               icon: Icons.info_outline,
               label: 'About Us',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Coming soon!')),
+                final rootNavigator = Navigator.of(context, rootNavigator: true);
+                Navigator.pop(context);
+                rootNavigator.push(
+                  MaterialPageRoute(builder: (context) => const AboutUsScreen()),
                 );
               },
             ),
@@ -189,12 +195,18 @@ class MenuDrawer extends StatelessWidget {
               icon: Icons.logout,
               label: 'Sign Out',
               onTap: () async {
+                final rootNavigator = Navigator.of(context, rootNavigator: true);
+                final authService = Provider.of<AuthService>(
+                  context,
+                  listen: false,
+                );
+
                 // Close drawer first
                 Navigator.pop(context);
-                
+
                 // Show confirmation dialog
                 final confirm = await showDialog<bool>(
-                  context: context,
+                  context: rootNavigator.context,
                   builder: (context) => AlertDialog(
                     backgroundColor: AppColors.surface,
                     title: const Text(
@@ -222,12 +234,10 @@ class MenuDrawer extends StatelessWidget {
                 );
 
                 if (confirm == true) {
-                  final authService = Provider.of<AuthService>(context, listen: false);
                   await authService.logout();
-                  
+
                   // Navigate to login screen and remove all previous screens
-                  Navigator.pushAndRemoveUntil(
-                    context,
+                  rootNavigator.pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => const LoginScreen()),
                     (route) => false,
                   );
@@ -237,6 +247,22 @@ class MenuDrawer extends StatelessWidget {
             const SizedBox(height: 16),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _DrawerAvatarFallback extends StatelessWidget {
+  const _DrawerAvatarFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppColors.background,
+      child: const Icon(
+        Icons.person,
+        size: 30,
+        color: Colors.grey,
       ),
     );
   }

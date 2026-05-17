@@ -26,6 +26,28 @@ class UserModel {
 
   bool get isAdmin => role == UserRole.admin;
 
+  UserModel copyWith({
+    String? id,
+    String? email,
+    String? fullName,
+    String? phoneNumber,
+    String? avatarUrl,
+    DateTime? createdAt,
+    bool? isEarlyAccess,
+    UserRole? role,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      fullName: fullName ?? this.fullName,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      createdAt: createdAt ?? this.createdAt,
+      isEarlyAccess: isEarlyAccess ?? this.isEarlyAccess,
+      role: role ?? this.role,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
