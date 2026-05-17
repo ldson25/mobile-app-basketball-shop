@@ -8,6 +8,7 @@ import '../../../widgets/glow_button.dart';
 import '../../../widgets/section_card.dart';
 import '../../auth/presentation/login.dart';
 import '../presentation/widgets/admin_widgets.dart';
+import '../voucher_management/admin_voucher_management_page.dart';
 
 class AdminSettingsPage extends StatefulWidget {
   const AdminSettingsPage({super.key});
@@ -26,101 +27,115 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return AdminPageScaffold(
-      title: 'ADMIN\nSETTINGS',
-      subtitle: 'Roles, payment, shipping and storefront config',
+      title: 'CÀI ĐẶT\nADMIN',
+      subtitle: 'Quyền truy cập, thanh toán, giao hàng và cấu hình cửa hàng',
       children: [
         const AdminMetricCard(
-          label: 'System status',
-          value: 'Online',
+          label: 'Trạng thái hệ thống',
+          value: 'Đang hoạt động',
           icon: Icons.verified_rounded,
-          delta: 'Ready for Firebase integration',
+          delta: 'Sẵn sàng tích hợp Firebase',
         ),
         const SizedBox(height: AppSizes.sectionGap),
-        const AdminSectionTitle(eyebrow: 'Store', title: 'App config'),
+        const AdminSectionTitle(eyebrow: 'Cửa hàng', title: 'Cấu hình app'),
         const SizedBox(height: 14),
         _SettingsSwitch(
           icon: Icons.construction_rounded,
-          title: 'Maintenance mode',
-          subtitle: 'Temporarily lock user shopping flows',
+          title: 'Chế độ bảo trì',
+          subtitle: 'Tạm khóa luồng mua hàng của user',
           value: _maintenanceMode,
           onChanged: (value) => setState(() => _maintenanceMode = value),
         ),
         const SizedBox(height: 12),
         _SettingsTile(
           icon: Icons.store_rounded,
-          title: 'Store profile',
-          subtitle: 'Store name, currency, support contact',
+          title: 'Hồ sơ cửa hàng',
+          subtitle: 'Tên cửa hàng, tiền tệ, liên hệ hỗ trợ',
           onTap: () => _showStoreProfile(context),
         ),
         const SizedBox(height: 12),
         _SettingsTile(
           icon: Icons.image_rounded,
-          title: 'Home banners',
-          subtitle: 'Hero banner, editorial blocks, active dates',
+          title: 'Banner trang chủ',
+          subtitle: 'Hero banner, khối nội dung, thời gian hiển thị',
           onTap: () => _showBannerSheet(context),
         ),
         const SizedBox(height: AppSizes.sectionGap),
-        const AdminSectionTitle(eyebrow: 'Checkout', title: 'Payment methods'),
+        const AdminSectionTitle(eyebrow: 'Thanh toán', title: 'Phương thức thanh toán'),
         const SizedBox(height: 14),
         _SettingsSwitch(
           icon: Icons.money_rounded,
-          title: 'Cash on delivery',
-          subtitle: 'Allow users to pay when receiving order',
+          title: 'Thanh toán khi nhận hàng',
+          subtitle: 'Cho phép user thanh toán khi nhận đơn',
           value: _codEnabled,
           onChanged: (value) => setState(() => _codEnabled = value),
         ),
         const SizedBox(height: 12),
         _SettingsSwitch(
           icon: Icons.account_balance_rounded,
-          title: 'Bank transfer',
-          subtitle: 'Manual confirmation after transfer',
+          title: 'Chuyển khoản ngân hàng',
+          subtitle: 'Admin xác nhận thủ công sau khi chuyển khoản',
           value: _bankTransferEnabled,
           onChanged: (value) => setState(() => _bankTransferEnabled = value),
         ),
         const SizedBox(height: 12),
         _SettingsSwitch(
           icon: Icons.account_balance_wallet_rounded,
-          title: 'E-wallets',
-          subtitle: 'MoMo, ZaloPay, VNPay integration',
+          title: 'Ví điện tử',
+          subtitle: 'Tích hợp MoMo, ZaloPay, VNPay',
           value: _eWalletEnabled,
           onChanged: (value) => setState(() => _eWalletEnabled = value),
         ),
+        const SizedBox(height: 12),
+        _SettingsTile(
+          icon: Icons.local_offer_rounded,
+          title: 'Quan ly voucher',
+          subtitle: 'Ma giam gia cho Member, VIP va tat ca user',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AdminVoucherManagementPage(),
+              ),
+            );
+          },
+        ),
         const SizedBox(height: AppSizes.sectionGap),
-        const AdminSectionTitle(eyebrow: 'Shipping', title: 'Delivery rules'),
+        const AdminSectionTitle(eyebrow: 'Giao hàng', title: 'Quy tắc vận chuyển'),
         const SizedBox(height: 14),
         _SettingsSwitch(
           icon: Icons.local_shipping_rounded,
-          title: 'Free standard shipping',
-          subtitle: 'Default shipping policy for Viet Nam',
+          title: 'Miễn phí giao hàng tiêu chuẩn',
+          subtitle: 'Chính sách mặc định tại Việt Nam',
           value: _freeShippingEnabled,
           onChanged: (value) => setState(() => _freeShippingEnabled = value),
         ),
         const SizedBox(height: 12),
         _SettingsTile(
           icon: Icons.map_rounded,
-          title: 'Supported regions',
-          subtitle: 'Cities, districts and delivery fees',
+          title: 'Khu vực hỗ trợ',
+          subtitle: 'Tỉnh thành, quận huyện và phí giao hàng',
           onTap: () => _showShippingSheet(context),
         ),
         const SizedBox(height: AppSizes.sectionGap),
-        const AdminSectionTitle(eyebrow: 'Security', title: 'Admin roles'),
+        const AdminSectionTitle(eyebrow: 'Bảo mật', title: 'Quyền admin'),
         const SizedBox(height: 14),
         _SettingsTile(
           icon: Icons.admin_panel_settings_rounded,
-          title: 'Manage staff roles',
-          subtitle: 'Admin, operations, customer care',
+          title: 'Quản lý quyền nhân sự',
+          subtitle: 'Admin, vận hành, chăm sóc khách hàng',
           onTap: () => _showRoleSheet(context),
         ),
         const SizedBox(height: 12),
         _SettingsTile(
           icon: Icons.history_rounded,
-          title: 'Activity log',
-          subtitle: 'Audit changes from admin accounts',
+          title: 'Nhật ký hoạt động',
+          subtitle: 'Theo dõi thay đổi từ tài khoản admin',
           onTap: () => _showActivitySheet(context),
         ),
         const SizedBox(height: AppSizes.sectionGap),
         GlowButton(
-          label: 'SIGN OUT ADMIN',
+          label: 'ĐĂNG XUẤT ADMIN',
           icon: Icons.logout_rounded,
           expanded: true,
           isPrimary: false,
@@ -134,13 +149,13 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   void _showStoreProfile(BuildContext context) {
     _showConfigSheet(
       context,
-      title: 'Store profile',
+      title: 'Hồ sơ cửa hàng',
       children: const [
-        _ConfigInput(label: 'Store name', value: 'Kinetic'),
+        _ConfigInput(label: 'Tên cửa hàng', value: 'Kinetic'),
         SizedBox(height: 12),
-        _ConfigInput(label: 'Currency', value: 'VND'),
+        _ConfigInput(label: 'Tiền tệ', value: 'VND'),
         SizedBox(height: 12),
-        _ConfigInput(label: 'Support phone', value: '1900 0000'),
+        _ConfigInput(label: 'Số hỗ trợ', value: '1900 0000'),
       ],
     );
   }
@@ -148,13 +163,13 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   void _showBannerSheet(BuildContext context) {
     _showConfigSheet(
       context,
-      title: 'Home banners',
+      title: 'Banner trang chủ',
       children: const [
-        _BannerConfig(label: 'Hero banner', status: 'Active'),
+        _BannerConfig(label: 'Hero banner', status: 'Đang bật'),
         SizedBox(height: 10),
-        _BannerConfig(label: 'Street series block', status: 'Scheduled'),
+        _BannerConfig(label: 'Khối Street series', status: 'Đã lên lịch'),
         SizedBox(height: 10),
-        _BannerConfig(label: 'Best seller rail', status: 'Active'),
+        _BannerConfig(label: 'Dải bán chạy', status: 'Đang bật'),
       ],
     );
   }
@@ -162,13 +177,13 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   void _showShippingSheet(BuildContext context) {
     _showConfigSheet(
       context,
-      title: 'Shipping rules',
+      title: 'Quy tắc giao hàng',
       children: const [
-        _ConfigInput(label: 'Standard fee', value: '0'),
+        _ConfigInput(label: 'Phí tiêu chuẩn', value: '0'),
         SizedBox(height: 12),
-        _ConfigInput(label: 'Express fee', value: '30000'),
+        _ConfigInput(label: 'Phí giao nhanh', value: '30000'),
         SizedBox(height: 12),
-        _ConfigInput(label: 'Supported cities', value: 'Ho Chi Minh, Ha Noi'),
+        _ConfigInput(label: 'Tỉnh thành hỗ trợ', value: 'TP. Hồ Chí Minh, Hà Nội'),
       ],
     );
   }
@@ -176,13 +191,13 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   void _showRoleSheet(BuildContext context) {
     _showConfigSheet(
       context,
-      title: 'Admin roles',
+      title: 'Quyền admin',
       children: const [
-        _RoleTile(email: 'admin@kinetic.app', role: 'Owner'),
+        _RoleTile(email: 'admin@kinetic.app', role: 'Chủ sở hữu'),
         SizedBox(height: 10),
-        _RoleTile(email: 'ops@kinetic.app', role: 'Operations'),
+        _RoleTile(email: 'ops@kinetic.app', role: 'Vận hành'),
         SizedBox(height: 10),
-        _RoleTile(email: 'care@kinetic.app', role: 'Customer care'),
+        _RoleTile(email: 'care@kinetic.app', role: 'CSKH'),
       ],
     );
   }
@@ -190,13 +205,13 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   void _showActivitySheet(BuildContext context) {
     _showConfigSheet(
       context,
-      title: 'Activity log',
+      title: 'Nhật ký hoạt động',
       children: const [
-        _ActivityTile(text: 'admin@kinetic.app changed shipping fee'),
+        _ActivityTile(text: 'admin@kinetic.app đã đổi phí giao hàng'),
         SizedBox(height: 10),
-        _ActivityTile(text: 'ops@kinetic.app confirmed #ORD-8821'),
+        _ActivityTile(text: 'ops@kinetic.app đã xác nhận #ORD-8821'),
         SizedBox(height: 10),
-        _ActivityTile(text: 'care@kinetic.app blocked Liam W.'),
+        _ActivityTile(text: 'care@kinetic.app đã khóa Phạm An'),
       ],
     );
   }
@@ -225,12 +240,12 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              AdminSectionTitle(eyebrow: 'Settings', title: title),
+              AdminSectionTitle(eyebrow: 'Cài đặt', title: title),
               const SizedBox(height: 18),
               ...children,
               const SizedBox(height: 18),
               GlowButton(
-                label: 'SAVE SETTINGS',
+                label: 'LƯU CÀI ĐẶT',
                 icon: Icons.save_rounded,
                 expanded: true,
                 onPressed: () => Navigator.pop(context),
@@ -248,22 +263,22 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: const Text(
-          'Sign out admin',
+          'Đăng xuất admin',
           style: TextStyle(color: AppColors.textPrimary),
         ),
         content: const Text(
-          'Do you want to leave the admin area?',
+          'Bạn có muốn rời khỏi khu vực admin không?',
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('CANCEL'),
+            child: const Text('HỦY'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text(
-              'SIGN OUT',
+              'ĐĂNG XUẤT',
               style: TextStyle(color: AppColors.error),
             ),
           ),

@@ -66,7 +66,7 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 icon: const Icon(Icons.menu, color: AppColors.textPrimary),
               ),
               const Text(
-                'MY PROFILE',
+                'HỒ SƠ',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 20,
@@ -127,7 +127,7 @@ class _ProfileHeader extends StatelessWidget {
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'UPDATE PROFILE PHOTO',
+                    'CẬP NHẬT ẢNH ĐẠI DIỆN',
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 16,
@@ -139,7 +139,7 @@ class _ProfileHeader extends StatelessWidget {
                 const SizedBox(height: 16),
                 _AvatarSourceTile(
                   icon: Icons.photo_library_rounded,
-                  label: 'Choose from gallery',
+                  label: 'Chọn từ thư viện',
                   onTap: () {
                     Navigator.pop(context);
                     _pickAvatar(context, ImageSource.gallery);
@@ -148,7 +148,7 @@ class _ProfileHeader extends StatelessWidget {
                 const SizedBox(height: 10),
                 _AvatarSourceTile(
                   icon: Icons.photo_camera_rounded,
-                  label: 'Take a photo',
+                  label: 'Chụp ảnh mới',
                   onTap: () {
                     Navigator.pop(context);
                     _pickAvatar(context, ImageSource.camera);
@@ -180,7 +180,7 @@ class _ProfileHeader extends StatelessWidget {
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not update profile photo')),
+        const SnackBar(content: Text('Không thể cập nhật ảnh đại diện')),
       );
     }
   }
@@ -264,7 +264,7 @@ class _ProfileHeader extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          user?.fullName.toUpperCase() ?? 'GUEST USER',
+          user?.fullName.toUpperCase() ?? 'KHÁCH',
           style: const TextStyle(
             fontFamily: 'Space Grotesk',
             fontSize: 28,
@@ -275,31 +275,30 @@ class _ProfileHeader extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          user?.email ?? 'No email',
+          user?.email ?? 'Chưa có email',
           style: const TextStyle(
             fontSize: 14,
             color: AppColors.textSecondary,
           ),
         ),
         const SizedBox(height: 12),
-        if (user?.isEarlyAccess ?? false)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.neon.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: AppColors.neon),
-            ),
-            child: const Text(
-              'EARLY ACCESS MEMBER',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.2,
-                color: AppColors.neon,
-              ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppColors.neon.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: AppColors.neon),
+          ),
+          child: Text(
+            user?.membershipLabel ?? 'MEMBER',
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.2,
+              color: AppColors.neon,
             ),
           ),
+        ),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: () => _showAvatarSourceSheet(context),
@@ -310,7 +309,7 @@ class _ProfileHeader extends StatelessWidget {
               borderRadius: BorderRadius.circular(999),
             ),
             child: const Text(
-              'EDIT PROFILE',
+              'SỬA HỒ SƠ',
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w900,
@@ -336,7 +335,7 @@ class _NavigationMenu extends StatelessWidget {
       children: [
         _MenuItem(
           icon: Icons.favorite,
-          label: 'Favorites',
+          label: 'Yêu thích',
           onTap: () {
             Navigator.push(
               context,
@@ -349,7 +348,7 @@ class _NavigationMenu extends StatelessWidget {
         const SizedBox(height: 8),
         _MenuItem(
           icon: Icons.location_on,
-          label: 'Shipping Addresses',
+          label: 'Địa chỉ giao hàng',
           onTap: () {
             Navigator.push(
               context,
@@ -362,7 +361,7 @@ class _NavigationMenu extends StatelessWidget {
         const SizedBox(height: 8),
         _MenuItem(
           icon: Icons.credit_card,
-          label: 'Payment Methods',
+          label: 'Phương thức thanh toán',
           onTap: () {
             Navigator.push(
               context,
@@ -375,10 +374,10 @@ class _NavigationMenu extends StatelessWidget {
         const SizedBox(height: 8),
         _MenuItem(
           icon: Icons.settings,
-          label: 'Settings',
+          label: 'Cài đặt',
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Coming soon!')),
+              const SnackBar(content: Text('Chức năng sẽ được bổ sung sau')),
             );
           },
         ),
@@ -455,22 +454,22 @@ class _SignOutButton extends StatelessWidget {
           builder: (context) => AlertDialog(
             backgroundColor: AppColors.surface,
             title: const Text(
-              'Sign Out',
+              'Đăng xuất',
               style: TextStyle(color: Colors.white),
             ),
             content: const Text(
-              'Are you sure you want to sign out?',
+              'Bạn có chắc muốn đăng xuất?',
               style: TextStyle(color: AppColors.textSecondary),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('CANCEL'),
+                child: const Text('HỦY'),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
                 child: const Text(
-                  'SIGN OUT',
+                  'ĐĂNG XUẤT',
                   style: TextStyle(color: AppColors.error),
                 ),
               ),
@@ -505,7 +504,7 @@ class _SignOutButton extends StatelessWidget {
             ),
             SizedBox(width: 8),
             Text(
-              'SIGN OUT',
+              'ĐĂNG XUẤT',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,

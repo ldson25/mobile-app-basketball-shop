@@ -74,7 +74,7 @@ class _CustomAppBar extends StatelessWidget {
             ),
             const Center(
               child: Text(
-                'DISCOVER',
+                'KHÁM PHÁ',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 24,
@@ -134,7 +134,7 @@ class _SearchSection extends StatelessWidget {
             child: TextField(
               style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
-                hintText: 'FIND YOUR SPEED',
+                hintText: 'TÌM SẢN PHẨM',
                 hintStyle: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -153,7 +153,7 @@ class _SearchSection extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ResultsDiscoverScreen(
-                        categoryName: 'SEARCH RESULTS',
+                        categoryName: 'KẾT QUẢ TÌM KIẾM',
                         itemCount: 42,
                         searchKeyword: value,
                       ),
@@ -193,7 +193,7 @@ class _SearchSection extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'FILTER SEARCH',
+                'BỘ LỌC TÌM KIẾM',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -203,7 +203,10 @@ class _SearchSection extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               // Thêm các filter options ở đây
-              const Text('Filter options will be added here'),
+              const Text(
+                'Tùy chọn lọc sẽ được bổ sung sau',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
@@ -211,7 +214,7 @@ class _SearchSection extends StatelessWidget {
                   backgroundColor: AppColors.neon,
                   foregroundColor: AppColors.background,
                 ),
-                child: const Text('APPLY'),
+                child: const Text('ÁP DỤNG'),
               ),
             ],
           ),
@@ -230,7 +233,7 @@ class _CategoriesSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'CATEGORIES',
+          'DANH MỤC',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -250,7 +253,7 @@ class _CategoriesSection extends StatelessWidget {
             children: [
               _CategoryItem(
                 icon: Icons.bolt,
-                label: 'FOOTWEAR',
+                label: 'GIÀY',
                 categoryName: 'Footwear',
                 onTap: () {
                   _navigateToResults(context, 'Footwear');
@@ -258,7 +261,7 @@ class _CategoriesSection extends StatelessWidget {
               ),
               _CategoryItem(
                 icon: Icons.checkroom,
-                label: 'APPAREL',
+                label: 'TRANG PHỤC',
                 categoryName: 'Apparel',
                 onTap: () {
                   _navigateToResults(context, 'Apparel');
@@ -266,7 +269,7 @@ class _CategoriesSection extends StatelessWidget {
               ),
               _CategoryItem(
                 icon: Icons.sports_basketball,
-                label: 'EQUIPMENT',
+                label: 'PHỤ KIỆN',
                 categoryName: 'Equipment',
                 onTap: () {
                   _navigateToResults(context, 'Equipment');
@@ -353,7 +356,7 @@ class _CategoryItem extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '$itemCount items',
+                      '$itemCount sản phẩm',
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,

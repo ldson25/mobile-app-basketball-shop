@@ -12,7 +12,7 @@ class AboutUsScreen extends StatelessWidget {
 
   static const String storeName = 'KINETIC FLAGSHIP';
   static const String address =
-      '72 Le Thanh Ton, Ben Nghe, District 1, Ho Chi Minh City';
+      '72 Lê Thánh Tôn, phường Bến Nghé, Quận 1, TP. Hồ Chí Minh';
   static const double latitude = 10.7769;
   static const double longitude = 106.7009;
   static const LatLng _storePosition = LatLng(latitude, longitude);
@@ -38,7 +38,7 @@ class AboutUsScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_rounded),
         ),
         title: const Text(
-          'ABOUT US',
+          'VỀ CHÚNG TÔI',
           style: TextStyle(
             color: AppColors.neon,
             fontWeight: FontWeight.w900,
@@ -66,7 +66,7 @@ class AboutUsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Performance gear, basketball culture, and everyday training essentials built around the Kinetic community.',
+              'Trang bị thi đấu, văn hóa bóng rổ và những sản phẩm tập luyện hằng ngày dành cho cộng đồng Kinetic.',
               style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 16,
@@ -100,14 +100,14 @@ class AboutUsScreen extends StatelessWidget {
                 children: [
                   const _InfoRow(
                     icon: Icons.location_on_rounded,
-                    label: 'Store address',
+                    label: 'Địa chỉ cửa hàng',
                     value: address,
                   ),
                   const SizedBox(height: 18),
                   const _InfoRow(
                     icon: Icons.schedule_rounded,
-                    label: 'Opening hours',
-                    value: 'Mon - Sun / 09:00 - 21:30',
+                    label: 'Giờ mở cửa',
+                    value: 'Thứ 2 - Chủ nhật / 09:00 - 21:30',
                   ),
                   const SizedBox(height: 18),
                   const _InfoRow(
@@ -117,13 +117,13 @@ class AboutUsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   GlowButton(
-                    label: 'COPY ADDRESS',
+                    label: 'SAO CHÉP ĐỊA CHỈ',
                     icon: Icons.copy_rounded,
                     expanded: true,
                     onPressed: () {
                       Clipboard.setData(const ClipboardData(text: address));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Address copied')),
+                        const SnackBar(content: Text('Đã sao chép địa chỉ')),
                       );
                     },
                   ),
@@ -137,7 +137,7 @@ class AboutUsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'OUR MISSION',
+                    'SỨ MỆNH',
                     style: TextStyle(
                       color: AppColors.neon,
                       fontSize: 11,
@@ -147,7 +147,7 @@ class AboutUsScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'We curate products for players who care about speed, control, durability, and style on every court.',
+                    'Chúng tôi chọn lọc sản phẩm cho người chơi đề cao tốc độ, kiểm soát, độ bền và phong cách trên mọi sân đấu.',
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       height: 1.45,

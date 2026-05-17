@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
-import '../../../services/auth_service.dart';
+import '../../services/auth_service.dart';
 import '../about/about_us.dart';
 import '../cart/mycart.dart';
 import '../auth/presentation/login.dart';
@@ -72,7 +72,7 @@ class MenuDrawer extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          user?.fullName.toUpperCase() ?? 'GUEST USER',
+                          user?.fullName.toUpperCase() ?? 'KHÁCH',
                           style: const TextStyle(
                             fontFamily: 'Space Grotesk',
                             fontSize: 16,
@@ -84,7 +84,7 @@ class MenuDrawer extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          user?.email ?? 'Not signed in',
+                          user?.email ?? 'Chưa đăng nhập',
                           style: const TextStyle(
                             fontSize: 11,
                             color: AppColors.textSecondary,
@@ -92,18 +92,18 @@ class MenuDrawer extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (user?.isEarlyAccess ?? false)
+                        if (user != null)
                           const SizedBox(height: 4),
-                        if (user?.isEarlyAccess ?? false)
+                        if (user != null)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
                               color: AppColors.neon.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(999),
                             ),
-                            child: const Text(
-                              'ELITE',
-                              style: TextStyle(
+                            child: Text(
+                              user.membershipLabel,
+                              style: const TextStyle(
                                 fontSize: 8,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.neon,
@@ -120,17 +120,17 @@ class MenuDrawer extends StatelessWidget {
             // Menu Items
             _MenuDrawerItem(
               icon: Icons.home,
-              label: 'Home',
+              label: 'Trang chủ',
               onTap: () => onMenuItemTap(0),
             ),
             _MenuDrawerItem(
               icon: Icons.search,
-              label: 'Discover',
+              label: 'Khám phá',
               onTap: () => onMenuItemTap(1),
             ),
             _MenuDrawerItem(
               icon: Icons.shopping_bag,
-              label: 'My Cart',
+              label: 'Giỏ hàng',
               onTap: () {
                 final rootNavigator = Navigator.of(context, rootNavigator: true);
                 Navigator.pop(context);
@@ -141,7 +141,7 @@ class MenuDrawer extends StatelessWidget {
             ),
             _MenuDrawerItem(
               icon: Icons.person,
-              label: 'Profile',
+              label: 'Hồ sơ',
               onTap: () => onMenuItemTap(3),
             ),
             const Divider(color: AppColors.border, height: 32),
@@ -149,7 +149,7 @@ class MenuDrawer extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 24),
               child: Text(
-                'OTHER',
+                'KHÁC',
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
@@ -161,25 +161,25 @@ class MenuDrawer extends StatelessWidget {
             const SizedBox(height: 8),
             _MenuDrawerItem(
               icon: Icons.settings,
-              label: 'Settings',
+              label: 'Cài đặt',
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Coming soon!')),
+                  const SnackBar(content: Text('Chức năng sẽ được bổ sung sau')),
                 );
               },
             ),
             _MenuDrawerItem(
               icon: Icons.help_outline,
-              label: 'Support',
+              label: 'Hỗ trợ',
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Coming soon!')),
+                  const SnackBar(content: Text('Chức năng sẽ được bổ sung sau')),
                 );
               },
             ),
             _MenuDrawerItem(
               icon: Icons.info_outline,
-              label: 'About Us',
+              label: 'Về chúng tôi',
               onTap: () {
                 final rootNavigator = Navigator.of(context, rootNavigator: true);
                 Navigator.pop(context);
@@ -193,7 +193,7 @@ class MenuDrawer extends StatelessWidget {
             const Divider(color: AppColors.border),
             _MenuDrawerItem(
               icon: Icons.logout,
-              label: 'Sign Out',
+              label: 'Đăng xuất',
               onTap: () async {
                 final rootNavigator = Navigator.of(context, rootNavigator: true);
                 final authService = Provider.of<AuthService>(
@@ -210,22 +210,22 @@ class MenuDrawer extends StatelessWidget {
                   builder: (context) => AlertDialog(
                     backgroundColor: AppColors.surface,
                     title: const Text(
-                      'Sign Out',
+                      'Đăng xuất',
                       style: TextStyle(color: Colors.white),
                     ),
                     content: const Text(
-                      'Are you sure you want to sign out?',
+                      'Bạn có chắc muốn đăng xuất?',
                       style: TextStyle(color: AppColors.textSecondary),
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
-                        child: const Text('CANCEL'),
+                        child: const Text('HỦY'),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(context, true),
                         child: const Text(
-                          'SIGN OUT',
+                          'ĐĂNG XUẤT',
                           style: TextStyle(color: AppColors.error),
                         ),
                       ),
@@ -291,7 +291,7 @@ class _MenuDrawerItem extends StatelessWidget {
           color: Colors.white,
         ),
       ),
-      trailing: label != 'Sign Out'
+      trailing: label != 'Đăng xuất'
           ? const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20)
           : null,
       onTap: onTap,

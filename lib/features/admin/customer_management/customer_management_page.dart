@@ -16,53 +16,53 @@ class AdminCustomerManagementPage extends StatefulWidget {
 
 class _AdminCustomerManagementPageState
     extends State<AdminCustomerManagementPage> {
-  String _segment = 'All';
+  String _segment = 'Tất cả';
 
   final List<_AdminCustomer> _customers = const [
     _AdminCustomer(
-      name: 'Marcus V.',
+      name: 'Nguyễn Minh',
       email: 'marcus@kinetic.app',
       phone: '0901000001',
       status: 'VIP',
       color: AppColors.neon,
       totalOrders: 12,
-      totalSpent: '\$2.840',
-      lastOrder: 'OCT 24, 2023',
+      totalSpent: '71.000.000đ',
+      lastOrder: '24/10/2023',
     ),
     _AdminCustomer(
-      name: 'Elena S.',
+      name: 'Trần Hoàng',
       email: 'elena@kinetic.app',
       phone: '0901000002',
-      status: 'Active',
+      status: 'Member',
       color: AppColors.neon,
       totalOrders: 5,
-      totalSpent: '\$980',
-      lastOrder: 'OCT 23, 2023',
+      totalSpent: '24.500.000đ',
+      lastOrder: '23/10/2023',
     ),
     _AdminCustomer(
-      name: 'Jordan K.',
+      name: 'Lê Quốc',
       email: 'jordan@kinetic.app',
       phone: '0901000003',
-      status: 'New',
+      status: 'Member',
       color: AppColors.warning,
       totalOrders: 2,
-      totalSpent: '\$355',
-      lastOrder: 'OCT 21, 2023',
+      totalSpent: '8.875.000đ',
+      lastOrder: '21/10/2023',
     ),
     _AdminCustomer(
-      name: 'Liam W.',
+      name: 'Phạm An',
       email: 'liam@kinetic.app',
       phone: '0901000004',
-      status: 'Blocked',
+      status: 'Đã khóa',
       color: AppColors.error,
       totalOrders: 1,
-      totalSpent: '\$120',
-      lastOrder: 'OCT 20, 2023',
+      totalSpent: '3.000.000đ',
+      lastOrder: '20/10/2023',
     ),
   ];
 
   List<_AdminCustomer> get _visibleCustomers {
-    if (_segment == 'All') return _customers;
+    if (_segment == 'Tất cả') return _customers;
     return _customers.where((customer) => customer.status == _segment).toList();
   }
 
@@ -71,10 +71,10 @@ class _AdminCustomerManagementPageState
     final customers = _visibleCustomers;
 
     return AdminPageScaffold(
-      title: 'CUSTOMER\nMANAGEMENT',
-      subtitle: 'Profiles, membership and order history',
+      title: 'QUẢN LÝ\nKHÁCH HÀNG',
+      subtitle: 'Hồ sơ, hạng thành viên và lịch sử đơn hàng',
       children: [
-        const AdminSearchField(hint: 'Search name, email or phone number...'),
+        const AdminSearchField(hint: 'Tìm tên, email hoặc số điện thoại...'),
         const SizedBox(height: 14),
         _CustomerSegmentFilter(
           selected: _segment,
@@ -82,21 +82,21 @@ class _AdminCustomerManagementPageState
         ),
         const SizedBox(height: AppSizes.sectionGap),
         const AdminMetricCard(
-          label: 'Total customers',
+          label: 'Tổng khách hàng',
           value: '1.284',
           icon: Icons.groups_rounded,
-          delta: '+36 customers this week',
+          delta: '+36 khách hàng tuần này',
         ),
         const SizedBox(height: 14),
         const AdminMetricCard(
-          label: 'Early access',
+          label: 'Khách VIP',
           value: '218',
           icon: Icons.workspace_premium_rounded,
-          delta: 'Priority launch group',
+          delta: 'Nhóm ưu đãi thành viên',
         ),
         const SizedBox(height: AppSizes.sectionGap),
         Text(
-          '${customers.length} CUSTOMERS',
+          '${customers.length} KHÁCH HÀNG',
           style: const TextStyle(
             color: AppColors.neon,
             fontSize: 11,
@@ -142,7 +142,7 @@ class _CustomerSegmentFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const values = ['All', 'VIP', 'Active', 'New', 'Blocked'];
+    const values = ['Tất cả', 'VIP', 'Member', 'Đã khóa'];
     return SizedBox(
       height: 44,
       child: ListView.separated(
@@ -227,7 +227,7 @@ class _CustomerCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${customer.totalOrders} ORDERS / ${customer.totalSpent}',
+                    '${customer.totalOrders} đơn / ${customer.totalSpent}',
                     style: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
@@ -260,45 +260,45 @@ class _CustomerDetailSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            AdminSectionTitle(eyebrow: 'Customer', title: customer.name),
+            AdminSectionTitle(eyebrow: 'Khách hàng', title: customer.name),
             const SizedBox(height: 16),
             _InfoRow(label: 'Email', value: customer.email),
-            _InfoRow(label: 'Phone', value: customer.phone),
-            _InfoRow(label: 'Total orders', value: '${customer.totalOrders}'),
-            _InfoRow(label: 'Total spent', value: customer.totalSpent),
-            _InfoRow(label: 'Last order', value: customer.lastOrder),
+            _InfoRow(label: 'Số điện thoại', value: customer.phone),
+            _InfoRow(label: 'Tổng đơn', value: '${customer.totalOrders}'),
+            _InfoRow(label: 'Tổng chi tiêu', value: customer.totalSpent),
+            _InfoRow(label: 'Đơn gần nhất', value: customer.lastOrder),
             const SizedBox(height: 18),
-            const AdminSectionTitle(eyebrow: 'Quick actions', title: 'Account'),
+            const AdminSectionTitle(eyebrow: 'Thao tác nhanh', title: 'Tài khoản'),
             const SizedBox(height: 12),
             _CustomerAction(
               icon: Icons.receipt_long_rounded,
-              label: 'View order history',
+              label: 'Xem lịch sử đơn hàng',
               onTap: () => Navigator.pop(context),
             ),
             const SizedBox(height: 10),
             _CustomerAction(
               icon: Icons.workspace_premium_rounded,
-              label: 'Mark as VIP / Early access',
+              label: 'Chuyển hạng Member / VIP',
               onTap: () => Navigator.pop(context),
             ),
             const SizedBox(height: 10),
             _CustomerAction(
               icon: Icons.admin_panel_settings_rounded,
-              label: 'Change role',
+              label: 'Đổi quyền truy cập',
               onTap: () => Navigator.pop(context),
             ),
             const SizedBox(height: 10),
             _CustomerAction(
               icon: Icons.block_rounded,
-              label: customer.status == 'Blocked'
-                  ? 'Unblock customer'
-                  : 'Block customer',
+              label: customer.status == 'Đã khóa'
+                  ? 'Mở khóa khách hàng'
+                  : 'Khóa khách hàng',
               color: AppColors.error,
               onTap: () => Navigator.pop(context),
             ),
             const SizedBox(height: 18),
             GlowButton(
-              label: 'SAVE CUSTOMER',
+              label: 'LƯU KHÁCH HÀNG',
               icon: Icons.save_rounded,
               expanded: true,
               onPressed: () => Navigator.pop(context),

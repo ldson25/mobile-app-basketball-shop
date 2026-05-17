@@ -50,7 +50,7 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
                 SizedBox(height: 2),
                 Text(
-                  'PERFORMANCE STORE',
+                  'CỬA HÀNG THỂ THAO',
                   style: TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 9,
@@ -115,16 +115,12 @@ class HomeBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 12),
-          const FilterSection(),
           const SizedBox(height: 18),
-          SeasonalDropsHero(
-            product: ProductData.footwearProducts.first,
-          ),
+          SeasonalDropsHero(product: ProductData.footwearProducts.first),
           const SizedBox(height: 48),
           _ProductRail(
-            eyebrow: 'Vua ra mat',
-            title: 'Hang moi ve',
+            eyebrow: 'Vừa ra mắt',
+            title: 'Hàng mới về',
             products: [
               ProductData.footwearProducts[1],
               ProductData.apparelProducts[0],
@@ -135,8 +131,8 @@ class HomeBody extends StatelessWidget {
           const EditorialBanner(),
           const SizedBox(height: 48),
           _ProductRail(
-            eyebrow: 'Thinh hanh',
-            title: 'Ban chay nhat',
+            eyebrow: 'Thịnh hành',
+            title: 'Bán chạy nhất',
             compact: true,
             products: [
               ProductData.footwearProducts[3],
@@ -146,66 +142,6 @@ class HomeBody extends StatelessWidget {
           ),
           const SizedBox(height: 112),
         ],
-      ),
-    );
-  }
-}
-
-class FilterSection extends StatelessWidget {
-  const FilterSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    const filters = [
-      ('Tat ca', true),
-      ('Giay', false),
-      ('Ao dau', false),
-      ('Phu kien', false),
-      ('Tap luyen', false),
-    ];
-
-    return SizedBox(
-      height: 42,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: AppSizes.pageHorizontal,
-        itemCount: filters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (context, index) {
-          final filter = filters[index];
-          return _FilterChip(label: filter.$1, isSelected: filter.$2);
-        },
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({required this.label, this.isSelected = false});
-
-  final String label;
-  final bool isSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: BoxDecoration(
-        color: isSelected ? AppColors.neon : AppColors.surface2,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: isSelected ? AppColors.neon : AppColors.border.withOpacity(0.3),
-        ),
-      ),
-      child: Text(
-        label.toUpperCase(),
-        style: TextStyle(
-          color: isSelected ? AppColors.background : AppColors.textPrimary,
-          fontSize: 12,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 0.6,
-        ),
       ),
     );
   }
@@ -273,7 +209,7 @@ class SeasonalDropsHero extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        '${product.stockQuantity} items in stock',
+                        'Còn ${product.stockQuantity} sản phẩm',
                         style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 16,
@@ -284,7 +220,7 @@ class SeasonalDropsHero extends StatelessWidget {
                       ElevatedButton.icon(
                         onPressed: () => _openDetail(context, product),
                         icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                        label: const Text('SHOP NOW'),
+                        label: const Text('MUA NGAY'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.neon,
                           foregroundColor: AppColors.background,
@@ -398,7 +334,7 @@ class _SectionHeader extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8),
             ),
             child: const Text(
-              'VIEW ALL',
+              'XEM TẤT CẢ',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w900,
@@ -478,7 +414,7 @@ class _ProductCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${product.stockQuantity} left',
+                        'Còn ${product.stockQuantity} sản phẩm',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -545,10 +481,10 @@ class EditorialBanner extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _NeonTag(label: 'Street series'),
+                      _NeonTag(label: 'Bộ sưu tập đường phố'),
                       SizedBox(height: 14),
                       Text(
-                        'OWN THE\nASPHALT',
+                        'LÀM CHỦ\nSÂN ĐẤU',
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 38,
@@ -560,7 +496,7 @@ class EditorialBanner extends StatelessWidget {
                       ),
                       SizedBox(height: 10),
                       Text(
-                        'Tap to view the featured apparel drop.',
+                        'Nhấn để xem bộ trang phục nổi bật.',
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 14,

@@ -6,7 +6,7 @@ import '../../models/product_model.dart';
 import '../../widgets/product_card.dart';
 import '../products/presentation/product_detail_screen.dart';
 
-enum _PriceFilter { all, under100, from100To180, over180 }
+enum _PriceFilter { all, underTwoMillion, fromTwoToFourMillion, overFourMillion }
 
 class ResultsDiscoverScreen extends StatefulWidget {
   const ResultsDiscoverScreen({
@@ -25,7 +25,7 @@ class ResultsDiscoverScreen extends StatefulWidget {
 }
 
 class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
-  String _selectedSort = 'Featured';
+  String _selectedSort = 'Nổi bật';
   _PriceFilter _priceFilter = _PriceFilter.all;
   late List<ProductModel> _baseProducts;
 
@@ -60,22 +60,22 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
       switch (_priceFilter) {
         case _PriceFilter.all:
           return true;
-        case _PriceFilter.under100:
-          return price < 100;
-        case _PriceFilter.from100To180:
-          return price >= 100 && price <= 180;
-        case _PriceFilter.over180:
-          return price > 180;
+        case _PriceFilter.underTwoMillion:
+          return price < 2000000;
+        case _PriceFilter.fromTwoToFourMillion:
+          return price >= 2000000 && price <= 4000000;
+        case _PriceFilter.overFourMillion:
+          return price > 4000000;
       }
     }).toList();
 
     products.sort((a, b) {
       switch (_selectedSort) {
-        case 'Price: Low to High':
+        case 'Giá thấp đến cao':
           return _priceOf(a).compareTo(_priceOf(b));
-        case 'Price: High to Low':
+        case 'Giá cao đến thấp':
           return _priceOf(b).compareTo(_priceOf(a));
-        case 'Newest':
+        case 'Mới nhất':
           return b.id.compareTo(a.id);
         default:
           return 0;
@@ -86,13 +86,23 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
   }
 
   double _priceOf(ProductModel product) {
-    return double.tryParse(product.price.replaceAll('\$', '')) ?? 0;
+    final normalized = product.price.replaceAll(RegExp(r'[^0-9]'), '');
+    return double.tryParse(normalized) ?? 0;
   }
 
   String get _title {
     final keyword = widget.searchKeyword?.trim();
-    if (keyword != null && keyword.isNotEmpty) return 'Search: $keyword';
-    return widget.categoryName;
+    if (keyword != null && keyword.isNotEmpty) return 'Tìm kiếm: $keyword';
+    switch (widget.categoryName.toLowerCase()) {
+      case 'footwear':
+        return 'Giày';
+      case 'apparel':
+        return 'Trang phục';
+      case 'equipment':
+        return 'Phụ kiện';
+      default:
+        return widget.categoryName;
+    }
   }
 
   @override
@@ -129,7 +139,7 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${products.length} ITEMS FOUND',
+                  'TÌM THẤY ${products.length} SẢN PHẨM',
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
@@ -152,7 +162,7 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
             child: products.isEmpty
                 ? const Center(
                     child: Text(
-                      'No products found',
+                      'Không tìm thấy sản phẩm',
                       style: TextStyle(color: AppColors.textSecondary),
                     ),
                   )
@@ -208,25 +218,25 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
   String get _filterLabel {
     switch (_priceFilter) {
       case _PriceFilter.all:
-        return 'All prices';
-      case _PriceFilter.under100:
-        return 'Under \$100';
-      case _PriceFilter.from100To180:
-        return '\$100 - \$180';
-      case _PriceFilter.over180:
-        return 'Over \$180';
+        return 'Tất cả giá';
+      case _PriceFilter.underTwoMillion:
+        return 'Dưới 2 triệu';
+      case _PriceFilter.fromTwoToFourMillion:
+        return '2 - 4 triệu';
+      case _PriceFilter.overFourMillion:
+        return 'Trên 4 triệu';
     }
   }
 
   void _showFilterSheet() {
     _showOptionSheet<_PriceFilter>(
-      title: 'FILTER BY PRICE',
+      title: 'LỌC THEO GIÁ',
       selectedValue: _priceFilter,
       options: const {
-        _PriceFilter.all: 'All prices',
-        _PriceFilter.under100: 'Under \$100',
-        _PriceFilter.from100To180: '\$100 - \$180',
-        _PriceFilter.over180: 'Over \$180',
+        _PriceFilter.all: 'Tất cả giá',
+        _PriceFilter.underTwoMillion: 'Dưới 2 triệu',
+        _PriceFilter.fromTwoToFourMillion: '2 - 4 triệu',
+        _PriceFilter.overFourMillion: 'Trên 4 triệu',
       },
       onSelected: (value) => setState(() => _priceFilter = value),
     );
@@ -234,13 +244,13 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
 
   void _showSortSheet() {
     _showOptionSheet<String>(
-      title: 'SORT PRODUCTS',
+      title: 'SẮP XẾP SẢN PHẨM',
       selectedValue: _selectedSort,
       options: const {
-        'Featured': 'Featured',
-        'Price: Low to High': 'Price: Low to High',
-        'Price: High to Low': 'Price: High to Low',
-        'Newest': 'Newest',
+        'Nổi bật': 'Nổi bật',
+        'Giá thấp đến cao': 'Giá thấp đến cao',
+        'Giá cao đến thấp': 'Giá cao đến thấp',
+        'Mới nhất': 'Mới nhất',
       },
       onSelected: (value) => setState(() => _selectedSort = value),
     );

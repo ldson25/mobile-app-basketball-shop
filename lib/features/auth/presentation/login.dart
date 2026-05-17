@@ -93,7 +93,7 @@ class _EditorialSection extends StatelessWidget {
             children: [
               const SizedBox(height: 100),
               Text(
-                'PUSH THE\n',
+                'BỨT PHÁ\n',
                 style: GoogleFonts.spaceGrotesk(
                   fontSize: 64,
                   fontWeight: FontWeight.w900,
@@ -106,7 +106,7 @@ class _EditorialSection extends StatelessWidget {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: 'LIMITS.',
+                      text: 'GIỚI HẠN.',
                       style: GoogleFonts.spaceGrotesk(
                         fontSize: 64,
                         fontWeight: FontWeight.w900,
@@ -128,7 +128,7 @@ class _EditorialSection extends StatelessWidget {
               SizedBox(
                 width: 300,
                 child: Text(
-                  'Access the elite kinetic suite. Gear, analytics, and community for the next generation of the game.',
+                  'Đăng nhập để mua sắm giày, trang phục và phụ kiện bóng rổ dành cho thế hệ vận động mới.',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w300,
@@ -162,14 +162,14 @@ class _LoginFormState extends State<_LoginForm> {
   Future<void> _handleLogin() async {
     if (_emailController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email')),
+        const SnackBar(content: Text('Vui lòng nhập email')),
       );
       return;
     }
     
     if (_passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your password')),
+        const SnackBar(content: Text('Vui lòng nhập mật khẩu')),
       );
       return;
     }
@@ -202,7 +202,7 @@ class _LoginFormState extends State<_LoginForm> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Invalid email or password'),
+          content: Text('Email hoặc mật khẩu không đúng'),
           backgroundColor: Colors.red,
         ),
       );
@@ -230,7 +230,7 @@ class _LoginFormState extends State<_LoginForm> {
             ),
             const SizedBox(height: 32),
             Text(
-              'Sign In',
+              'Đăng nhập',
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 36,
                 fontWeight: FontWeight.w700,
@@ -240,7 +240,7 @@ class _LoginFormState extends State<_LoginForm> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Welcome back to the elite tier.',
+              'Chào mừng bạn quay lại Kinetic.',
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -249,7 +249,7 @@ class _LoginFormState extends State<_LoginForm> {
             ),
             const SizedBox(height: 48),
             _buildTextField(
-              label: 'Email Address',
+              label: 'Email',
               controller: _emailController,
               hint: 'appmobile@email.com',
               keyboardType: TextInputType.emailAddress,
@@ -261,13 +261,13 @@ class _LoginFormState extends State<_LoginForm> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildLabel('Password'),
+                    _buildLabel('Mật khẩu'),
                     TextButton(
                       onPressed: () {
                         // Forgot password
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Reset link sent to your email'),
+                            content: Text('Liên kết đặt lại mật khẩu đã được gửi tới email'),
                           ),
                         );
                       },
@@ -277,7 +277,7 @@ class _LoginFormState extends State<_LoginForm> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: Text(
-                        'Forgot Password?',
+                        'Quên mật khẩu?',
                         style: GoogleFonts.spaceGrotesk(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -342,11 +342,11 @@ class _LoginFormState extends State<_LoginForm> {
                           color: AppColors.background,
                         ),
                       )
-                    : const Text('Sign In'),
+                    : const Text('ĐĂNG NHẬP'),
               ),
             ),
             const SizedBox(height: 48),
-            _buildDivider('Or Continue With'),
+            _buildDivider('Hoặc tiếp tục với'),
             const SizedBox(height: 24),
             Row(
               children: [
@@ -356,7 +356,7 @@ class _LoginFormState extends State<_LoginForm> {
                     label: 'GOOGLE',
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Google sign in coming soon')),
+                        const SnackBar(content: Text('Đăng nhập Google sẽ được bổ sung sau')),
                       );
                     },
                   ),
@@ -368,7 +368,7 @@ class _LoginFormState extends State<_LoginForm> {
                     label: 'APPLE',
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Apple sign in coming soon')),
+                        const SnackBar(content: Text('Đăng nhập Apple sẽ được bổ sung sau')),
                       );
                     },
                   ),
@@ -381,7 +381,7 @@ class _LoginFormState extends State<_LoginForm> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "Don't have an account?",
+                    "Chưa có tài khoản?",
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       color: AppColors.textSecondary,
@@ -402,7 +402,7 @@ class _LoginFormState extends State<_LoginForm> {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: Text(
-                      ' Create Profile',
+                      ' Tạo tài khoản',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,

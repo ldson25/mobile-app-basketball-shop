@@ -31,8 +31,8 @@ class AuthService extends ChangeNotifier {
         email: normalizedEmail,
         fullName: normalizedEmail.split('@')[0],
         createdAt: DateTime.now(),
-        isEarlyAccess: role == UserRole.user,
         role: role,
+        membershipTier: MembershipTier.member,
       );
       _isAuthenticated = true;
       notifyListeners();
@@ -71,8 +71,9 @@ class AuthService extends ChangeNotifier {
       email: email.trim().toLowerCase(),
       fullName: fullName,
       createdAt: DateTime.now(),
-      isEarlyAccess: isEarlyAccess,
       role: UserRole.user,
+      membershipTier:
+          isEarlyAccess ? MembershipTier.vip : MembershipTier.member,
     );
     _isAuthenticated = true;
     notifyListeners();

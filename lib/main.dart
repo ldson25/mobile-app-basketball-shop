@@ -9,6 +9,8 @@ import 'services/auth_service.dart';
 import 'services/cart_service.dart';
 import 'services/favorites_service.dart';
 import 'services/order_service.dart';
+import 'services/shipping_address_service.dart';
+import 'services/voucher_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +28,8 @@ class KineticApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CartService()),
         ChangeNotifierProvider(create: (_) => FavoritesService()),
         ChangeNotifierProvider(create: (_) => OrderService()),
+        ChangeNotifierProvider(create: (_) => ShippingAddressService()),
+        ChangeNotifierProvider(create: (_) => VoucherService()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

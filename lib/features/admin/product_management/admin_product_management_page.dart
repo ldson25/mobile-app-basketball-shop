@@ -44,21 +44,21 @@ class _AdminProductManagementPageState
     final products = _products;
 
     return AdminPageScaffold(
-      title: 'PRODUCT\nMANAGEMENT',
-      subtitle: 'Catalog, inventory and publish status',
+      title: 'QUẢN LÝ\nSẢN PHẨM',
+      subtitle: 'Danh mục, tồn kho và trạng thái hiển thị',
       trailing: IconButton(
         onPressed: () => _showProductForm(context),
         icon: const Icon(Icons.add_circle_outline, color: AppColors.neon),
       ),
       children: [
         GlowButton(
-          label: 'ADD PRODUCT',
+          label: 'THÊM SẢN PHẨM',
           icon: Icons.add_rounded,
           expanded: true,
           onPressed: () => _showProductForm(context),
         ),
         const SizedBox(height: 14),
-        const AdminSearchField(hint: 'Search product name or SKU...'),
+        const AdminSearchField(hint: 'Tìm tên sản phẩm hoặc SKU...'),
         const SizedBox(height: 14),
         _CategoryFilter(
           selected: _category,
@@ -66,13 +66,13 @@ class _AdminProductManagementPageState
         ),
         const SizedBox(height: 12),
         _SwitchTile(
-          title: 'Low stock only',
+          title: 'Chỉ hiển thị tồn kho thấp',
           value: _lowStockOnly,
           onChanged: (value) => setState(() => _lowStockOnly = value),
         ),
         const SizedBox(height: AppSizes.sectionGap),
         Text(
-          '${products.length} PRODUCTS',
+          '${products.length} SẢN PHẨM',
           style: const TextStyle(
             color: AppColors.neon,
             fontSize: 11,
@@ -289,7 +289,7 @@ class _ProductAdminCard extends StatelessWidget {
                   children: [
                     AdminStatusChip(label: product.price, color: AppColors.neon),
                     AdminStatusChip(
-                      label: '${product.stockQuantity} stock',
+                      label: '${product.stockQuantity} còn lại',
                       color: lowStock ? AppColors.warning : AppColors.textSecondary,
                     ),
                   ],
@@ -359,26 +359,26 @@ class _ProductFormSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             AdminSectionTitle(
-              eyebrow: product == null ? 'Create' : 'Edit',
-              title: product == null ? 'Add product' : product!.name,
+              eyebrow: product == null ? 'Tạo mới' : 'Chỉnh sửa',
+              title: product == null ? 'Thêm sản phẩm' : product!.name,
             ),
             const SizedBox(height: 18),
-            _AdminInput(label: 'Product name', initialValue: product?.name),
+            _AdminInput(label: 'Tên sản phẩm', initialValue: product?.name),
             const SizedBox(height: 12),
-            _AdminInput(label: 'Price', initialValue: product?.price),
+            _AdminInput(label: 'Giá bán', initialValue: product?.price),
             const SizedBox(height: 12),
             _AdminInput(
-              label: 'Stock quantity',
+              label: 'Số lượng tồn kho',
               initialValue: product?.stockQuantity.toString(),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 12),
-            _AdminInput(label: 'Category', initialValue: 'Footwear'),
+            _AdminInput(label: 'Danh mục', initialValue: 'Footwear'),
             const SizedBox(height: 12),
             _UploadBox(product: product),
             const SizedBox(height: 18),
             GlowButton(
-              label: product == null ? 'SAVE PRODUCT' : 'UPDATE PRODUCT',
+              label: product == null ? 'LƯU SẢN PHẨM' : 'CẬP NHẬT SẢN PHẨM',
               icon: Icons.save_rounded,
               expanded: true,
               onPressed: () => Navigator.pop(context),
@@ -404,16 +404,16 @@ class _StockSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AdminSectionTitle(eyebrow: 'Inventory', title: product.name),
+            AdminSectionTitle(eyebrow: 'Tồn kho', title: product.name),
             const SizedBox(height: 16),
             AdminMetricCard(
-              label: 'Current stock',
+              label: 'Tồn kho hiện tại',
               value: '${product.stockQuantity}',
               icon: Icons.inventory_2_rounded,
             ),
             const SizedBox(height: 12),
             const _AdminInput(
-              label: 'Adjustment quantity',
+              label: 'Số lượng điều chỉnh',
               initialValue: '10',
               keyboardType: TextInputType.number,
             ),
@@ -421,7 +421,7 @@ class _StockSheet extends StatelessWidget {
             const _MovementTypeRow(),
             const SizedBox(height: 18),
             GlowButton(
-              label: 'SAVE STOCK',
+              label: 'LƯU TỒN KHO',
               icon: Icons.check_rounded,
               expanded: true,
               onPressed: () => Navigator.pop(context),
@@ -447,15 +447,15 @@ class _VisibilitySheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AdminSectionTitle(eyebrow: 'Visibility', title: product.name),
+            AdminSectionTitle(eyebrow: 'Hiển thị', title: product.name),
             const SizedBox(height: 16),
             const Text(
-              'Hide this product from the user catalog while keeping order history intact.',
+              'Ẩn sản phẩm khỏi danh mục user nhưng vẫn giữ nguyên lịch sử đơn hàng.',
               style: TextStyle(color: AppColors.textSecondary, height: 1.45),
             ),
             const SizedBox(height: 18),
             GlowButton(
-              label: 'HIDE PRODUCT',
+              label: 'ẨN SẢN PHẨM',
               icon: Icons.visibility_off_rounded,
               expanded: true,
               isPrimary: false,
@@ -518,7 +518,7 @@ class _UploadBox extends StatelessWidget {
           const SizedBox(width: 14),
           const Expanded(
             child: Text(
-              'Upload product images to Firebase Storage',
+              'Tải ảnh sản phẩm lên Firebase Storage',
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
@@ -536,13 +536,13 @@ class _MovementTypeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: const [
-        Expanded(child: AdminStatusChip(label: 'Import', color: AppColors.neon)),
+        Expanded(child: AdminStatusChip(label: 'Nhập kho', color: AppColors.neon)),
         SizedBox(width: 8),
         Expanded(
-          child: AdminStatusChip(label: 'Adjustment', color: AppColors.warning),
+          child: AdminStatusChip(label: 'Điều chỉnh', color: AppColors.warning),
         ),
         SizedBox(width: 8),
-        Expanded(child: AdminStatusChip(label: 'Return', color: AppColors.textSecondary)),
+        Expanded(child: AdminStatusChip(label: 'Hoàn kho', color: AppColors.textSecondary)),
       ],
     );
   }

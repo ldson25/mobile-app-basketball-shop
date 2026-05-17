@@ -1,9 +1,9 @@
 // lib/features/order_history/order_history.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../services/order_service.dart';
-import '../../../models/order_model.dart';
+import '../../core/theme/app_colors.dart';
+import '../../services/order_service.dart';
+import '../../models/order_model.dart';
 import '../cart/mycart.dart';
 import 'order_detail_screen.dart';
 
@@ -80,7 +80,7 @@ class _EmptyOrderView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const Text(
-            'NO ORDERS YET',
+            'CHƯA CÓ ĐƠN HÀNG',
             style: TextStyle(
               fontFamily: 'Space Grotesk',
               fontSize: 20,
@@ -91,7 +91,7 @@ class _EmptyOrderView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Your order history will appear here',
+            'Lịch sử đơn hàng của bạn sẽ hiển thị tại đây',
             style: TextStyle(color: AppColors.textSecondary),
           ),
         ],
@@ -126,7 +126,7 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 icon: const Icon(Icons.menu, color: AppColors.textPrimary),
               ),
               const Text(
-                'ORDER HISTORY',
+                'LỊCH SỬ ĐƠN',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 20,
@@ -170,10 +170,12 @@ class _FilterTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final filters = [
-      {'label': 'All', 'status': null},
-      {'label': 'Pending', 'status': OrderStatus.pending},
-      {'label': 'Delivered', 'status': OrderStatus.delivered},
-      {'label': 'Cancelled', 'status': OrderStatus.cancelled},
+      {'label': 'Tất cả', 'status': null},
+      {'label': 'Chờ xử lý', 'status': OrderStatus.pending},
+      {'label': 'Đã xác nhận', 'status': OrderStatus.confirmed},
+      {'label': 'Đang giao', 'status': OrderStatus.shipping},
+      {'label': 'Đã giao', 'status': OrderStatus.delivered},
+      {'label': 'Đã hủy', 'status': OrderStatus.cancelled},
     ];
 
     return Padding(
@@ -250,7 +252,7 @@ class _OrderCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Order ${order.orderNumber}',
+                    'Đơn ${order.orderNumber}',
                     style: const TextStyle(
                       fontFamily: 'Space Grotesk',
                       fontSize: 18,
@@ -292,7 +294,7 @@ class _OrderCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Tracking Number:',
+                'Mã vận đơn:',
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,
@@ -313,7 +315,7 @@ class _OrderCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Quantity:',
+                'Số lượng:',
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary,
@@ -333,7 +335,7 @@ class _OrderCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'SUBTOTAL',
+                'TẠM TÍNH',
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
@@ -342,7 +344,7 @@ class _OrderCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '\$${order.subtotal.toStringAsFixed(2)}',
+                formatVnd(order.subtotal),
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -375,7 +377,7 @@ class _OrderCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               ),
               child: Text(
-                'DETAILS',
+                'CHI TIẾT',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 10,

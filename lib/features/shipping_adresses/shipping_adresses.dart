@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/theme/app_colors.dart';
+import '../../models/shipping_address_model.dart';
+import '../../services/shipping_address_service.dart';
 import '../cart/mycart.dart';
 
 class ShippingAddressesScreen extends StatelessWidget {
@@ -11,27 +15,88 @@ class ShippingAddressesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: _ShippingAppBar(onMenuTap: onMenuTap),
-      body: const SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            SizedBox(height: 24),
-            _HeaderSection(),
-            SizedBox(height: 32),
-            _AddressGrid(),
-            SizedBox(height: 48),
-          ],
-        ),
+      appBar: const _ShippingAppBar(),
+      body: Consumer<ShippingAddressService>(
+        builder: (context, addressService, child) {
+          final addresses = addressService.addresses;
+
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Quan ly dia chi nhan hang de checkout nhanh hon.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    height: 1.5,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showAddressForm(context),
+                    icon: const Icon(Icons.add_location_alt_rounded),
+                    label: const Text('THEM DIA CHI MOI'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.neon,
+                      foregroundColor: AppColors.background,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                if (addresses.isEmpty)
+                  const _EmptyAddressView()
+                else
+                  ...addresses.map(
+                    (address) => Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: _AddressCard(
+                        address: address,
+                        onEdit: () => _showAddressForm(context, address: address),
+                        onDelete: () => addressService.removeAddress(address.id),
+                        onSetDefault: () => addressService.setDefault(address.id),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
       ),
+    );
+  }
+
+  static void _showAddressForm(
+    BuildContext context, {
+    ShippingAddressModel? address,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => _AddressFormSheet(address: address),
     );
   }
 }
 
 class _ShippingAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final VoidCallback onMenuTap;
-
-  const _ShippingAppBar({required this.onMenuTap});
+  const _ShippingAppBar();
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +104,7 @@ class _ShippingAppBar extends StatelessWidget implements PreferredSizeWidget {
       height: 100,
       decoration: BoxDecoration(
         color: AppColors.background.withAlpha(179),
-        border: Border(
-          bottom: BorderSide(
-            color: AppColors.border.withAlpha(51),
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: AppColors.border.withAlpha(51))),
       ),
       child: SafeArea(
         child: Padding(
@@ -51,26 +112,23 @@ class _ShippingAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Back button
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
                 icon: const Icon(Icons.arrow_back, color: AppColors.textSecondary),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
               ),
-              // Title
-              const Text(
-                'Shipping Addresses',
-                style: TextStyle(
-                  fontFamily: 'Space Grotesk',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  fontStyle: FontStyle.italic,
-                  letterSpacing: -0.5,
-                  color: AppColors.neon,
+              const Expanded(
+                child: Text(
+                  'DIA CHI GIAO HANG',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Space Grotesk',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    fontStyle: FontStyle.italic,
+                    color: AppColors.neon,
+                  ),
                 ),
               ),
-              // Cart button
               IconButton(
                 onPressed: () {
                   Navigator.push(
@@ -78,9 +136,10 @@ class _ShippingAppBar extends StatelessWidget implements PreferredSizeWidget {
                     MaterialPageRoute(builder: (context) => const CartScreen()),
                   );
                 },
-                icon: const Icon(Icons.shopping_bag_outlined, color: AppColors.textSecondary),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+                icon: const Icon(
+                  Icons.shopping_bag_outlined,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
@@ -93,391 +152,365 @@ class _ShippingAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(100);
 }
 
-class _HeaderSection extends StatelessWidget {
-  const _HeaderSection();
+class _EmptyAddressView extends StatelessWidget {
+  const _EmptyAddressView();
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.surface2,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border.withAlpha(51)),
+      ),
+      child: const Column(
         children: [
-          const Text(
-            'Manage your delivery destinations for lightning-fast checkout on limited drops.',
+          Icon(Icons.location_off_outlined, color: AppColors.neon, size: 42),
+          SizedBox(height: 12),
+          Text(
+            'Chua co dia chi',
             style: TextStyle(
+              color: AppColors.textPrimary,
               fontSize: 18,
-              height: 1.6,
-              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(height: 32),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                // Add new address logic
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.neon,
-                foregroundColor: AppColors.background,
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.add_location, size: 20),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'ADD NEW ADDRESS',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          SizedBox(height: 6),
+          Text(
+            'Them dia chi de checkout tu dong dien thong tin nhan hang.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.textSecondary, height: 1.4),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _AddressGrid extends StatelessWidget {
-  const _AddressGrid();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth > 768) {
-            return GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 12,
-              mainAxisSpacing: 32,
-              crossAxisSpacing: 32,
-              childAspectRatio: 1.2,
-              children: const [
-                _AddressCard(
-                  isDefault: true,
-                  icon: Icons.home,
-                  title: 'Primary Base',
-                  name: 'MARCUS JORDAN',
-                  address: '23 FLIGHT LANE, STE 100\nCHICAGO, IL 60601',
-                  phone: '+1 (312) 555-0123',
-                  colSpan: 8,
-                ),
-                _AddressCard(
-                  isDefault: false,
-                  icon: Icons.business,
-                  title: 'Office',
-                  name: 'MARCUS JORDAN',
-                  address: '777 KINETIC TOWERS\nNEW YORK, NY 10001',
-                  phone: '+1 (212) 555-9988',
-                  colSpan: 4,
-                ),
-                _AddressCard(
-                  isDefault: false,
-                  icon: Icons.fitness_center,
-                  title: 'Training Hub',
-                  name: 'MARCUS JORDAN',
-                  address: 'THE ARENA GYM, COURT 4\nLOS ANGELES, CA 90015',
-                  phone: '+1 (213) 555-4422',
-                  colSpan: 4,
-                ),
-                _AddAddressCard(),
-              ],
-            );
-          } else {
-            return Column(
-              children: const [
-                _AddressCard(
-                  isDefault: true,
-                  icon: Icons.home,
-                  title: 'Primary Base',
-                  name: 'MARCUS JORDAN',
-                  address: '23 FLIGHT LANE, STE 100\nCHICAGO, IL 60601',
-                  phone: '+1 (312) 555-0123',
-                ),
-                SizedBox(height: 16),
-                _AddressCard(
-                  isDefault: false,
-                  icon: Icons.business,
-                  title: 'Office',
-                  name: 'MARCUS JORDAN',
-                  address: '777 KINETIC TOWERS\nNEW YORK, NY 10001',
-                  phone: '+1 (212) 555-9988',
-                ),
-                const SizedBox(height: 16),
-                _AddressCard(
-                  isDefault: false,
-                  icon: Icons.fitness_center,
-                  title: 'Training Hub',
-                  name: 'MARCUS JORDAN',
-                  address: 'THE ARENA GYM, COURT 4\nLOS ANGELES, CA 90015',
-                  phone: '+1 (213) 555-4422',
-                ),
-                const SizedBox(height: 16),
-                _AddAddressCard(),
-              ],
-            );
-          }
-        },
       ),
     );
   }
 }
 
 class _AddressCard extends StatelessWidget {
-  final bool isDefault;
-  final IconData icon;
-  final String title;
-  final String name;
-  final String address;
-  final String phone;
-  final int? colSpan;
-
   const _AddressCard({
-    required this.isDefault,
-    required this.icon,
-    required this.title,
-    required this.name,
     required this.address,
-    required this.phone,
-    this.colSpan,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onSetDefault,
   });
+
+  final ShippingAddressModel address;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+  final VoidCallback onSetDefault;
 
   @override
   Widget build(BuildContext context) {
-    final card = Container(
+    return Container(
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.surface2,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDefault ? AppColors.neon.withAlpha(77) : AppColors.border.withAlpha(51),
+          color: address.isDefault ? AppColors.neon : AppColors.border.withAlpha(51),
+          width: address.isDefault ? 1.5 : 1,
         ),
       ),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isDefault)
-            Positioned(
-              top: 16,
-              right: 16,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.neon,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: const Text(
-                  'DEFAULT',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                    color: AppColors.background,
+          Row(
+            children: [
+              Icon(
+                address.isDefault ? Icons.home_rounded : Icons.location_on_rounded,
+                color: AppColors.neon,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  address.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
-            ),
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(icon, color: isDefault ? AppColors.neon : AppColors.textSecondary, size: 32),
-                        const SizedBox(width: 12),
-                        Text(
-                          title,
-                          style: TextStyle(
-                            fontFamily: 'Space Grotesk',
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            fontStyle: FontStyle.italic,
-                            color: isDefault ? Colors.white : AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
+              if (address.isDefault)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.neon,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Text(
+                    'MAC DINH',
+                    style: TextStyle(
+                      color: AppColors.background,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
                     ),
-                    const SizedBox(height: 24),
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      address,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        height: 1.5,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        const Icon(Icons.call, size: 16, color: AppColors.neon),
-                        const SizedBox(width: 8),
-                        Text(
-                          phone,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.neon,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 32),
-                Row(
-                  children: [
-                    TextButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.edit, size: 18),
-                      label: const Text(
-                        'EDIT',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    TextButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.delete, size: 18),
-                      label: const Text(
-                        'REMOVE',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.textSecondary,
-                      ),
-                    ),
-                    const Spacer(),
-                    if (!isDefault)
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          'SET DEFAULT',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
-                            color: AppColors.neon,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ],
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            address.fullName,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w800,
             ),
           ),
-          if (isDefault)
-            Positioned(
-              bottom: -80,
-              right: -80,
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  color: AppColors.neon.withAlpha(13),
-                  shape: BoxShape.circle,
-                ),
-              ),
+          const SizedBox(height: 6),
+          Text(
+            address.fullAddress,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              height: 1.4,
             ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            address.phone,
+            style: const TextStyle(
+              color: AppColors.neon,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 10,
+            runSpacing: 8,
+            children: [
+              _SmallActionButton(
+                icon: Icons.edit_rounded,
+                label: 'Sua',
+                onTap: onEdit,
+              ),
+              _SmallActionButton(
+                icon: Icons.delete_outline_rounded,
+                label: 'Xoa',
+                color: AppColors.error,
+                onTap: onDelete,
+              ),
+              if (!address.isDefault)
+                _SmallActionButton(
+                  icon: Icons.check_circle_outline_rounded,
+                  label: 'Mac dinh',
+                  onTap: onSetDefault,
+                ),
+            ],
+          ),
         ],
       ),
     );
-
-    if (colSpan != null) {
-      return SizedBox(
-        width: double.infinity,
-        child: card,
-      );
-    }
-    return card;
   }
 }
 
-class _AddAddressCard extends StatelessWidget {
-  const _AddAddressCard();
+class _SmallActionButton extends StatelessWidget {
+  const _SmallActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.color = AppColors.neon,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // Add new address logic
-      },
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: AppColors.border.withAlpha(51),
-            width: 2,
-            style: BorderStyle.solid,
-          ),
+    return TextButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon, size: 16),
+      label: Text(label),
+      style: TextButton.styleFrom(
+        foregroundColor: color,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      ),
+    );
+  }
+}
+
+class _AddressFormSheet extends StatefulWidget {
+  const _AddressFormSheet({this.address});
+
+  final ShippingAddressModel? address;
+
+  @override
+  State<_AddressFormSheet> createState() => _AddressFormSheetState();
+}
+
+class _AddressFormSheetState extends State<_AddressFormSheet> {
+  late final TextEditingController labelController;
+  late final TextEditingController fullNameController;
+  late final TextEditingController phoneController;
+  late final TextEditingController streetController;
+  late final TextEditingController wardController;
+  late final TextEditingController districtController;
+  late final TextEditingController cityController;
+  late bool isDefault;
+
+  @override
+  void initState() {
+    super.initState();
+    final address = widget.address;
+    labelController = TextEditingController(text: address?.label ?? 'Nha rieng');
+    fullNameController = TextEditingController(text: address?.fullName);
+    phoneController = TextEditingController(text: address?.phone);
+    streetController = TextEditingController(text: address?.street);
+    wardController = TextEditingController(text: address?.ward);
+    districtController = TextEditingController(text: address?.district);
+    cityController = TextEditingController(text: address?.city ?? 'TP. Ho Chi Minh');
+    isDefault = address?.isDefault ?? false;
+  }
+
+  @override
+  void dispose() {
+    labelController.dispose();
+    fullNameController.dispose();
+    phoneController.dispose();
+    streetController.dispose();
+    wardController.dispose();
+    districtController.dispose();
+    cityController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: AppColors.surface2,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.add,
-                size: 32,
-                color: AppColors.textSecondary,
+            Text(
+              widget.address == null ? 'THEM DIA CHI' : 'SUA DIA CHI',
+              style: const TextStyle(
+                color: AppColors.neon,
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'ADD NEW LOCATION',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.5,
-                color: AppColors.textSecondary,
+            const SizedBox(height: 18),
+            _AddressInput(label: 'Ten dia chi', controller: labelController),
+            _AddressInput(label: 'Ho va ten', controller: fullNameController),
+            _AddressInput(
+              label: 'So dien thoai',
+              controller: phoneController,
+              keyboardType: TextInputType.phone,
+            ),
+            _AddressInput(label: 'So nha, ten duong', controller: streetController),
+            _AddressInput(label: 'Phuong / Xa', controller: wardController),
+            _AddressInput(label: 'Quan / Huyen', controller: districtController),
+            _AddressInput(label: 'Tinh / Thanh pho', controller: cityController),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: isDefault,
+              activeThumbColor: AppColors.neon,
+              title: const Text(
+                'Dat lam dia chi mac dinh',
+                style: TextStyle(color: AppColors.textPrimary),
+              ),
+              onChanged: (value) => setState(() => isDefault = value),
+            ),
+            const SizedBox(height: 18),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _saveAddress,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.neon,
+                  foregroundColor: AppColors.background,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                child: const Text(
+                  'LUU DIA CHI',
+                  style: TextStyle(fontWeight: FontWeight.w900),
+                ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _saveAddress() {
+    final requiredFields = [
+      fullNameController.text,
+      phoneController.text,
+      streetController.text,
+      wardController.text,
+      districtController.text,
+      cityController.text,
+    ];
+
+    if (requiredFields.any((value) => value.trim().isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui long nhap day du thong tin dia chi')),
+      );
+      return;
+    }
+
+    final service = context.read<ShippingAddressService>();
+    final address = ShippingAddressModel(
+      id: widget.address?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      label: labelController.text.trim().isEmpty
+          ? 'Dia chi giao hang'
+          : labelController.text.trim(),
+      fullName: fullNameController.text.trim(),
+      phone: phoneController.text.trim(),
+      street: streetController.text.trim(),
+      ward: wardController.text.trim(),
+      district: districtController.text.trim(),
+      city: cityController.text.trim(),
+      isDefault: isDefault,
+    );
+
+    if (widget.address == null) {
+      service.addAddress(address);
+    } else {
+      service.updateAddress(address);
+    }
+
+    Navigator.pop(context);
+  }
+}
+
+class _AddressInput extends StatelessWidget {
+  const _AddressInput({
+    required this.label,
+    required this.controller,
+    this.keyboardType,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final TextInputType? keyboardType;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        style: const TextStyle(color: AppColors.textPrimary),
+        decoration: InputDecoration(labelText: label),
       ),
     );
   }

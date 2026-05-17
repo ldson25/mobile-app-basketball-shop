@@ -1,10 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../models/order_model.dart';
+import '../../../services/order_service.dart';
 import '../../../widgets/glow_button.dart';
 import '../../../widgets/section_card.dart';
 import '../presentation/widgets/admin_widgets.dart';
+
+String _formatVnd(double value) {
+  final number = value.round().toString();
+  final buffer = StringBuffer();
+  for (var i = 0; i < number.length; i++) {
+    final fromEnd = number.length - i;
+    buffer.write(number[i]);
+    if (fromEnd > 1 && fromEnd % 3 == 1) {
+      buffer.write('.');
+    }
+  }
+  return '${buffer}d';
+}
+
+String _paymentLabel(String method) {
+  switch (method) {
+    case 'bank_transfer':
+      return 'Chuyen khoan';
+    case 'e_wallet':
+      return 'Vi dien tu';
+    case 'credit_card':
+      return 'The';
+    case 'cash':
+    default:
+      return 'COD';
+  }
+}
 
 class AdminOrderManagementPage extends StatefulWidget {
   const AdminOrderManagementPage({super.key});
@@ -15,107 +45,66 @@ class AdminOrderManagementPage extends StatefulWidget {
 }
 
 class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
-  String _status = 'All';
-
-  final List<_AdminOrder> _orders = const [
-    _AdminOrder(
-      id: '#ORD-8821',
-      customer: 'Marcus V.',
-      email: 'marcus@kinetic.app',
-      itemCount: 2,
-      amount: '\$340.00',
-      date: 'OCT 24, 2023 / 14:22',
-      status: 'Pending',
-      color: AppColors.warning,
-      payment: 'COD',
-    ),
-    _AdminOrder(
-      id: '#ORD-8790',
-      customer: 'Elena S.',
-      email: 'elena@kinetic.app',
-      itemCount: 1,
-      amount: '\$185.50',
-      date: 'OCT 23, 2023 / 09:15',
-      status: 'Confirmed',
-      color: AppColors.neon,
-      payment: 'Bank transfer',
-    ),
-    _AdminOrder(
-      id: '#ORD-8742',
-      customer: 'Jordan K.',
-      email: 'jordan@kinetic.app',
-      itemCount: 3,
-      amount: '\$590.00',
-      date: 'OCT 21, 2023 / 18:45',
-      status: 'Shipping',
-      color: AppColors.textSecondary,
-      payment: 'E-wallet',
-    ),
-    _AdminOrder(
-      id: '#ORD-8711',
-      customer: 'Liam W.',
-      email: 'liam@kinetic.app',
-      itemCount: 1,
-      amount: '\$120.00',
-      date: 'OCT 20, 2023 / 11:00',
-      status: 'Cancelled',
-      color: AppColors.error,
-      payment: 'COD',
-    ),
-  ];
-
-  List<_AdminOrder> get _visibleOrders {
-    if (_status == 'All') return _orders;
-    return _orders.where((order) => order.status == _status).toList();
-  }
+  OrderStatus? _status;
 
   @override
   Widget build(BuildContext context) {
-    final orders = _visibleOrders;
+    return Consumer<OrderService>(
+      builder: (context, orderService, child) {
+        final orders = _status == null
+            ? orderService.orders
+            : orderService.orders
+                .where((order) => order.status == _status)
+                .toList();
 
-    return AdminPageScaffold(
-      title: 'ORDER\nMANAGEMENT',
-      subtitle: 'Payment, shipping and fulfillment',
-      trailing: IconButton(
-        onPressed: () => _showExportSheet(context),
-        icon: const Icon(Icons.download_rounded, color: AppColors.neon),
-      ),
-      children: [
-        GlowButton(
-          label: 'EXPORT CSV',
-          icon: Icons.download_rounded,
-          expanded: true,
-          onPressed: () => _showExportSheet(context),
-        ),
-        const SizedBox(height: 14),
-        const AdminSearchField(hint: 'Search order number, email or phone...'),
-        const SizedBox(height: 14),
-        _StatusFilter(
-          selected: _status,
-          onChanged: (value) => setState(() => _status = value),
-        ),
-        const SizedBox(height: AppSizes.sectionGap),
-        Text(
-          '${orders.length} ORDERS',
-          style: const TextStyle(
-            color: AppColors.neon,
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.4,
+        return AdminPageScaffold(
+          title: 'QUAN LY\nDON HANG',
+          subtitle: 'Theo doi, xac nhan va cap nhat trang thai don',
+          trailing: IconButton(
+            onPressed: () => _showExportSheet(context),
+            icon: const Icon(Icons.download_rounded, color: AppColors.neon),
           ),
-        ),
-        const SizedBox(height: 14),
-        ...orders.map(
-          (order) => Padding(
-            padding: const EdgeInsets.only(bottom: 14),
-            child: _AdminOrderCard(
-              order: order,
-              onView: () => _showOrderDetail(context, order),
-              onStatus: () => _showStatusSheet(context, order),
+          children: [
+            GlowButton(
+              label: 'XUAT CSV',
+              icon: Icons.download_rounded,
+              expanded: true,
+              onPressed: () => _showExportSheet(context),
             ),
-          ),
-        ),
-      ],
+            const SizedBox(height: 14),
+            const AdminSearchField(hint: 'Tim ma don, ten khach hoac so dien thoai...'),
+            const SizedBox(height: 14),
+            _StatusFilter(
+              selected: _status,
+              onChanged: (value) => setState(() => _status = value),
+            ),
+            const SizedBox(height: AppSizes.sectionGap),
+            Text(
+              '${orders.length} DON HANG',
+              style: const TextStyle(
+                color: AppColors.neon,
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.4,
+              ),
+            ),
+            const SizedBox(height: 14),
+            if (orders.isEmpty)
+              const _EmptyOrdersCard()
+            else
+              ...orders.map(
+                (order) => Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: _AdminOrderCard(
+                    order: order,
+                    onView: () => _showOrderDetail(context, order),
+                    onStatus: () => _showStatusSheet(context, order),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -133,16 +122,16 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const AdminSectionTitle(eyebrow: 'Export', title: 'Order CSV'),
+              const AdminSectionTitle(eyebrow: 'Xuat du lieu', title: 'CSV don hang'),
               const SizedBox(height: 16),
-              const _ExportOption(label: 'Current filtered orders'),
+              const _ExportOption(label: 'Cac don dang loc'),
               const SizedBox(height: 10),
-              const _ExportOption(label: 'This month orders'),
+              const _ExportOption(label: 'Don hang thang nay'),
               const SizedBox(height: 10),
-              const _ExportOption(label: 'Pending orders only'),
+              const _ExportOption(label: 'Chi don cho xu ly'),
               const SizedBox(height: 18),
               GlowButton(
-                label: 'GENERATE CSV',
+                label: 'TAO FILE CSV',
                 icon: Icons.file_download_rounded,
                 expanded: true,
                 onPressed: () => Navigator.pop(context),
@@ -154,7 +143,7 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
     );
   }
 
-  void _showOrderDetail(BuildContext context, _AdminOrder order) {
+  void _showOrderDetail(BuildContext context, OrderModel order) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -166,7 +155,7 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
     );
   }
 
-  void _showStatusSheet(BuildContext context, _AdminOrder order) {
+  void _showStatusSheet(BuildContext context, OrderModel order) {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
@@ -181,12 +170,20 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
 class _StatusFilter extends StatelessWidget {
   const _StatusFilter({required this.selected, required this.onChanged});
 
-  final String selected;
-  final ValueChanged<String> onChanged;
+  final OrderStatus? selected;
+  final ValueChanged<OrderStatus?> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    const values = ['All', 'Pending', 'Confirmed', 'Shipping', 'Cancelled'];
+    final values = <({String label, OrderStatus? status})>[
+      (label: 'Tat ca', status: null),
+      (label: 'Cho xu ly', status: OrderStatus.pending),
+      (label: 'Da xac nhan', status: OrderStatus.confirmed),
+      (label: 'Dang giao', status: OrderStatus.shipping),
+      (label: 'Da giao', status: OrderStatus.delivered),
+      (label: 'Da huy', status: OrderStatus.cancelled),
+    ];
+
     return SizedBox(
       height: 44,
       child: ListView.separated(
@@ -195,9 +192,9 @@ class _StatusFilter extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final value = values[index];
-          final active = value == selected;
+          final active = value.status == selected;
           return GestureDetector(
-            onTap: () => onChanged(value),
+            onTap: () => onChanged(value.status),
             child: Container(
               alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -209,7 +206,7 @@ class _StatusFilter extends StatelessWidget {
                 ),
               ),
               child: Text(
-                value.toUpperCase(),
+                value.label.toUpperCase(),
                 style: TextStyle(
                   color: active ? AppColors.background : AppColors.textPrimary,
                   fontSize: 11,
@@ -232,7 +229,7 @@ class _AdminOrderCard extends StatelessWidget {
     required this.onStatus,
   });
 
-  final _AdminOrder order;
+  final OrderModel order;
   final VoidCallback onView;
   final VoidCallback onStatus;
 
@@ -247,7 +244,7 @@ class _AdminOrderCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  order.id,
+                  order.orderNumber,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 26,
@@ -256,17 +253,17 @@ class _AdminOrderCard extends StatelessWidget {
                   ),
                 ),
               ),
-              AdminStatusChip(label: order.status, color: order.color),
+              AdminStatusChip(label: order.status.label, color: order.status.color),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            '${order.customer} / ${order.itemCount} items',
+            '${order.customerName.isEmpty ? 'Khach hang' : order.customerName} / ${order.totalQuantity} san pham',
             style: const TextStyle(color: AppColors.textSecondary, fontSize: 15),
           ),
           const SizedBox(height: 4),
           Text(
-            order.email,
+            order.phoneNumber,
             style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
           ),
           const SizedBox(height: 18),
@@ -274,7 +271,7 @@ class _AdminOrderCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  order.amount,
+                  _formatVnd(order.total),
                   style: const TextStyle(
                     color: AppColors.neon,
                     fontSize: 24,
@@ -282,12 +279,15 @@ class _AdminOrderCard extends StatelessWidget {
                   ),
                 ),
               ),
-              AdminStatusChip(label: order.payment, color: AppColors.textSecondary),
+              AdminStatusChip(
+                label: _paymentLabel(order.paymentMethod),
+                color: AppColors.textSecondary,
+              ),
             ],
           ),
           const SizedBox(height: 6),
           Text(
-            order.date,
+            order.formattedDate,
             style: const TextStyle(
               color: AppColors.textMuted,
               fontWeight: FontWeight.w700,
@@ -301,9 +301,7 @@ class _AdminOrderCard extends StatelessWidget {
             children: [
               _ActionButton(icon: Icons.remove_red_eye_outlined, onTap: onView),
               const SizedBox(width: 12),
-              _ActionButton(icon: Icons.local_shipping_outlined, onTap: onStatus),
-              const SizedBox(width: 12),
-              _ActionButton(icon: Icons.close_rounded, onTap: onStatus),
+              _ActionButton(icon: Icons.sync_rounded, onTap: onStatus),
             ],
           ),
         ],
@@ -338,7 +336,7 @@ class _ActionButton extends StatelessWidget {
 class _OrderDetailSheet extends StatelessWidget {
   const _OrderDetailSheet({required this.order});
 
-  final _AdminOrder order;
+  final OrderModel order;
 
   @override
   Widget build(BuildContext context) {
@@ -348,25 +346,49 @@ class _OrderDetailSheet extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AdminSectionTitle(eyebrow: 'Order detail', title: order.id),
+            AdminSectionTitle(eyebrow: 'Chi tiet don', title: order.orderNumber),
             const SizedBox(height: 16),
-            _DetailRow(label: 'Customer', value: order.customer),
-            _DetailRow(label: 'Email', value: order.email),
-            _DetailRow(label: 'Payment', value: order.payment),
-            _DetailRow(label: 'Amount', value: order.amount),
-            _DetailRow(label: 'Date', value: order.date),
+            _DetailRow(
+              label: 'Khach hang',
+              value: order.customerName.isEmpty ? 'Khach hang' : order.customerName,
+            ),
+            _DetailRow(label: 'Dien thoai', value: order.phoneNumber),
+            _DetailRow(label: 'Dia chi', value: order.shippingAddress),
+            _DetailRow(label: 'Thanh toan', value: _paymentLabel(order.paymentMethod)),
+            _DetailRow(label: 'Tam tinh', value: _formatVnd(order.subtotal)),
+            _DetailRow(label: 'Phi ship', value: _formatVnd(order.shippingCost)),
+            if (order.discount > 0)
+              _DetailRow(label: 'Voucher', value: '-${_formatVnd(order.discount)}'),
+            _DetailRow(label: 'Tong tien', value: _formatVnd(order.total)),
             const SizedBox(height: 16),
-            const AdminSectionTitle(eyebrow: 'Items', title: 'Snapshot'),
+            const AdminSectionTitle(eyebrow: 'San pham', title: 'Snapshot'),
             const SizedBox(height: 12),
-            const _OrderItemPreview(name: 'Hypervolt v1', size: '10', qty: 1),
-            SizedBox(height: 10),
-            const _OrderItemPreview(name: 'Kinetic Jersey', size: 'M', qty: 1),
+            ...order.items.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: _OrderItemPreview(
+                  name: item.title,
+                  size: item.size,
+                  qty: item.quantity,
+                ),
+              ),
+            ),
             const SizedBox(height: 18),
             GlowButton(
-              label: 'UPDATE STATUS',
+              label: 'CAP NHAT TRANG THAI',
               icon: Icons.sync_rounded,
               expanded: true,
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context);
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: AppColors.surface,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  builder: (context) => _StatusActionSheet(order: order),
+                );
+              },
             ),
           ],
         ),
@@ -378,7 +400,7 @@ class _OrderDetailSheet extends StatelessWidget {
 class _StatusActionSheet extends StatelessWidget {
   const _StatusActionSheet({required this.order});
 
-  final _AdminOrder order;
+  final OrderModel order;
 
   @override
   Widget build(BuildContext context) {
@@ -389,23 +411,43 @@ class _StatusActionSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AdminSectionTitle(eyebrow: 'Status', title: order.id),
+            AdminSectionTitle(eyebrow: 'Trang thai', title: order.orderNumber),
             const SizedBox(height: 16),
-            const _StatusAction(label: 'Confirm order', icon: Icons.task_alt_rounded),
-            const SizedBox(height: 10),
-            const _StatusAction(label: 'Mark as shipping', icon: Icons.local_shipping_rounded),
-            const SizedBox(height: 10),
-            const _StatusAction(label: 'Mark as delivered', icon: Icons.check_circle_rounded),
+            _StatusAction(
+              label: 'Xac nhan don',
+              icon: Icons.task_alt_rounded,
+              onTap: () => _updateStatus(context, OrderStatus.confirmed),
+            ),
             const SizedBox(height: 10),
             _StatusAction(
-              label: 'Cancel order',
+              label: 'Chuyen sang dang giao',
+              icon: Icons.local_shipping_rounded,
+              onTap: () => _updateStatus(context, OrderStatus.shipping),
+            ),
+            const SizedBox(height: 10),
+            _StatusAction(
+              label: 'Danh dau da giao',
+              icon: Icons.check_circle_rounded,
+              onTap: () => _updateStatus(context, OrderStatus.delivered),
+            ),
+            const SizedBox(height: 10),
+            _StatusAction(
+              label: 'Huy don',
               icon: Icons.cancel_rounded,
               color: AppColors.error,
-              onTap: () => Navigator.pop(context),
+              onTap: () => _updateStatus(context, OrderStatus.cancelled),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void _updateStatus(BuildContext context, OrderStatus status) {
+    context.read<OrderService>().updateOrderStatus(order.id, status);
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Da cap nhat: ${status.label}')),
     );
   }
 }
@@ -414,14 +456,14 @@ class _StatusAction extends StatelessWidget {
   const _StatusAction({
     required this.label,
     required this.icon,
+    required this.onTap,
     this.color = AppColors.neon,
-    this.onTap,
   });
 
   final String label;
   final IconData icon;
+  final VoidCallback onTap;
   final Color color;
-  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -429,7 +471,7 @@ class _StatusAction extends StatelessWidget {
       color: AppColors.surface2,
       padding: const EdgeInsets.all(16),
       child: InkWell(
-        onTap: onTap ?? () => Navigator.pop(context),
+        onTap: onTap,
         child: Row(
           children: [
             Icon(icon, color: color),
@@ -446,6 +488,37 @@ class _StatusAction extends StatelessWidget {
             const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _EmptyOrdersCard extends StatelessWidget {
+  const _EmptyOrdersCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SectionCard(
+      color: AppColors.surface2,
+      child: Column(
+        children: [
+          Icon(Icons.receipt_long_outlined, color: AppColors.neon, size: 42),
+          SizedBox(height: 12),
+          Text(
+            'Chua co don hang',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          SizedBox(height: 6),
+          Text(
+            'Don hang user checkout se hien tai day.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+        ],
       ),
     );
   }
@@ -491,15 +564,20 @@ class _DetailRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Text(label, style: const TextStyle(color: AppColors.textMuted)),
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w900,
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
         ],
@@ -542,28 +620,4 @@ class _OrderItemPreview extends StatelessWidget {
       ),
     );
   }
-}
-
-class _AdminOrder {
-  const _AdminOrder({
-    required this.id,
-    required this.customer,
-    required this.email,
-    required this.itemCount,
-    required this.amount,
-    required this.date,
-    required this.status,
-    required this.color,
-    required this.payment,
-  });
-
-  final String id;
-  final String customer;
-  final String email;
-  final int itemCount;
-  final String amount;
-  final String date;
-  final String status;
-  final Color color;
-  final String payment;
 }

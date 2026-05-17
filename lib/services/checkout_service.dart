@@ -12,6 +12,11 @@ class CheckoutService {
     required String shippingAddress,
     required String phoneNumber,
     required double shippingCost,
+    double discount = 0,
+    required String paymentMethod,
+    required String customerName,
+    required String shippingMethod,
+    String? voucherCode,
   }) async {
     try {
       // Lấy các items đã chọn từ giỏ hàng
@@ -23,16 +28,21 @@ class CheckoutService {
 
       // Tính toán tổng tiền
       final subtotal = _cartService.selectedTotalAmount;
-      final total = subtotal + shippingCost;
+      final total = subtotal + shippingCost - discount;
 
       // Tạo đơn hàng
       _orderService.createOrder(
         items: selectedItems,
         subtotal: subtotal,
         shippingCost: shippingCost,
+        discount: discount,
         total: total,
         shippingAddress: shippingAddress,
         phoneNumber: phoneNumber,
+        customerName: customerName,
+        paymentMethod: paymentMethod,
+        shippingMethod: shippingMethod,
+        voucherCode: voucherCode,
       );
 
       // Xóa các items đã chọn khỏi giỏ hàng

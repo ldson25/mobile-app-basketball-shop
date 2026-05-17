@@ -22,9 +22,14 @@ class OrderService extends ChangeNotifier {
     required List<CartItemModel> items,
     required double subtotal,
     required double shippingCost,
+    double discount = 0,
     required double total,
     required String shippingAddress,
     required String phoneNumber,
+    String customerName = '',
+    String paymentMethod = 'cash',
+    String shippingMethod = 'free',
+    String? voucherCode,
   }) {
     final order = OrderModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -35,9 +40,14 @@ class OrderService extends ChangeNotifier {
       items: items,
       subtotal: subtotal,
       shippingCost: shippingCost,
+      discount: discount,
       total: total,
       shippingAddress: shippingAddress,
       phoneNumber: phoneNumber,
+      customerName: customerName,
+      paymentMethod: paymentMethod,
+      shippingMethod: shippingMethod,
+      voucherCode: voucherCode,
     );
     
     _orders.insert(0, order); // Thêm vào đầu danh sách
@@ -57,9 +67,14 @@ class OrderService extends ChangeNotifier {
         items: _orders[index].items,
         subtotal: _orders[index].subtotal,
         shippingCost: _orders[index].shippingCost,
+        discount: _orders[index].discount,
         total: _orders[index].total,
         shippingAddress: _orders[index].shippingAddress,
         phoneNumber: _orders[index].phoneNumber,
+        customerName: _orders[index].customerName,
+        paymentMethod: _orders[index].paymentMethod,
+        shippingMethod: _orders[index].shippingMethod,
+        voucherCode: _orders[index].voucherCode,
       );
       notifyListeners();
     }

@@ -1,11 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../services/cart_service.dart';
-import '../../../services/order_service.dart';
-import '../../../services/checkout_service.dart';
+import '../../core/theme/app_colors.dart';
+import '../../services/cart_service.dart';
+import '../../services/order_service.dart';
+import '../../services/checkout_service.dart';
 import 'checkoutstepth.dart';
 import '../cart/mycart.dart';
+
+String formatVnd(double value) {
+  final number = value.round().toString();
+  final buffer = StringBuffer();
+  for (var i = 0; i < number.length; i++) {
+    final fromEnd = number.length - i;
+    buffer.write(number[i]);
+    if (fromEnd > 1 && fromEnd % 3 == 1) {
+      buffer.write('.');
+    }
+  }
+  return '${buffer}đ';
+}
+
+double _calculateVoucherDiscount(String code, double subtotal) {
+  switch (code) {
+    case 'MEMBER10':
+      return subtotal * 0.1;
+    case 'VIP20':
+      return subtotal >= 5000000 ? subtotal * 0.2 : 0;
+    case 'KINETIC50':
+      return subtotal >= 1000000 ? 50000 : 0;
+    default:
+      return 0;
+  }
+}
 
 class CheckoutPaymentScreen extends StatefulWidget {
   final VoidCallback onMenuTap;
@@ -23,7 +49,11 @@ class CheckoutPaymentScreen extends StatefulWidget {
 
 class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
   String selectedPaymentMethod = 'cash';
+  String? _appliedVoucherCode;
+  double _voucherDiscount = 0;
   bool _isProcessing = false;
+
+  final TextEditingController voucherController = TextEditingController();
 
   // Credit card controllers
   final TextEditingController cardNumberController = TextEditingController();
@@ -40,8 +70,10 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
         builder: (context, cartService, orderService, child) {
           final selectedItems = cartService.selectedItems;
           final subtotal = cartService.selectedTotalAmount;
-          final shippingCost = 0.0;
-          final total = subtotal + shippingCost;
+          final shippingCost =
+              double.tryParse(widget.shippingData?['shippingCost'] ?? '') ?? 0.0;
+          final discount = _voucherDiscount.clamp(0, subtotal).toDouble();
+          final total = subtotal + shippingCost - discount;
 
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
@@ -77,10 +109,57 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
                   if (selectedPaymentMethod == 'e_wallet')
                     const _EWalletInfo(),
                   const SizedBox(height: 32),
+                  _VoucherSection(
+                    controller: voucherController,
+                    appliedCode: _appliedVoucherCode,
+                    discount: discount,
+                    onApply: () {
+                      final code = voucherController.text.trim().toUpperCase();
+                      if (code.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Nhập mã voucher')),
+                        );
+                        return;
+                      }
+
+                      final discountValue = _calculateVoucherDiscount(
+                        code,
+                        subtotal,
+                      );
+
+                      if (discountValue <= 0) {
+                        setState(() {
+                          _appliedVoucherCode = null;
+                          _voucherDiscount = 0;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Voucher không hợp lệ hoặc chưa đủ điều kiện'),
+                          ),
+                        );
+                        return;
+                      }
+
+                      setState(() {
+                        _appliedVoucherCode = code;
+                        _voucherDiscount = discountValue;
+                      });
+                    },
+                    onRemove: () {
+                      setState(() {
+                        _appliedVoucherCode = null;
+                        _voucherDiscount = 0;
+                        voucherController.clear();
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 24),
                   _OrderSummary(
                     subtotal: subtotal,
                     shippingCost: shippingCost,
+                    discount: discount,
                     total: total,
+                    shippingLabel: widget.shippingData?['shippingLabel'],
                   ),
                   const SizedBox(height: 24),
                   _PlaceOrderButton(
@@ -88,6 +167,8 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
                     selectedItems: selectedItems,
                     subtotal: subtotal,
                     shippingCost: shippingCost,
+                    discount: discount,
+                    voucherCode: _appliedVoucherCode,
                     total: total,
                     shippingData: widget.shippingData,
                     isProcessing: _isProcessing,
@@ -110,6 +191,7 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
 
   @override
   void dispose() {
+    voucherController.dispose();
     cardNumberController.dispose();
     cardHolderController.dispose();
     expiryController.dispose();
@@ -148,7 +230,7 @@ class _PaymentAppBar extends StatelessWidget implements PreferredSizeWidget {
               const Expanded(
                 child: Center(
                   child: Text(
-                    'Payment',
+                    'Thanh toán',
                     style: TextStyle(
                       fontFamily: 'Space Grotesk',
                       fontSize: 18,
@@ -264,7 +346,7 @@ class _HeaderSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Thanh toan',
+          'Thanh toán',
           style: TextStyle(
             fontFamily: 'Space Grotesk',
             fontSize: 48,
@@ -276,7 +358,7 @@ class _HeaderSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Chon phuong thuc thanh toan phu hop tai Viet Nam',
+          'Chọn phương thức thanh toán phù hợp tại Việt Nam.',
           style: TextStyle(
             fontSize: 18,
             height: 1.6,
@@ -317,7 +399,7 @@ class _CashOnDeliveryInfo extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Thanh toan khi nhan hang',
+                  'Thanh toán khi nhận hàng',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -326,7 +408,7 @@ class _CashOnDeliveryInfo extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Kiem tra hang va thanh toan truc tiep cho shipper',
+                  'Kiểm tra hàng và thanh toán trực tiếp cho shipper.',
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
@@ -339,6 +421,7 @@ class _CashOnDeliveryInfo extends StatelessWidget {
       ),
     );
   }
+
 }
 
 class _BankTransferInfo extends StatelessWidget {
@@ -348,8 +431,8 @@ class _BankTransferInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return const _PaymentNotice(
       icon: Icons.account_balance_rounded,
-      title: 'Chuyen khoan ngan hang',
-      message: 'Thong tin tai khoan se duoc gui sau khi don hang duoc tao.',
+      title: 'Chuyển khoản ngân hàng',
+      message: 'Thông tin tài khoản sẽ được gửi sau khi đơn hàng được tạo.',
     );
   }
 }
@@ -361,8 +444,8 @@ class _EWalletInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return const _PaymentNotice(
       icon: Icons.account_balance_wallet_rounded,
-      title: 'Vi dien tu',
-      message: 'Ho tro MoMo, ZaloPay va VNPay trong giai doan tich hop sau.',
+      title: 'Ví điện tử',
+      message: 'Hỗ trợ MoMo, ZaloPay và VNPay trong giai đoạn tích hợp sau.',
     );
   }
 }
@@ -444,8 +527,8 @@ class _PaymentMethodSection extends StatelessWidget {
         _PaymentOption(
           value: 'cash',
           icon: Icons.money,
-          title: 'Thanh toan khi nhan hang',
-          subtitle: 'Nhan hang roi thanh toan cho shipper',
+          title: 'Thanh toán khi nhận hàng',
+          subtitle: 'Nhận hàng rồi thanh toán cho shipper',
           isSelected: selectedMethod == 'cash',
           onTap: () => onMethodChanged('cash'),
         ),
@@ -453,8 +536,8 @@ class _PaymentMethodSection extends StatelessWidget {
         _PaymentOption(
           value: 'bank_transfer',
           icon: Icons.account_balance_rounded,
-          title: 'Chuyen khoan ngan hang',
-          subtitle: 'Phu hop voi don gia tri cao',
+          title: 'Chuyển khoản ngân hàng',
+          subtitle: 'Phù hợp với đơn giá trị cao',
           isSelected: selectedMethod == 'bank_transfer',
           onTap: () => onMethodChanged('bank_transfer'),
         ),
@@ -462,7 +545,7 @@ class _PaymentMethodSection extends StatelessWidget {
         _PaymentOption(
           value: 'e_wallet',
           icon: Icons.account_balance_wallet_rounded,
-          title: 'Vi dien tu',
+          title: 'Ví điện tử',
           subtitle: 'MoMo, ZaloPay, VNPay',
           isSelected: selectedMethod == 'e_wallet',
           onTap: () => onMethodChanged('e_wallet'),
@@ -471,7 +554,7 @@ class _PaymentMethodSection extends StatelessWidget {
         _PaymentOption(
           value: 'credit_card',
           icon: Icons.credit_card,
-          title: 'The tin dung / ghi no',
+          title: 'Thẻ tín dụng / ghi nợ',
           subtitle: 'Visa, Mastercard',
           isSelected: selectedMethod == 'credit_card',
           onTap: () => onMethodChanged('credit_card'),
@@ -584,14 +667,14 @@ class _CreditCardForm extends StatelessWidget {
     return Column(
       children: [
         _InputField(
-          label: 'CARD NUMBER',
+          label: 'SỐ THẺ',
           hint: '1234 5678 9012 3456',
           controller: cardNumberController,
           keyboardType: TextInputType.number,
         ),
         const SizedBox(height: 16),
         _InputField(
-          label: 'CARDHOLDER NAME',
+          label: 'TÊN CHỦ THẺ',
           hint: 'JOHN DOE',
           controller: cardHolderController,
         ),
@@ -600,7 +683,7 @@ class _CreditCardForm extends StatelessWidget {
           children: [
             Expanded(
               child: _InputField(
-                label: 'EXPIRY DATE',
+                label: 'NGÀY HẾT HẠN',
                 hint: 'MM/YY',
                 controller: expiryController,
               ),
@@ -618,6 +701,104 @@ class _CreditCardForm extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _VoucherSection extends StatelessWidget {
+  const _VoucherSection({
+    required this.controller,
+    required this.appliedCode,
+    required this.discount,
+    required this.onApply,
+    required this.onRemove,
+  });
+
+  final TextEditingController controller;
+  final String? appliedCode;
+  final double discount;
+  final VoidCallback onApply;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasVoucher = appliedCode != null;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface2,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border.withAlpha(51)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'VOUCHER',
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  enabled: !hasVoucher,
+                  textCapitalization: TextCapitalization.characters,
+                  style: const TextStyle(color: AppColors.textPrimary),
+                  decoration: InputDecoration(
+                    hintText: 'MEMBER10, VIP20, KINETIC50',
+                    hintStyle: const TextStyle(color: AppColors.textMuted),
+                    filled: true,
+                    fillColor: AppColors.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.neon),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              IconButton(
+                onPressed: hasVoucher ? onRemove : onApply,
+                icon: Icon(
+                  hasVoucher ? Icons.close_rounded : Icons.check_rounded,
+                  color: hasVoucher ? AppColors.error : AppColors.background,
+                ),
+                style: IconButton.styleFrom(
+                  backgroundColor: hasVoucher ? AppColors.surfaceHighest : AppColors.neon,
+                  fixedSize: const Size(52, 52),
+                ),
+              ),
+            ],
+          ),
+          if (hasVoucher) ...[
+            const SizedBox(height: 10),
+            Text(
+              '$appliedCode da ap dung: -${formatVnd(discount)}',
+              style: const TextStyle(
+                color: AppColors.neon,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -685,12 +866,16 @@ class _InputField extends StatelessWidget {
 class _OrderSummary extends StatelessWidget {
   final double subtotal;
   final double shippingCost;
+  final double discount;
   final double total;
+  final String? shippingLabel;
 
   const _OrderSummary({
     required this.subtotal,
     required this.shippingCost,
+    required this.discount,
     required this.total,
+    this.shippingLabel,
   });
 
   @override
@@ -705,7 +890,7 @@ class _OrderSummary extends StatelessWidget {
       child: Column(
         children: [
           const Text(
-            'ORDER SUMMARY',
+            'TÓM TẮT ĐƠN HÀNG',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -715,18 +900,25 @@ class _OrderSummary extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _SummaryRow(
-            label: 'Subtotal',
-            value: '\$${subtotal.toStringAsFixed(2)}',
+            label: 'Tạm tính',
+            value: formatVnd(subtotal),
           ),
           const SizedBox(height: 12),
           _SummaryRow(
-            label: 'Shipping',
-            value: shippingCost > 0 ? '\$${shippingCost.toStringAsFixed(2)}' : 'FREE',
+            label: shippingLabel ?? 'Phí giao hàng',
+            value: shippingCost > 0 ? formatVnd(shippingCost) : 'Miễn phí',
           ),
+          if (discount > 0) ...[
+            const SizedBox(height: 12),
+            _SummaryRow(
+              label: 'Voucher',
+              value: '-${formatVnd(discount)}',
+            ),
+          ],
           const Divider(color: AppColors.border, height: 24),
           _SummaryRow(
-            label: 'TOTAL',
-            value: '\$${total.toStringAsFixed(2)}',
+            label: 'TỔNG CỘNG',
+            value: formatVnd(total),
             isTotal: true,
           ),
         ],
@@ -777,6 +969,8 @@ class _PlaceOrderButton extends StatelessWidget {
   final List<dynamic> selectedItems;
   final double subtotal;
   final double shippingCost;
+  final double discount;
+  final String? voucherCode;
   final double total;
   final Map<String, String>? shippingData;
   final bool isProcessing;
@@ -788,6 +982,8 @@ class _PlaceOrderButton extends StatelessWidget {
     required this.selectedItems,
     required this.subtotal,
     required this.shippingCost,
+    required this.discount,
+    required this.voucherCode,
     required this.total,
     required this.shippingData,
     required this.isProcessing,
@@ -815,9 +1011,10 @@ class _PlaceOrderButton extends StatelessWidget {
                 final checkoutService = CheckoutService();
                 final shippingAddress = [
                   shippingData?['street'],
-                  shippingData?['district'],
-                  shippingData?['city'],
-                  shippingData?['country'],
+                      shippingData?['ward'],
+                      shippingData?['district'],
+                      shippingData?['city'],
+                      shippingData?['country'],
                 ].where((part) => part != null && part.isNotEmpty).join(', ');
                 final success = await checkoutService.processCheckout(
                   shippingAddress: shippingAddress.isEmpty
@@ -825,6 +1022,11 @@ class _PlaceOrderButton extends StatelessWidget {
                       : shippingAddress,
                   phoneNumber: shippingData?['phone'] ?? 'No phone provided',
                   shippingCost: shippingCost,
+                  discount: discount,
+                  paymentMethod: selectedMethod,
+                  customerName: shippingData?['fullName'] ?? '',
+                  shippingMethod: shippingData?['shippingMethod'] ?? 'free',
+                  voucherCode: voucherCode,
                 );
 
                 onProcessingChanged(false);
@@ -844,7 +1046,7 @@ class _PlaceOrderButton extends StatelessWidget {
                   // Show error
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Failed to place order. Please try again.'),
+                      content: Text('Đặt hàng thất bại. Vui lòng thử lại.'),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -870,7 +1072,7 @@ class _PlaceOrderButton extends StatelessWidget {
                 ),
               )
             : const Text(
-                'DAT HANG',
+                'ĐẶT HÀNG',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 18,

@@ -19,7 +19,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   
-  bool _earlyAccess = false;
+  bool _joinVip = false;
   bool _agreeTerms = false;
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -27,27 +27,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Future<void> _handleSignUp() async {
     if (_fullNameController.text.isEmpty) {
-      _showError('Please enter your full name');
+      _showError('Vui lòng nhập họ và tên');
       return;
     }
     
     if (_emailController.text.isEmpty || !_emailController.text.contains('@')) {
-      _showError('Please enter a valid email address');
+      _showError('Vui lòng nhập email hợp lệ');
       return;
     }
     
     if (_passwordController.text.length < 8) {
-      _showError('Password must be at least 8 characters');
+      _showError('Mật khẩu phải có ít nhất 8 ký tự');
       return;
     }
     
     if (_passwordController.text != _confirmPasswordController.text) {
-      _showError('Passwords do not match');
+      _showError('Mật khẩu xác nhận không khớp');
       return;
     }
     
     if (!_agreeTerms) {
-      _showError('Please agree to the Terms of Service');
+      _showError('Vui lòng đồng ý với điều khoản sử dụng');
       return;
     }
 
@@ -63,7 +63,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         email: _emailController.text,
         password: _passwordController.text,
         confirmPassword: _confirmPasswordController.text,
-        isEarlyAccess: _earlyAccess,
+        isEarlyAccess: _joinVip,
       );
 
       if (success) {
@@ -113,7 +113,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'SIGN UP',
+                        'ĐĂNG KÝ',
                         style: GoogleFonts.spaceGrotesk(
                           color: AppColors.volt,
                           fontWeight: FontWeight.w800,
@@ -145,7 +145,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               const SizedBox(height: 28),
               Text(
-                'CREATE PROFILE',
+                'TẠO HỒ SƠ',
                 style: GoogleFonts.spaceGrotesk(
                   color: Colors.white,
                   fontWeight: FontWeight.w800,
@@ -156,7 +156,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 10),
               RichText(
                 text: TextSpan(
-                  text: 'CREATE ',
+                  text: 'THAM GIA ',
                   style: GoogleFonts.spaceGrotesk(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
@@ -165,7 +165,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   children: [
                     TextSpan(
-                      text: 'PROFILE',
+                      text: 'KINETIC',
                       style: GoogleFonts.spaceGrotesk(
                         color: AppColors.volt,
                         fontWeight: FontWeight.w800,
@@ -177,7 +177,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Join the elite tier for exclusive drops and performance insights.',
+                'Tạo tài khoản để mua sắm, theo dõi đơn hàng và nhận ưu đãi thành viên.',
                 style: GoogleFonts.inter(
                   color: AppColors.textSecondary,
                   fontSize: 16,
@@ -185,25 +185,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
               const SizedBox(height: 28),
-              _buildField('FULL NAME', 'Enter your name', _fullNameController),
+              _buildField('HỌ VÀ TÊN', 'Nhập họ và tên', _fullNameController),
               const SizedBox(height: 22),
-              _buildField('EMAIL ADDRESS', 'player@kinetic.app', _emailController,
+              _buildField('EMAIL', 'ban@kinetic.vn', _emailController,
                   keyboardType: TextInputType.emailAddress),
               const SizedBox(height: 22),
-              _buildField('PASSWORD', 'Minimum 8 characters', _passwordController,
+              _buildField('MẬT KHẨU', 'Tối thiểu 8 ký tự', _passwordController,
                   obscure: true, isPassword: true),
               const SizedBox(height: 22),
-              _buildField('CONFIRM PASSWORD', 'Repeat password', _confirmPasswordController,
+              _buildField('XÁC NHẬN MẬT KHẨU', 'Nhập lại mật khẩu', _confirmPasswordController,
                   obscure: true, isConfirmPassword: true),
               const SizedBox(height: 28),
               CheckboxListTile(
-                value: _earlyAccess,
-                onChanged: (v) => setState(() => _earlyAccess = v ?? false),
+                value: _joinVip,
+                onChanged: (v) => setState(() => _joinVip = v ?? false),
                 activeColor: AppColors.volt,
                 checkColor: Colors.black,
                 contentPadding: EdgeInsets.zero,
                 title: Text(
-                  'Sign up for early access to product drops',
+                  'Đăng ký nhận ưu đãi VIP và voucher độc quyền',
                   style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
                 ),
                 controlAffinity: ListTileControlAffinity.leading,
@@ -215,7 +215,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 checkColor: Colors.black,
                 contentPadding: EdgeInsets.zero,
                 title: Text(
-                  'I agree to the Terms of Service and Privacy Policy',
+                  'Tôi đồng ý với Điều khoản sử dụng và Chính sách bảo mật',
                   style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
                 ),
                 controlAffinity: ListTileControlAffinity.leading,
@@ -249,7 +249,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             color: AppColors.background,
                           ),
                         )
-                      : const Text('CREATE ACCOUNT'),
+                      : const Text('TẠO TÀI KHOẢN'),
                 ),
               ),
               const SizedBox(height: 24),
@@ -263,7 +263,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   },
                   child: Text.rich(
                     TextSpan(
-                      text: 'ALREADY HAVE AN ACCOUNT? ',
+                      text: 'ĐÃ CÓ TÀI KHOẢN? ',
                       style: GoogleFonts.spaceGrotesk(
                         color: Colors.white70,
                         fontWeight: FontWeight.w700,
@@ -271,7 +271,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       children: [
                         TextSpan(
-                          text: 'SIGN IN',
+                          text: 'ĐĂNG NHẬP',
                           style: GoogleFonts.spaceGrotesk(
                             color: AppColors.neon,
                             fontWeight: FontWeight.w700,
@@ -315,7 +315,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
         const SizedBox(height: 8),
         TextField(
           controller: controller,
-          obscureText: obscure,
+          obscureText: isPassword
+              ? _obscurePassword
+              : isConfirmPassword
+                  ? _obscureConfirmPassword
+                  : obscure,
           keyboardType: keyboardType,
           style: GoogleFonts.inter(color: Colors.white, fontSize: 18),
           decoration: InputDecoration(
