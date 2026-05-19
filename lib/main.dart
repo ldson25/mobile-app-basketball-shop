@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart' hide ChangeNotifierProvider, Provider;
+import 'package:flutter_riverpod/flutter_riverpod.dart'
+    hide ChangeNotifierProvider, Provider;
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'features/admin/presentation/admin_shell.dart';
@@ -35,31 +36,12 @@ class KineticApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Kinetic',
         theme: AppTheme.darkTheme,
-        home: const AuthWrapper(),
+        home: const AppShell(), // 👈 luôn hiển thị màn hình chính
         routes: {
           AdminShell.routeName: (_) => const AdminShell(),
+          '/login': (_) => const LoginScreen(), // 👈 để dùng cho _requireAuth()
         },
       ),
     );
-  }
-}
-
-class AuthWrapper extends StatelessWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-    final currentUser = authService.currentUser;
-
-    if (authService.isAuthenticated) {
-      if (currentUser?.isAdmin ?? false) {
-        return const AdminShell();
-      }
-
-      return const AppShell();
-    }
-
-    return const LoginScreen();
   }
 }

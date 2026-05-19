@@ -3,8 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../services/auth_service.dart';
-import '../../admin/presentation/admin_shell.dart';
-import '../../app_shell/presentation/app_shell.dart';
 import 'sign_up_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -15,11 +13,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  bool _isLoading = false;
-  bool _obscurePassword = true;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,22 +30,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   )
                 : const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _EditorialSection(),
-                      _LoginForm(),
-                    ],
+                    children: [_EditorialSection(), _LoginForm()],
                   );
           },
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 }
 
@@ -68,10 +51,7 @@ class _EditorialSection extends StatelessWidget {
         image: const DecorationImage(
           image: AssetImage('assets/login/login.png'),
           fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Colors.white60,
-            BlendMode.luminosity,
-          ),
+          colorFilter: ColorFilter.mode(Colors.white60, BlendMode.luminosity),
         ),
       ),
       child: Container(
@@ -79,10 +59,7 @@ class _EditorialSection extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
-            colors: [
-              AppColors.background,
-              Colors.transparent,
-            ],
+            colors: [AppColors.background, Colors.transparent],
           ),
         ),
         child: Padding(
@@ -114,10 +91,7 @@ class _EditorialSection extends StatelessWidget {
                         height: 1,
                         color: AppColors.neon,
                         shadows: const [
-                          Shadow(
-                            blurRadius: 20,
-                            color: AppColors.neonSoft,
-                          ),
+                          Shadow(blurRadius: 20, color: AppColors.neonSoft),
                         ],
                       ),
                     ),
@@ -161,16 +135,16 @@ class _LoginFormState extends State<_LoginForm> {
 
   Future<void> _handleLogin() async {
     if (_emailController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập email')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Vui lòng nhập email')));
       return;
     }
-    
+
     if (_passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập mật khẩu')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Vui lòng nhập mật khẩu')));
       return;
     }
 
@@ -189,16 +163,8 @@ class _LoginFormState extends State<_LoginForm> {
     });
 
     if (success) {
-      final currentUser = authService.currentUser;
-      final destination = currentUser?.isAdmin ?? false
-          ? const AdminShell()
-          : const AppShell();
-
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => destination),
-        (route) => false,
-      );
+      // Đóng màn hình login và trả về true cho màn hình gọi
+      Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -264,10 +230,11 @@ class _LoginFormState extends State<_LoginForm> {
                     _buildLabel('Mật khẩu'),
                     TextButton(
                       onPressed: () {
-                        // Forgot password
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Liên kết đặt lại mật khẩu đã được gửi tới email'),
+                            content: Text(
+                              'Liên kết đặt lại mật khẩu đã được gửi tới email',
+                            ),
                           ),
                         );
                       },
@@ -304,7 +271,9 @@ class _LoginFormState extends State<_LoginForm> {
                         });
                       },
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: AppColors.textSecondary,
                         size: 20,
                       ),
@@ -356,7 +325,9 @@ class _LoginFormState extends State<_LoginForm> {
                     label: 'GOOGLE',
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Đăng nhập Google sẽ được bổ sung sau')),
+                        const SnackBar(
+                          content: Text('Đăng nhập Google sẽ được bổ sung sau'),
+                        ),
                       );
                     },
                   ),
@@ -368,7 +339,9 @@ class _LoginFormState extends State<_LoginForm> {
                     label: 'APPLE',
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Đăng nhập Apple sẽ được bổ sung sau')),
+                        const SnackBar(
+                          content: Text('Đăng nhập Apple sẽ được bổ sung sau'),
+                        ),
                       );
                     },
                   ),
@@ -460,12 +433,7 @@ class _LoginFormState extends State<_LoginForm> {
   Widget _buildDivider(String text) {
     return Row(
       children: [
-        const Expanded(
-          child: Divider(
-            color: AppColors.border,
-            thickness: 0.5,
-          ),
-        ),
+        const Expanded(child: Divider(color: AppColors.border, thickness: 0.5)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
@@ -478,12 +446,7 @@ class _LoginFormState extends State<_LoginForm> {
             ),
           ),
         ),
-        const Expanded(
-          child: Divider(
-            color: AppColors.border,
-            thickness: 0.5,
-          ),
-        ),
+        const Expanded(child: Divider(color: AppColors.border, thickness: 0.5)),
       ],
     );
   }
@@ -498,9 +461,7 @@ class _LoginFormState extends State<_LoginForm> {
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 16),
         side: const BorderSide(color: AppColors.border),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(40),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
         backgroundColor: AppColors.surface2,
       ),
       child: Row(

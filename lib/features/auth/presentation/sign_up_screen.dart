@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../services/auth_service.dart';
-import '../../app_shell/presentation/app_shell.dart';
 import 'login.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -17,8 +16,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-  
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
   bool _joinVip = false;
   bool _agreeTerms = false;
   bool _isLoading = false;
@@ -30,22 +30,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _showError('Vui lòng nhập họ và tên');
       return;
     }
-    
+
     if (_emailController.text.isEmpty || !_emailController.text.contains('@')) {
       _showError('Vui lòng nhập email hợp lệ');
       return;
     }
-    
+
     if (_passwordController.text.length < 8) {
       _showError('Mật khẩu phải có ít nhất 8 ký tự');
       return;
     }
-    
+
     if (_passwordController.text != _confirmPasswordController.text) {
       _showError('Mật khẩu xác nhận không khớp');
       return;
     }
-    
+
     if (!_agreeTerms) {
       _showError('Vui lòng đồng ý với điều khoản sử dụng');
       return;
@@ -56,7 +56,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
 
     final authService = Provider.of<AuthService>(context, listen: false);
-    
+
     try {
       final success = await authService.signUp(
         fullName: _fullNameController.text,
@@ -67,12 +67,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
 
       if (success) {
-        // Navigate to AppShell
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const AppShell()),
-          (route) => false,
-        );
+        // Đăng ký thành công, đóng màn hình và trả về true
+        Navigator.pop(context, true);
       }
     } catch (e) {
       _showError(e.toString());
@@ -187,14 +183,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 28),
               _buildField('HỌ VÀ TÊN', 'Nhập họ và tên', _fullNameController),
               const SizedBox(height: 22),
-              _buildField('EMAIL', 'ban@kinetic.vn', _emailController,
-                  keyboardType: TextInputType.emailAddress),
+              _buildField(
+                'EMAIL',
+                'ban@kinetic.vn',
+                _emailController,
+                keyboardType: TextInputType.emailAddress,
+              ),
               const SizedBox(height: 22),
-              _buildField('MẬT KHẨU', 'Tối thiểu 8 ký tự', _passwordController,
-                  obscure: true, isPassword: true),
+              _buildField(
+                'MẬT KHẨU',
+                'Tối thiểu 8 ký tự',
+                _passwordController,
+                obscure: true,
+                isPassword: true,
+              ),
               const SizedBox(height: 22),
-              _buildField('XÁC NHẬN MẬT KHẨU', 'Nhập lại mật khẩu', _confirmPasswordController,
-                  obscure: true, isConfirmPassword: true),
+              _buildField(
+                'XÁC NHẬN MẬT KHẨU',
+                'Nhập lại mật khẩu',
+                _confirmPasswordController,
+                obscure: true,
+                isConfirmPassword: true,
+              ),
               const SizedBox(height: 28),
               CheckboxListTile(
                 value: _joinVip,
@@ -318,8 +328,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           obscureText: isPassword
               ? _obscurePassword
               : isConfirmPassword
-                  ? _obscureConfirmPassword
-                  : obscure,
+              ? _obscureConfirmPassword
+              : obscure,
           keyboardType: keyboardType,
           style: GoogleFonts.inter(color: Colors.white, fontSize: 18),
           decoration: InputDecoration(

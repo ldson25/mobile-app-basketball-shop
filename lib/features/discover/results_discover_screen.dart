@@ -1,12 +1,18 @@
+import 'package:doanltdd/features/products/presentation/product_detail_screen.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/constants/app_sizes.dart';
-import '../../core/theme/app_colors.dart';
-import '../../models/product_model.dart';
-import '../../widgets/product_card.dart';
-import '../products/presentation/product_detail_screen.dart';
+import '../../../core/constants/app_sizes.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../models/product_model.dart';
+import '../../../widgets/product_card.dart';
+import 'package:doanltdd/features/products/presentation/product_detail_screen.dart'; // ✅ đường dẫn đúng
 
-enum _PriceFilter { all, underTwoMillion, fromTwoToFourMillion, overFourMillion }
+enum _PriceFilter {
+  all,
+  underTwoMillion,
+  fromTwoToFourMillion,
+  overFourMillion,
+}
 
 class ResultsDiscoverScreen extends StatefulWidget {
   const ResultsDiscoverScreen({
@@ -14,11 +20,13 @@ class ResultsDiscoverScreen extends StatefulWidget {
     required this.categoryName,
     required this.itemCount,
     this.searchKeyword,
+    required this.onRequireAuth,
   });
 
   final String categoryName;
   final int itemCount;
   final String? searchKeyword;
+  final Future<bool> Function() onRequireAuth;
 
   @override
   State<ResultsDiscoverScreen> createState() => _ResultsDiscoverScreenState();
@@ -45,9 +53,11 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
     final keyword = widget.searchKeyword?.trim().toLowerCase();
     if (keyword != null && keyword.isNotEmpty) {
       return allProducts
-          .where((product) =>
-              product.name.toLowerCase().contains(keyword) ||
-              product.badgeText.toLowerCase().contains(keyword))
+          .where(
+            (product) =>
+                product.name.toLowerCase().contains(keyword) ||
+                product.badgeText.toLowerCase().contains(keyword),
+          )
           .toList();
     }
 
@@ -171,24 +181,27 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
                     physics: const BouncingScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 0.6,
-                    ),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.6,
+                        ),
                     itemCount: products.length,
                     itemBuilder: (context, index) {
                       final product = products[index];
                       return ProductCard(
                         product: product,
-                        onProductTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  ProductDetailScreen(product: product),
-                            ),
-                          );
+                        onProductTap: () async {
+                          final authed = await widget.onRequireAuth();
+                          if (authed) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ProductDetailScreen(product: product),
+                              ),
+                            );
+                          }
                         },
                       );
                     },
@@ -301,10 +314,12 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
                     title: Text(
                       entry.value,
                       style: TextStyle(
-                        color:
-                            selected ? AppColors.neon : AppColors.textPrimary,
-                        fontWeight:
-                            selected ? FontWeight.w900 : FontWeight.w600,
+                        color: selected
+                            ? AppColors.neon
+                            : AppColors.textPrimary,
+                        fontWeight: selected
+                            ? FontWeight.w900
+                            : FontWeight.w600,
                       ),
                     ),
                     trailing: selected

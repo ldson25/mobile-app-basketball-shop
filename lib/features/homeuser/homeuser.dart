@@ -7,16 +7,21 @@ import '../cart/mycart.dart';
 import '../products/presentation/product_detail_screen.dart';
 
 class HomeUserScreen extends StatelessWidget {
-  const HomeUserScreen({super.key, required this.onMenuTap});
-
   final VoidCallback onMenuTap;
+  final Future<bool> Function() onRequireAuth;
+
+  const HomeUserScreen({
+    super.key,
+    required this.onMenuTap,
+    required this.onRequireAuth,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: _HomeAppBar(onMenuTap: onMenuTap),
-      body: const HomeBody(),
+      body: HomeBody(onRequireAuth: onRequireAuth),
     );
   }
 }
@@ -106,7 +111,9 @@ class _CircleIconButton extends StatelessWidget {
 }
 
 class HomeBody extends StatelessWidget {
-  const HomeBody({super.key});
+  final Future<bool> Function() onRequireAuth;
+
+  const HomeBody({super.key, required this.onRequireAuth});
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +123,10 @@ class HomeBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 18),
-          SeasonalDropsHero(product: ProductData.footwearProducts.first),
+          SeasonalDropsHero(
+            product: ProductData.footwearProducts.first,
+            onRequireAuth: onRequireAuth,
+          ),
           const SizedBox(height: 48),
           _ProductRail(
             eyebrow: 'Vừa ra mắt',
@@ -126,9 +136,10 @@ class HomeBody extends StatelessWidget {
               ProductData.apparelProducts[0],
               ProductData.footwearProducts[5],
             ],
+            onRequireAuth: onRequireAuth,
           ),
           const SizedBox(height: 48),
-          const EditorialBanner(),
+          EditorialBanner(onRequireAuth: onRequireAuth),
           const SizedBox(height: 48),
           _ProductRail(
             eyebrow: 'Thịnh hành',
@@ -139,6 +150,7 @@ class HomeBody extends StatelessWidget {
               ProductData.footwearProducts[7],
               ProductData.equipmentProducts[0],
             ],
+            onRequireAuth: onRequireAuth,
           ),
           const SizedBox(height: 112),
         ],
@@ -148,9 +160,14 @@ class HomeBody extends StatelessWidget {
 }
 
 class SeasonalDropsHero extends StatelessWidget {
-  const SeasonalDropsHero({super.key, required this.product});
-
   final ProductModel product;
+  final Future<bool> Function() onRequireAuth;
+
+  const SeasonalDropsHero({
+    super.key,
+    required this.product,
+    required this.onRequireAuth,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +175,12 @@ class SeasonalDropsHero extends StatelessWidget {
       padding: AppSizes.pageHorizontal,
       child: InkWell(
         borderRadius: BorderRadius.circular(AppSizes.cardRadius),
-        onTap: () => _openDetail(context, product),
+        onTap: () async {
+          final authed = await onRequireAuth();
+          if (authed) {
+            _openDetail(context, product);
+          }
+        },
         child: ClipRRect(
           borderRadius: BorderRadius.circular(AppSizes.cardRadius),
           child: SizedBox(
@@ -202,10 +224,11 @@ class SeasonalDropsHero extends StatelessWidget {
                       const SizedBox(height: 16),
                       Text(
                         product.name.toUpperCase(),
-                        style: Theme.of(context)
-                            .textTheme
-                            .displayLarge
-                            ?.copyWith(fontSize: 46, fontStyle: FontStyle.italic),
+                        style: Theme.of(context).textTheme.displayLarge
+                            ?.copyWith(
+                              fontSize: 46,
+                              fontStyle: FontStyle.italic,
+                            ),
                       ),
                       const SizedBox(height: 14),
                       Text(
@@ -218,7 +241,12 @@ class SeasonalDropsHero extends StatelessWidget {
                       ),
                       const SizedBox(height: 22),
                       ElevatedButton.icon(
-                        onPressed: () => _openDetail(context, product),
+                        onPressed: () async {
+                          final authed = await onRequireAuth();
+                          if (authed) {
+                            _openDetail(context, product);
+                          }
+                        },
                         icon: const Icon(Icons.arrow_forward_rounded, size: 18),
                         label: const Text('MUA NGAY'),
                         style: ElevatedButton.styleFrom(
@@ -252,17 +280,19 @@ class SeasonalDropsHero extends StatelessWidget {
 }
 
 class _ProductRail extends StatelessWidget {
+  final String eyebrow;
+  final String title;
+  final List<ProductModel> products;
+  final bool compact;
+  final Future<bool> Function() onRequireAuth;
+
   const _ProductRail({
     required this.eyebrow,
     required this.title,
     required this.products,
     this.compact = false,
+    required this.onRequireAuth,
   });
-
-  final String eyebrow;
-  final String title;
-  final List<ProductModel> products;
-  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -279,7 +309,11 @@ class _ProductRail extends StatelessWidget {
             itemCount: products.length,
             separatorBuilder: (_, __) => const SizedBox(width: 18),
             itemBuilder: (context, index) {
-              return _ProductCard(product: products[index], compact: compact);
+              return _ProductCard(
+                product: products[index],
+                compact: compact,
+                onRequireAuth: onRequireAuth,
+              );
             },
           ),
         ),
@@ -349,10 +383,15 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _ProductCard extends StatelessWidget {
-  const _ProductCard({required this.product, required this.compact});
-
   final ProductModel product;
   final bool compact;
+  final Future<bool> Function() onRequireAuth;
+
+  const _ProductCard({
+    required this.product,
+    required this.compact,
+    required this.onRequireAuth,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -361,7 +400,12 @@ class _ProductCard extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(AppSizes.cardRadius),
-      onTap: () => _openDetail(context, product),
+      onTap: () async {
+        final authed = await onRequireAuth();
+        if (authed) {
+          _openDetail(context, product);
+        }
+      },
       child: SizedBox(
         width: width,
         child: Column(
@@ -445,7 +489,9 @@ class _ProductCard extends StatelessWidget {
 }
 
 class EditorialBanner extends StatelessWidget {
-  const EditorialBanner({super.key});
+  final Future<bool> Function() onRequireAuth;
+
+  const EditorialBanner({super.key, required this.onRequireAuth});
 
   @override
   Widget build(BuildContext context) {
@@ -455,7 +501,12 @@ class EditorialBanner extends StatelessWidget {
       padding: AppSizes.pageHorizontal,
       child: InkWell(
         borderRadius: BorderRadius.circular(AppSizes.cardRadius),
-        onTap: () => _openDetail(context, product),
+        onTap: () async {
+          final authed = await onRequireAuth();
+          if (authed) {
+            _openDetail(context, product);
+          }
+        },
         child: ClipRRect(
           borderRadius: BorderRadius.circular(AppSizes.cardRadius),
           child: SizedBox(
