@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/shipping_address_model.dart';
 import '../../services/shipping_address_service.dart';
+import '../../services/address_service.dart';
+import '../../widgets/address_picker.dart';
 import '../cart/mycart.dart';
 
 class ShippingAddressesScreen extends StatelessWidget {
@@ -27,7 +29,7 @@ class ShippingAddressesScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Quan ly dia chi nhan hang de checkout nhanh hon.',
+                  'Quản lý địa chỉ nhận hàng để checkout nhanh hơn.',
                   style: TextStyle(
                     fontSize: 16,
                     height: 1.5,
@@ -40,7 +42,7 @@ class ShippingAddressesScreen extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: () => _showAddressForm(context),
                     icon: const Icon(Icons.add_location_alt_rounded),
-                    label: const Text('THEM DIA CHI MOI'),
+                    label: const Text('THÊM ĐỊA CHỈ MỚI'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.neon,
                       foregroundColor: AppColors.background,
@@ -65,9 +67,12 @@ class ShippingAddressesScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 14),
                       child: _AddressCard(
                         address: address,
-                        onEdit: () => _showAddressForm(context, address: address),
-                        onDelete: () => addressService.removeAddress(address.id),
-                        onSetDefault: () => addressService.setDefault(address.id),
+                        onEdit: () =>
+                            _showAddressForm(context, address: address),
+                        onDelete: () =>
+                            addressService.removeAddress(address.id),
+                        onSetDefault: () =>
+                            addressService.setDefault(address.id),
                       ),
                     ),
                   ),
@@ -104,7 +109,9 @@ class _ShippingAppBar extends StatelessWidget implements PreferredSizeWidget {
       height: 100,
       decoration: BoxDecoration(
         color: AppColors.background.withAlpha(179),
-        border: Border(bottom: BorderSide(color: AppColors.border.withAlpha(51))),
+        border: Border(
+          bottom: BorderSide(color: AppColors.border.withAlpha(51)),
+        ),
       ),
       child: SafeArea(
         child: Padding(
@@ -114,11 +121,14 @@ class _ShippingAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.arrow_back, color: AppColors.textSecondary),
+                icon: const Icon(
+                  Icons.arrow_back,
+                  color: AppColors.textSecondary,
+                ),
               ),
               const Expanded(
                 child: Text(
-                  'DIA CHI GIAO HANG',
+                  'ĐỊA CHỈ GIAO HÀNG',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Space Grotesk',
@@ -170,7 +180,7 @@ class _EmptyAddressView extends StatelessWidget {
           Icon(Icons.location_off_outlined, color: AppColors.neon, size: 42),
           SizedBox(height: 12),
           Text(
-            'Chua co dia chi',
+            'Chưa có địa chỉ',
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 18,
@@ -179,7 +189,7 @@ class _EmptyAddressView extends StatelessWidget {
           ),
           SizedBox(height: 6),
           Text(
-            'Them dia chi de checkout tu dong dien thong tin nhan hang.',
+            'Thêm địa chỉ để checkout tự động điền thông tin nhận hàng.',
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.textSecondary, height: 1.4),
           ),
@@ -210,7 +220,9 @@ class _AddressCard extends StatelessWidget {
         color: AppColors.surface2,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: address.isDefault ? AppColors.neon : AppColors.border.withAlpha(51),
+          color: address.isDefault
+              ? AppColors.neon
+              : AppColors.border.withAlpha(51),
           width: address.isDefault ? 1.5 : 1,
         ),
       ),
@@ -220,7 +232,9 @@ class _AddressCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                address.isDefault ? Icons.home_rounded : Icons.location_on_rounded,
+                address.isDefault
+                    ? Icons.home_rounded
+                    : Icons.location_on_rounded,
                 color: AppColors.neon,
               ),
               const SizedBox(width: 10),
@@ -238,13 +252,16 @@ class _AddressCard extends StatelessWidget {
               ),
               if (address.isDefault)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.neon,
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: const Text(
-                    'MAC DINH',
+                    'MẶC ĐỊNH',
                     style: TextStyle(
                       color: AppColors.background,
                       fontSize: 10,
@@ -265,10 +282,7 @@ class _AddressCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             address.fullAddress,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              height: 1.4,
-            ),
+            style: const TextStyle(color: AppColors.textSecondary, height: 1.4),
           ),
           const SizedBox(height: 8),
           Text(
@@ -285,19 +299,19 @@ class _AddressCard extends StatelessWidget {
             children: [
               _SmallActionButton(
                 icon: Icons.edit_rounded,
-                label: 'Sua',
+                label: 'Sửa',
                 onTap: onEdit,
               ),
               _SmallActionButton(
                 icon: Icons.delete_outline_rounded,
-                label: 'Xoa',
+                label: 'Xóa',
                 color: AppColors.error,
                 onTap: onDelete,
               ),
               if (!address.isDefault)
                 _SmallActionButton(
                   icon: Icons.check_circle_outline_rounded,
-                  label: 'Mac dinh',
+                  label: 'Mặc định',
                   onTap: onSetDefault,
                 ),
             ],
@@ -349,22 +363,26 @@ class _AddressFormSheetState extends State<_AddressFormSheet> {
   late final TextEditingController fullNameController;
   late final TextEditingController phoneController;
   late final TextEditingController streetController;
-  late final TextEditingController wardController;
-  late final TextEditingController districtController;
-  late final TextEditingController cityController;
   late bool isDefault;
+
+  // Lưu các giá trị địa chỉ từ API
+  String _selectedCity = '';
+  String _selectedDistrict = '';
+  String _selectedWard = '';
 
   @override
   void initState() {
     super.initState();
     final address = widget.address;
-    labelController = TextEditingController(text: address?.label ?? 'Nha rieng');
+    labelController = TextEditingController(
+      text: address?.label ?? 'Nhà riêng',
+    );
     fullNameController = TextEditingController(text: address?.fullName);
     phoneController = TextEditingController(text: address?.phone);
     streetController = TextEditingController(text: address?.street);
-    wardController = TextEditingController(text: address?.ward);
-    districtController = TextEditingController(text: address?.district);
-    cityController = TextEditingController(text: address?.city ?? 'TP. Ho Chi Minh');
+    _selectedCity = address?.city ?? '';
+    _selectedDistrict = address?.district ?? '';
+    _selectedWard = address?.ward ?? '';
     isDefault = address?.isDefault ?? false;
   }
 
@@ -374,9 +392,6 @@ class _AddressFormSheetState extends State<_AddressFormSheet> {
     fullNameController.dispose();
     phoneController.dispose();
     streetController.dispose();
-    wardController.dispose();
-    districtController.dispose();
-    cityController.dispose();
     super.dispose();
   }
 
@@ -395,7 +410,7 @@ class _AddressFormSheetState extends State<_AddressFormSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              widget.address == null ? 'THEM DIA CHI' : 'SUA DIA CHI',
+              widget.address == null ? 'THÊM ĐỊA CHỈ' : 'SỬA ĐỊA CHỈ',
               style: const TextStyle(
                 color: AppColors.neon,
                 fontSize: 20,
@@ -403,23 +418,48 @@ class _AddressFormSheetState extends State<_AddressFormSheet> {
               ),
             ),
             const SizedBox(height: 18),
-            _AddressInput(label: 'Ten dia chi', controller: labelController),
-            _AddressInput(label: 'Ho va ten', controller: fullNameController),
+            _AddressInput(label: 'Tên địa chỉ', controller: labelController),
+            _AddressInput(label: 'Họ và tên', controller: fullNameController),
             _AddressInput(
-              label: 'So dien thoai',
+              label: 'Số điện thoại',
               controller: phoneController,
               keyboardType: TextInputType.phone,
             ),
-            _AddressInput(label: 'So nha, ten duong', controller: streetController),
-            _AddressInput(label: 'Phuong / Xa', controller: wardController),
-            _AddressInput(label: 'Quan / Huyen', controller: districtController),
-            _AddressInput(label: 'Tinh / Thanh pho', controller: cityController),
+            _AddressInput(
+              label: 'Số nhà, tên đường',
+              controller: streetController,
+            ),
+            const SizedBox(height: 12),
+            // Widget chọn địa chỉ từ API
+            AddressPicker(
+              onAddressChanged: (addressMap) {
+                setState(() {
+                  _selectedCity = addressMap['city'] ?? '';
+                  _selectedDistrict = addressMap['district'] ?? '';
+                  _selectedWard = addressMap['ward'] ?? '';
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            // Hiển thị các giá trị đã chọn (có thể ẩn nếu muốn)
+            if (_selectedCity.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  'Đã chọn: $_selectedWard, $_selectedDistrict, $_selectedCity',
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            const SizedBox(height: 12),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               value: isDefault,
               activeThumbColor: AppColors.neon,
               title: const Text(
-                'Dat lam dia chi mac dinh',
+                'Đặt làm địa chỉ mặc định',
                 style: TextStyle(color: AppColors.textPrimary),
               ),
               onChanged: (value) => setState(() => isDefault = value),
@@ -438,7 +478,7 @@ class _AddressFormSheetState extends State<_AddressFormSheet> {
                   ),
                 ),
                 child: const Text(
-                  'LUU DIA CHI',
+                  'LƯU ĐỊA CHỈ',
                   style: TextStyle(fontWeight: FontWeight.w900),
                 ),
               ),
@@ -450,34 +490,37 @@ class _AddressFormSheetState extends State<_AddressFormSheet> {
   }
 
   void _saveAddress() {
-    final requiredFields = [
-      fullNameController.text,
-      phoneController.text,
-      streetController.text,
-      wardController.text,
-      districtController.text,
-      cityController.text,
-    ];
-
-    if (requiredFields.any((value) => value.trim().isEmpty)) {
+    // Kiểm tra dữ liệu bắt buộc
+    if (fullNameController.text.trim().isEmpty ||
+        phoneController.text.trim().isEmpty ||
+        streetController.text.trim().isEmpty ||
+        _selectedCity.isEmpty ||
+        _selectedDistrict.isEmpty ||
+        _selectedWard.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui long nhap day du thong tin dia chi')),
+        const SnackBar(
+          content: Text(
+            'Vui lòng nhập đầy đủ thông tin địa chỉ (tên, số điện thoại, số nhà, và chọn tỉnh/huyện/xã)',
+          ),
+        ),
       );
       return;
     }
 
     final service = context.read<ShippingAddressService>();
     final address = ShippingAddressModel(
-      id: widget.address?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      id:
+          widget.address?.id ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
       label: labelController.text.trim().isEmpty
-          ? 'Dia chi giao hang'
+          ? 'Địa chỉ giao hàng'
           : labelController.text.trim(),
       fullName: fullNameController.text.trim(),
       phone: phoneController.text.trim(),
       street: streetController.text.trim(),
-      ward: wardController.text.trim(),
-      district: districtController.text.trim(),
-      city: cityController.text.trim(),
+      ward: _selectedWard,
+      district: _selectedDistrict,
+      city: _selectedCity,
       isDefault: isDefault,
     );
 
@@ -488,6 +531,12 @@ class _AddressFormSheetState extends State<_AddressFormSheet> {
     }
 
     Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Đã lưu địa chỉ'),
+        duration: Duration(seconds: 1),
+      ),
+    );
   }
 }
 
@@ -510,7 +559,16 @@ class _AddressInput extends StatelessWidget {
         controller: controller,
         keyboardType: keyboardType,
         style: const TextStyle(color: AppColors.textPrimary),
-        decoration: InputDecoration(labelText: label),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: AppColors.textSecondary),
+          enabledBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: AppColors.border),
+          ),
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: AppColors.neon),
+          ),
+        ),
       ),
     );
   }

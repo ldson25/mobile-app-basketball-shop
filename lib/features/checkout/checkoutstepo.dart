@@ -4,8 +4,9 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/shipping_address_model.dart';
 import '../../services/shipping_address_service.dart';
+import '../../widgets/address_picker.dart';
 import '../cart/mycart.dart';
-import '../checkout/checkoutstept.dart';
+import 'checkoutstept.dart';
 
 class CheckoutShippingScreen extends StatefulWidget {
   final VoidCallback onMenuTap;
@@ -23,17 +24,22 @@ class _CheckoutShippingScreenState extends State<CheckoutShippingScreen> {
   bool useSavedAddress = true;
   bool billingMatchesShipping = true;
 
+  // Controllers cho form nhập tay
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController streetController = TextEditingController();
-  final TextEditingController cityController = TextEditingController();
-  final TextEditingController districtController = TextEditingController();
-  final TextEditingController wardController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
+
+  // Biến lưu địa chỉ từ API
+  String _selectedCity = '';
+  String _selectedDistrict = '';
+  String _selectedWard = '';
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final defaultAddress = context.read<ShippingAddressService>().defaultAddress;
+    final defaultAddress = context
+        .read<ShippingAddressService>()
+        .defaultAddress;
     selectedAddressId ??= defaultAddress?.id;
     useSavedAddress = defaultAddress != null && useSavedAddress;
   }
@@ -49,7 +55,9 @@ class _CheckoutShippingScreenState extends State<CheckoutShippingScreen> {
       }
     }
     final shouldUseSavedAddress =
-        useSavedAddress && savedAddresses.isNotEmpty && selectedSavedAddress != null;
+        useSavedAddress &&
+        savedAddresses.isNotEmpty &&
+        selectedSavedAddress != null;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -61,9 +69,9 @@ class _CheckoutShippingScreenState extends State<CheckoutShippingScreen> {
           child: Column(
             children: [
               const SizedBox(height: 24),
-              _ProgressIndicator(),
+              const _ProgressIndicator(),
               const SizedBox(height: 32),
-              _HeaderSection(),
+              const _HeaderSection(),
               const SizedBox(height: 32),
               if (savedAddresses.isNotEmpty)
                 _SavedAddressSection(
@@ -84,20 +92,50 @@ class _CheckoutShippingScreenState extends State<CheckoutShippingScreen> {
               if (!shouldUseSavedAddress) ...[
                 _PersonalInfoSection(
                   fullNameController: fullNameController,
-                  selectedCountry: selectedCountry,
-                  onCountryChanged: (value) {
-                    setState(() {
-                      selectedCountry = value;
-                    });
-                  },
+                  phoneController: phoneController,
                 ),
                 const SizedBox(height: 32),
-                _DeliveryAddressSection(
-                  streetController: streetController,
-                  cityController: cityController,
-                  districtController: districtController,
-                  wardController: wardController,
-                  phoneController: phoneController,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on,
+                          color: AppColors.neon,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Địa chỉ giao hàng',
+                          style: TextStyle(
+                            fontFamily: 'Space Grotesk',
+                            fontSize: 28,
+                            fontWeight: FontWeight.w700,
+                            fontStyle: FontStyle.italic,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    // 👇 ĐÃ THAY THẾ BẰNG ADDRESS PICKER
+                    AddressPicker(
+                      onAddressChanged: (address) {
+                        setState(() {
+                          _selectedCity = address['city'] ?? '';
+                          _selectedDistrict = address['district'] ?? '';
+                          _selectedWard = address['ward'] ?? '';
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _InputField(
+                      label: 'SỐ NHÀ, TÊN ĐƯỜNG *',
+                      hint: '72 Lê Thánh Tôn',
+                      controller: streetController,
+                    ),
+                  ],
                 ),
               ] else
                 _SelectedAddressPreview(address: selectedSavedAddress),
@@ -122,14 +160,16 @@ class _CheckoutShippingScreenState extends State<CheckoutShippingScreen> {
               const SizedBox(height: 32),
               _ContinueButton(
                 fullNameController: fullNameController,
+                phoneController: phoneController,
                 selectedCountry: selectedCountry,
                 selectedShipping: selectedShipping,
                 streetController: streetController,
-                cityController: cityController,
-                districtController: districtController,
-                wardController: wardController,
-                phoneController: phoneController,
-                savedAddress: shouldUseSavedAddress ? selectedSavedAddress : null,
+                selectedCity: _selectedCity,
+                selectedDistrict: _selectedDistrict,
+                selectedWard: _selectedWard,
+                savedAddress: shouldUseSavedAddress
+                    ? selectedSavedAddress
+                    : null,
                 onMenuTap: widget.onMenuTap,
               ),
               const SizedBox(height: 40),
@@ -144,17 +184,15 @@ class _CheckoutShippingScreenState extends State<CheckoutShippingScreen> {
   void dispose() {
     fullNameController.dispose();
     streetController.dispose();
-    cityController.dispose();
-    districtController.dispose();
-    wardController.dispose();
     phoneController.dispose();
     super.dispose();
   }
 }
 
+// ==================== CÁC WIDGET CON ====================
+
 class _CheckoutAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onMenuTap;
-
   const _CheckoutAppBar({required this.onMenuTap});
 
   @override
@@ -164,25 +202,26 @@ class _CheckoutAppBar extends StatelessWidget implements PreferredSizeWidget {
       decoration: BoxDecoration(
         color: AppColors.background.withAlpha(230),
         border: Border(
-          bottom: BorderSide(
-            color: AppColors.border.withAlpha(51),
-          ),
+          bottom: BorderSide(color: AppColors.border.withAlpha(51)),
         ),
       ),
       child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                            IconButton(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Row(
+            children: [
+              IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.chevron_left, color: Colors.white, size: 28),
+                icon: const Icon(
+                  Icons.chevron_left,
+                  color: Colors.white,
+                  size: 28,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              const SizedBox(width: 40), 
-              Expanded(
+              const SizedBox(width: 40),
+              const Expanded(
                 child: Center(
                   child: Text(
                     'Thanh toán',
@@ -198,7 +237,7 @@ class _CheckoutAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
               const SizedBox(width: 40),
-             ], 
+            ],
           ),
         ),
       ),
@@ -222,19 +261,13 @@ class _ProgressIndicator extends StatelessWidget {
             top: 28,
             left: 0,
             right: 0,
-            child: Container(
-              height: 2,
-              color: AppColors.border,
-            ),
+            child: Container(height: 2, color: AppColors.border),
           ),
           Positioned(
             top: 28,
             left: 0,
             right: MediaQuery.of(context).size.width / 1.5,
-            child: Container(
-              height: 2,
-              color: AppColors.neon,
-            ),
+            child: Container(height: 2, color: AppColors.neon),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -270,7 +303,6 @@ class _ProgressStep extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final Color backgroundColor;
-
   const _ProgressStep({
     required this.isActive,
     required this.icon,
@@ -288,19 +320,10 @@ class _ProgressStep extends StatelessWidget {
         shape: BoxShape.circle,
         border: isActive ? null : Border.all(color: AppColors.border),
         boxShadow: isActive
-            ? [
-                BoxShadow(
-                  color: AppColors.neon.withAlpha(77),
-                  blurRadius: 15,
-                ),
-              ]
+            ? [BoxShadow(color: AppColors.neon.withAlpha(77), blurRadius: 15)]
             : null,
       ),
-      child: Icon(
-        icon,
-        size: 22,
-        color: iconColor,
-      ),
+      child: Icon(icon, size: 22, color: iconColor),
     );
   }
 }
@@ -364,7 +387,7 @@ class _SavedAddressSection extends StatelessWidget {
             SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Chon dia chi da luu',
+                'Chọn địa chỉ đã lưu',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 26,
@@ -377,71 +400,71 @@ class _SavedAddressSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        ...addresses.map(
-          (address) {
-            final isSelected = useSavedAddress && address.id == selectedAddressId;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: GestureDetector(
-                onTap: () => onSelectAddress(address.id),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface2,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isSelected ? AppColors.neon : AppColors.border,
-                      width: isSelected ? 2 : 1,
-                    ),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        isSelected
-                            ? Icons.radio_button_checked
-                            : Icons.radio_button_off,
-                        color: isSelected ? AppColors.neon : AppColors.textSecondary,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              address.label,
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              address.fullAddress,
-                              style: const TextStyle(
-                                color: AppColors.textSecondary,
-                                height: 1.35,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${address.fullName} / ${address.phone}',
-                              style: const TextStyle(
-                                color: AppColors.neon,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+        ...addresses.map((address) {
+          final isSelected = useSavedAddress && address.id == selectedAddressId;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: GestureDetector(
+              onTap: () => onSelectAddress(address.id),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.surface2,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected ? AppColors.neon : AppColors.border,
+                    width: isSelected ? 2 : 1,
                   ),
                 ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      isSelected
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
+                      color: isSelected
+                          ? AppColors.neon
+                          : AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            address.label,
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            address.fullAddress,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              height: 1.35,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${address.fullName} / ${address.phone}',
+                            style: const TextStyle(
+                              color: AppColors.neon,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        }),
         TextButton.icon(
           onPressed: onUseNewAddress,
           icon: const Icon(Icons.add_location_alt_rounded),
@@ -461,7 +484,6 @@ class _SelectedAddressPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (address == null) return const SizedBox.shrink();
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -474,7 +496,7 @@ class _SelectedAddressPreview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Dia chi dang su dung',
+            'Địa chỉ đang sử dụng',
             style: TextStyle(
               color: AppColors.neon,
               fontSize: 12,
@@ -511,13 +533,11 @@ class _SelectedAddressPreview extends StatelessWidget {
 
 class _PersonalInfoSection extends StatelessWidget {
   final TextEditingController fullNameController;
-  final String? selectedCountry;
-  final ValueChanged<String?> onCountryChanged;
+  final TextEditingController phoneController;
 
   const _PersonalInfoSection({
     required this.fullNameController,
-    required this.selectedCountry,
-    required this.onCountryChanged,
+    required this.phoneController,
   });
 
   @override
@@ -530,7 +550,7 @@ class _PersonalInfoSection extends StatelessWidget {
             const Icon(Icons.person, color: AppColors.neon, size: 24),
             const SizedBox(width: 12),
             const Text(
-                'Thông tin người nhận',
+              'Thông tin người nhận',
               style: TextStyle(
                 fontFamily: 'Space Grotesk',
                 fontSize: 28,
@@ -546,6 +566,13 @@ class _PersonalInfoSection extends StatelessWidget {
           label: 'HỌ VÀ TÊN *',
           hint: 'Nguyễn Văn A',
           controller: fullNameController,
+        ),
+        const SizedBox(height: 16),
+        _InputField(
+          label: 'SỐ ĐIỆN THOẠI *',
+          hint: '09xxxxxxxx',
+          controller: phoneController,
+          keyboardType: TextInputType.phone,
         ),
         const SizedBox(height: 16),
         Column(
@@ -571,109 +598,22 @@ class _PersonalInfoSection extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
-                    value: selectedCountry,
+                    value: 'VIET NAM',
                     isExpanded: true,
                     dropdownColor: AppColors.surface2,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
                     items: ['VIET NAM']
-                        .map((country) => DropdownMenuItem(
-                              value: country,
-                              child: Text(country),
-                            ))
+                        .map(
+                          (country) => DropdownMenuItem(
+                            value: country,
+                            child: Text(country),
+                          ),
+                        )
                         .toList(),
-                    onChanged: onCountryChanged,
+                    onChanged: (value) {},
                     icon: const Icon(Icons.expand_more, color: AppColors.neon),
                   ),
                 ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _DeliveryAddressSection extends StatelessWidget {
-  final TextEditingController streetController;
-  final TextEditingController cityController;
-  final TextEditingController districtController;
-  final TextEditingController wardController;
-  final TextEditingController phoneController;
-
-  const _DeliveryAddressSection({
-    required this.streetController,
-    required this.cityController,
-    required this.districtController,
-    required this.wardController,
-    required this.phoneController,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.location_on, color: AppColors.neon, size: 24),
-            const SizedBox(width: 12),
-            const Text(
-              'Địa chỉ giao hàng',
-              style: TextStyle(
-                fontFamily: 'Space Grotesk',
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                fontStyle: FontStyle.italic,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        _InputField(
-          label: 'SỐ NHÀ, TÊN ĐƯỜNG *',
-          hint: '72 Lê Thánh Tôn',
-          controller: streetController,
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: _InputField(
-                label: 'TỈNH / THÀNH PHỐ *',
-                hint: 'TP. Hồ Chí Minh',
-                controller: cityController,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _InputField(
-                label: 'QUẬN / HUYỆN *',
-                hint: 'Quận 1',
-                controller: districtController,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        _InputField(
-          label: 'PHƯỜNG / XÃ *',
-          hint: 'Phường Bến Nghé',
-          controller: wardController,
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: _InputField(
-                label: 'SỐ ĐIỆN THOẠI *',
-                hint: '09xxxxxxxx',
-                controller: phoneController,
-                keyboardType: TextInputType.phone,
               ),
             ),
           ],
@@ -898,10 +838,7 @@ class _BillingCheckbox extends StatelessWidget {
   final bool value;
   final ValueChanged<bool?> onChanged;
 
-  const _BillingCheckbox({
-    required this.value,
-    required this.onChanged,
-  });
+  const _BillingCheckbox({required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -914,9 +851,7 @@ class _BillingCheckbox extends StatelessWidget {
             value: value,
             onChanged: onChanged,
             fillColor: WidgetStateProperty.resolveWith((states) {
-              if (states.contains(WidgetState.selected)) {
-                return AppColors.neon;
-              }
+              if (states.contains(WidgetState.selected)) return AppColors.neon;
               return Colors.transparent;
             }),
             side: const BorderSide(color: AppColors.border),
@@ -928,10 +863,7 @@ class _BillingCheckbox extends StatelessWidget {
         const SizedBox(width: 12),
         const Text(
           'Địa chỉ thanh toán giống địa chỉ giao hàng.',
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.textSecondary,
-          ),
+          style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
         ),
       ],
     );
@@ -940,96 +872,94 @@ class _BillingCheckbox extends StatelessWidget {
 
 class _ContinueButton extends StatelessWidget {
   final TextEditingController fullNameController;
+  final TextEditingController phoneController;
   final String? selectedCountry;
   final String? selectedShipping;
   final TextEditingController streetController;
-  final TextEditingController cityController;
-  final TextEditingController districtController;
-  final TextEditingController wardController;
-  final TextEditingController phoneController;
+  final String selectedCity;
+  final String selectedDistrict;
+  final String selectedWard;
   final ShippingAddressModel? savedAddress;
   final VoidCallback onMenuTap;
-  const _ContinueButton(
-    {
+
+  const _ContinueButton({
     required this.fullNameController,
+    required this.phoneController,
     required this.selectedCountry,
     required this.selectedShipping,
     required this.streetController,
-    required this.cityController,
-    required this.districtController,
-    required this.wardController,
-    required this.phoneController,
+    required this.selectedCity,
+    required this.selectedDistrict,
+    required this.selectedWard,
     this.savedAddress,
     required this.onMenuTap,
-    }
-  );
+  });
 
   double get _shippingCost => selectedShipping == 'standard' ? 30000 : 0;
-
-  String get _shippingLabel =>
-      selectedShipping == 'standard' ? 'Giao hàng nhanh' : 'Giao hàng tiêu chuẩn';
-
-  bool _isBlank(TextEditingController controller) {
-    return controller.text.trim().isEmpty;
-  }
+  String get _shippingLabel => selectedShipping == 'standard'
+      ? 'Giao hàng nhanh'
+      : 'Giao hàng tiêu chuẩn';
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-      onPressed: () {
-            if (savedAddress != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CheckoutPaymentScreen(
-                    shippingData: savedAddress!.toCheckoutData(
-                      shippingMethod: selectedShipping ?? 'free',
-                      shippingLabel: _shippingLabel,
-                      shippingCost: _shippingCost,
-                    ),
-                    onMenuTap: onMenuTap,
-                  ),
-                ),
-              );
-              return;
-            }
-
-            if (_isBlank(fullNameController) ||
-                _isBlank(phoneController) ||
-                _isBlank(streetController) ||
-                _isBlank(wardController) ||
-                _isBlank(districtController) ||
-                _isBlank(cityController)) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Vui lòng nhập đầy đủ thông tin giao hàng.'),
-                ),
-              );
-              return;
-            }
-
+        onPressed: () {
+          if (savedAddress != null) {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => CheckoutPaymentScreen(
-                          shippingData: {
-                            'fullName': fullNameController.text.trim(),
-                            'country': selectedCountry ?? '',
-                            'street': streetController.text.trim(),
-                            'ward': wardController.text.trim(),
-                            'city': cityController.text.trim(),
-                            'district': districtController.text.trim(),
-                            'phone': phoneController.text.trim(),
-                            'shippingMethod': selectedShipping ?? 'free',
-                            'shippingLabel': _shippingLabel,
-                            'shippingCost': _shippingCost.toString(),
-                          }, onMenuTap: onMenuTap,
-                        ),
+                  shippingData: savedAddress!.toCheckoutData(
+                    shippingMethod: selectedShipping ?? 'free',
+                    shippingLabel: _shippingLabel,
+                    shippingCost: _shippingCost,
+                  ),
+                  onMenuTap: onMenuTap,
+                ),
               ),
             );
-          },
+            return;
+          }
+
+          if (fullNameController.text.trim().isEmpty ||
+              phoneController.text.trim().isEmpty ||
+              streetController.text.trim().isEmpty ||
+              selectedCity.isEmpty ||
+              selectedDistrict.isEmpty ||
+              selectedWard.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Vui lòng nhập đầy đủ thông tin giao hàng.'),
+              ),
+            );
+            return;
+          }
+
+          final fullAddress =
+              '${streetController.text.trim()}, $selectedWard, $selectedDistrict, $selectedCity';
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CheckoutPaymentScreen(
+                shippingData: {
+                  'fullName': fullNameController.text.trim(),
+                  'country': selectedCountry ?? '',
+                  'street': streetController.text.trim(),
+                  'ward': selectedWard,
+                  'city': selectedCity,
+                  'district': selectedDistrict,
+                  'phone': phoneController.text.trim(),
+                  'shippingMethod': selectedShipping ?? 'free',
+                  'shippingLabel': _shippingLabel,
+                  'shippingCost': _shippingCost.toString(),
+                },
+                onMenuTap: onMenuTap,
+              ),
+            ),
+          );
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.neon,
           foregroundColor: AppColors.background,
