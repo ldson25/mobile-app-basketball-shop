@@ -36,10 +36,10 @@ class KineticApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Kinetic',
         theme: AppTheme.darkTheme,
-        home: const AppShell(), // 👈 luôn hiển thị màn hình chính
+        home: const AppShell(),
         routes: {
           AdminShell.routeName: (_) => const AdminShell(),
-          '/login': (_) => const LoginScreen(), // 👈 để dùng cho _requireAuth()
+          '/login': (_) => const LoginScreen(),
         },
       ),
     );

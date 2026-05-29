@@ -5,6 +5,19 @@ import '../../core/theme/app_colors.dart';
 import '../../models/order_model.dart';
 import '../../services/order_service.dart';
 import '../cart/mycart.dart';
+import 'cancel_order_screen.dart';
+import 'return_order_screen.dart';
+
+String formatVnd(double value) {
+  final number = value.round().toString();
+  final buffer = StringBuffer();
+  for (var i = 0; i < number.length; i++) {
+    final fromEnd = number.length - i;
+    buffer.write(number[i]);
+    if (fromEnd > 1 && fromEnd % 3 == 1) buffer.write('.');
+  }
+  return '${buffer}đ';
+}
 
 String _paymentLabel(String method) {
   switch (method) {
@@ -23,10 +36,7 @@ String _paymentLabel(String method) {
 class OrderDetailScreen extends StatelessWidget {
   final String orderId;
 
-  const OrderDetailScreen({
-    super.key,
-    required this.orderId,
-  });
+  const OrderDetailScreen({super.key, required this.orderId});
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +81,8 @@ class OrderDetailScreen extends StatelessWidget {
   }
 }
 
-class _OrderDetailAppBar extends StatelessWidget implements PreferredSizeWidget {
+class _OrderDetailAppBar extends StatelessWidget
+    implements PreferredSizeWidget {
   const _OrderDetailAppBar();
 
   @override
@@ -130,30 +141,30 @@ class _OrderStatusCard extends StatelessWidget {
     final progressValue = isPending
         ? 0.25
         : isConfirmed
-            ? 0.5
-            : isShipping
-                ? 0.75
-                : 1.0;
+        ? 0.5
+        : isShipping
+        ? 0.75
+        : 1.0;
 
     final statusMessage = isPending
         ? 'Don hang dang cho xu ly'
         : isConfirmed
-            ? 'Don hang da duoc xac nhan'
-            : isShipping
-                ? 'Don hang dang duoc giao'
-                : isDelivered
-                    ? 'Don hang da giao thanh cong'
-                    : 'Don hang da bi huy';
+        ? 'Don hang da duoc xac nhan'
+        : isShipping
+        ? 'Don hang dang duoc giao'
+        : isDelivered
+        ? 'Don hang da giao thanh cong'
+        : 'Don hang da bi huy';
 
     final icon = isPending
         ? Icons.pending_actions
         : isConfirmed
-            ? Icons.task_alt_rounded
-            : isShipping
-                ? Icons.local_shipping_rounded
-                : isDelivered
-                    ? Icons.check_circle
-                    : Icons.cancel;
+        ? Icons.task_alt_rounded
+        : isShipping
+        ? Icons.local_shipping_rounded
+        : isDelivered
+        ? Icons.check_circle
+        : Icons.cancel;
 
     return _Card(
       borderColor: order.status.color.withOpacity(0.35),
@@ -265,7 +276,9 @@ class _ShippingInfoCard extends StatelessWidget {
           const SizedBox(height: 16),
           _InfoRow(
             label: 'Nguoi nhan',
-            value: order.customerName.isEmpty ? 'Khach hang' : order.customerName,
+            value: order.customerName.isEmpty
+                ? 'Khach hang'
+                : order.customerName,
           ),
           _InfoRow(label: 'Dia chi', value: order.shippingAddress),
           _InfoRow(label: 'So dien thoai', value: order.phoneNumber),
@@ -426,14 +439,22 @@ class _ActionButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     final isPending = order.status == OrderStatus.pending;
     final isDelivered = order.status == OrderStatus.delivered;
+    final isCancelled = order.status == OrderStatus.cancelled;
 
     return Column(
       children: [
-        if (isPending)
+        if (isPending && !isCancelled)
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: () => _confirmCancel(context),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CancelOrderScreen(order: order),
+                  ),
+                );
+              },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.error),
                 shape: RoundedRectangleBorder(
@@ -451,13 +472,16 @@ class _ActionButtons extends StatelessWidget {
               ),
             ),
           ),
-        if (isDelivered) ...[
+        if (isDelivered && !isCancelled)
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Da them san pham vao gio hang')),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReturnOrderScreen(order: order),
+                  ),
                 );
               },
               style: OutlinedButton.styleFrom(
@@ -468,7 +492,7 @@ class _ActionButtons extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               child: const Text(
-                'MUA LAI',
+                'YEU CAU TRA HANG',
                 style: TextStyle(
                   color: AppColors.neon,
                   fontSize: 14,
@@ -477,8 +501,8 @@ class _ActionButtons extends StatelessWidget {
               ),
             ),
           ),
+        if ((isPending || isDelivered) && !isCancelled)
           const SizedBox(height: 12),
-        ],
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
@@ -500,47 +524,10 @@ class _ActionButtons extends StatelessWidget {
       ],
     );
   }
-
-  Future<void> _confirmCancel(BuildContext context) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text(
-          'Huy don hang',
-          style: TextStyle(color: AppColors.textPrimary),
-        ),
-        content: const Text(
-          'Ban co chac muon huy don hang nay khong?',
-          style: TextStyle(color: AppColors.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('KHONG'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('CO', style: TextStyle(color: AppColors.error)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true || !context.mounted) return;
-
-    context.read<OrderService>().updateOrderStatus(order.id, OrderStatus.cancelled);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Da huy don hang')),
-    );
-  }
 }
 
 class _Card extends StatelessWidget {
-  const _Card({
-    required this.child,
-    this.borderColor,
-  });
+  const _Card({required this.child, this.borderColor});
 
   final Widget child;
   final Color? borderColor;
@@ -601,7 +588,9 @@ class _InfoRow extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: isStrong ? AppColors.textPrimary : AppColors.textSecondary,
+                color: isStrong
+                    ? AppColors.textPrimary
+                    : AppColors.textSecondary,
                 fontSize: isStrong ? 16 : 14,
                 fontWeight: isStrong ? FontWeight.w900 : FontWeight.w400,
               ),
@@ -639,10 +628,7 @@ class _ProgressLabel extends StatelessWidget {
         textAlign: TextAlign.center,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          color: AppColors.textSecondary,
-          fontSize: 10,
-        ),
+        style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
       ),
     );
   }

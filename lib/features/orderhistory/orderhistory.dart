@@ -7,6 +7,17 @@ import '../../models/order_model.dart';
 import '../cart/mycart.dart';
 import 'order_detail_screen.dart';
 
+String formatVnd(double value) {
+  final number = value.round().toString();
+  final buffer = StringBuffer();
+  for (var i = 0; i < number.length; i++) {
+    final fromEnd = number.length - i;
+    buffer.write(number[i]);
+    if (fromEnd > 1 && fromEnd % 3 == 1) buffer.write('.');
+  }
+  return '${buffer}đ';
+}
+
 class OrderHistoryScreen extends StatefulWidget {
   final VoidCallback onMenuTap;
 
@@ -38,13 +49,16 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
             child: Consumer<OrderService>(
               builder: (context, orderService, child) {
                 final orders = orderService.getOrdersByStatus(_selectedStatus);
-                
+
                 if (orders.isEmpty) {
                   return const _EmptyOrderView();
                 }
-                
+
                 return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
                   physics: const BouncingScrollPhysics(),
                   itemCount: orders.length,
                   itemBuilder: (context, index) {
@@ -143,7 +157,10 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     MaterialPageRoute(builder: (context) => const CartScreen()),
                   );
                 },
-                icon: const Icon(Icons.shopping_bag_outlined, color: Colors.white),
+                icon: const Icon(
+                  Icons.shopping_bag_outlined,
+                  color: Colors.white,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -192,10 +209,15 @@ class _FilterTabs extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => onStatusChanged(filter['status'] as OrderStatus?),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected ? AppColors.neon : Colors.transparent,
-                    border: isSelected ? null : Border.all(color: AppColors.border),
+                    border: isSelected
+                        ? null
+                        : Border.all(color: AppColors.border),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
@@ -233,10 +255,7 @@ class _OrderCard extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppColors.surface2,
-            AppColors.surface.withAlpha(230),
-          ],
+          colors: [AppColors.surface2, AppColors.surface.withAlpha(230)],
         ),
         border: Border.all(color: AppColors.border),
         borderRadius: BorderRadius.circular(32),
@@ -272,7 +291,10 @@ class _OrderCard extends StatelessWidget {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: order.status.color.withAlpha(26),
                   borderRadius: BorderRadius.circular(999),
@@ -295,10 +317,7 @@ class _OrderCard extends StatelessWidget {
             children: [
               const Text(
                 'Mã vận đơn:',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               Text(
                 order.trackingNumber,
@@ -316,17 +335,11 @@ class _OrderCard extends StatelessWidget {
             children: [
               const Text(
                 'Số lượng:',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               Text(
                 '${order.totalQuantity}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.white,
-                ),
+                style: const TextStyle(fontSize: 14, color: Colors.white),
               ),
             ],
           ),
@@ -361,9 +374,7 @@ class _OrderCard extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => OrderDetailScreen(
-                      orderId: order.id,
-                    ),
+                    builder: (context) => OrderDetailScreen(orderId: order.id),
                   ),
                 );
               },
@@ -374,7 +385,10 @@ class _OrderCard extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(999),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
+                ),
               ),
               child: Text(
                 'CHI TIẾT',

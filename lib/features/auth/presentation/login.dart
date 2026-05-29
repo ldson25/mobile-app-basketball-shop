@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../services/auth_service.dart';
+import '../../admin/presentation/admin_shell.dart';
+import '../../app_shell/presentation/app_shell.dart'; // Import AppShell
 import 'sign_up_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -163,8 +165,22 @@ class _LoginFormState extends State<_LoginForm> {
     });
 
     if (success) {
-      // Đóng màn hình login và trả về true cho màn hình gọi
-      Navigator.pop(context, true);
+      final currentUser = authService.currentUser;
+      if (currentUser?.isAdmin == true) {
+        // Admin: thay thế toàn bộ stack bằng AdminShell
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminShell()),
+          (route) => false,
+        );
+      } else {
+        // Member: thay thế toàn bộ stack bằng AppShell (không dùng pop)
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const AppShell()),
+          (route) => false,
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

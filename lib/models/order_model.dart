@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'cart_item_model.dart';
 
 enum OrderStatus {
@@ -8,6 +7,7 @@ enum OrderStatus {
   shipping,
   delivered,
   cancelled,
+  returned,
 }
 
 extension OrderStatusExtension on OrderStatus {
@@ -23,6 +23,8 @@ extension OrderStatusExtension on OrderStatus {
         return 'Da giao';
       case OrderStatus.cancelled:
         return 'Da huy';
+      case OrderStatus.returned:
+        return 'Da tra';
     }
   }
 
@@ -38,6 +40,8 @@ extension OrderStatusExtension on OrderStatus {
         return Colors.green;
       case OrderStatus.cancelled:
         return Colors.red;
+      case OrderStatus.returned:
+        return Colors.grey;
     }
   }
 }
