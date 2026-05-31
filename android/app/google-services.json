@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "951017965760",
+    "project_id": "basketball-shop-984e8",
+    "storage_bucket": "basketball-shop-984e8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:951017965760:android:dfcb93a57107188d390525",
+        "android_client_info": {
+          "package_name": "com.example.doanltdd"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "951017965760-40fq09og2tc48n4brbsc48tnt3dd8lja.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.doanltdd",
+            "certificate_hash": "a6208b1a925b14ef73b5513e540ebee330313153"
+          }
+        },
+        {
+          "client_id": "951017965760-nrtne21crlev9p63t0lm0c6u9up8ubb4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhp6B-3pB9oGhGb6OfcmMp-0ycyUH5yL8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "951017965760-nrtne21crlev9p63t0lm0c6u9up8ubb4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

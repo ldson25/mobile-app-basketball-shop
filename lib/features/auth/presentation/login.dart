@@ -339,12 +339,33 @@ class _LoginFormState extends State<_LoginForm> {
                   child: _buildSocialButton(
                     icon: Icons.g_mobiledata,
                     label: 'GOOGLE',
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Đăng nhập Google sẽ được bổ sung sau'),
-                        ),
-                      );
+                    onTap: () async {
+                      setState(() => _isLoading = true);
+                      final authService = Provider.of<AuthService>(context, listen: false);
+                      final success = await authService.signInWithGoogle();
+                      
+                      if (mounted) {
+                        setState(() => _isLoading = false);
+                        if (success) {
+                          final currentUser = authService.currentUser;
+                          if (currentUser?.isAdmin == true) {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => const AdminShell()),
+                              (route) => false,
+                            );
+                          } else {
+                            Navigator.pushReplacementNamed(context, '/');
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Đăng nhập Google thất bại hoặc bị hủy'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
                     },
                   ),
                 ),

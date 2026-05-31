@@ -12,9 +12,11 @@ import 'services/favorites_service.dart';
 import 'services/order_service.dart';
 import 'services/shipping_address_service.dart';
 import 'services/voucher_service.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const ProviderScope(child: KineticApp()));
 }
 
