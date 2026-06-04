@@ -83,7 +83,7 @@ class _EmptyFavoritesView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const Text(
-            'NO FAVORITES YET',
+            'CHƯA CÓ SẢN PHẨM YÊU THÍCH',
             style: TextStyle(
               fontFamily: 'Space Grotesk',
               fontSize: 20,
@@ -94,7 +94,7 @@ class _EmptyFavoritesView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Save your favorite items here',
+            'Lưu những sản phẩm bạn thích tại đây',
             style: TextStyle(
               color: AppColors.textSecondary,
             ),
@@ -110,7 +110,7 @@ class _EmptyFavoritesView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
-            child: const Text('EXPLORE PRODUCTS'),
+            child: const Text('KHÁM PHÁ SẢN PHẨM'),
           ),
         ],
       ),
@@ -146,7 +146,7 @@ class _FavoritesAppBar extends StatelessWidget implements PreferredSizeWidget {
                 icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary), 
               ),
               const Text(
-                'FAVORITES',
+                'YÊU THÍCH',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 20,
@@ -189,7 +189,7 @@ class _FavoritesHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'FAVORITES',
+            'YÊU THÍCH',
             style: TextStyle(
               fontFamily: 'Space Grotesk',
               fontSize: 48,
@@ -326,10 +326,10 @@ class _FavoriteProductCard extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       final cartService = Provider.of<CartService>(context, listen: false);
-                      cartService.addToCart(product, '10');
+                      cartService.addToCart(product, product.options.first);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Added to cart'),
+                          content: Text('Đã thêm vào giỏ hàng'),
                           duration: Duration(seconds: 1),
                         ),
                       );
@@ -343,7 +343,7 @@ class _FavoriteProductCard extends StatelessWidget {
                       ),
                       child: const Center(
                         child: Text(
-                          'ADD TO CART',
+                          'THÊM VÀO GIỎ',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,

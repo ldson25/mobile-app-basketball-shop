@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
+import '../core/theme/app_colors.dart';
 
 class KineticBottomNav extends StatelessWidget {
   const KineticBottomNav({
@@ -14,10 +14,10 @@ class KineticBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const items = <_NavItem>[
-      _NavItem(icon: Icons.home_rounded, label: 'Home'),
-      _NavItem(icon: Icons.search, label: 'Discover'),
-      _NavItem(icon: Icons.local_shipping_rounded, label: 'Orders'),
-      _NavItem(icon: Icons.person_rounded, label: 'Profile'),
+      _NavItem(icon: Icons.home_rounded, label: 'Trang chủ'),
+      _NavItem(icon: Icons.search, label: 'Khám phá'),
+      _NavItem(icon: Icons.local_shipping_rounded, label: 'Đơn hàng'),
+      _NavItem(icon: Icons.person_rounded, label: 'Hồ sơ'),
     ];
 
     return Container(

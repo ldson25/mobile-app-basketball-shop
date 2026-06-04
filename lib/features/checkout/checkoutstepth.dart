@@ -1,7 +1,7 @@
 import 'package:doanltdd/features/app_shell/presentation/app_shell.dart';
-import 'package:doanltdd/features/homeuser/homeuser.dart';
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
+
+import '../../core/theme/app_colors.dart';
 
 class CheckoutSuccessScreen extends StatelessWidget {
   final VoidCallback onMenuTap;
@@ -19,7 +19,6 @@ class CheckoutSuccessScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Success icon
               Container(
                 width: 120,
                 height: 120,
@@ -34,9 +33,9 @@ class CheckoutSuccessScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              // Title
               const Text(
-                'ORDER SUCCESSFUL!',
+                'ĐẶT HÀNG THÀNH CÔNG!',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 28,
@@ -47,9 +46,9 @@ class CheckoutSuccessScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              // Message
               const Text(
-                'Thank you for your purchase',
+                'Cảm ơn bạn đã mua hàng tại Kinetic.',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
                   color: AppColors.textSecondary,
@@ -57,24 +56,24 @@ class CheckoutSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Your order has been confirmed',
+                'Đơn hàng của bạn đã được ghi nhận và đang chờ xử lý.',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
                   color: AppColors.textSecondary.withAlpha(179),
                 ),
               ),
               const SizedBox(height: 48),
-              // Continue Shopping Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                 onPressed: () {
+                  onPressed: () {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const AppShell(),
                       ),
-                      (route) => false, // Xóa tất cả màn hình trước đó
+                      (route) => false,
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -87,7 +86,7 @@ class CheckoutSuccessScreen extends StatelessWidget {
                     elevation: 0,
                   ),
                   child: const Text(
-                    'CONTINUE SHOPPING',
+                    'TIẾP TỤC MUA SẮM',
                     style: TextStyle(
                       fontFamily: 'Space Grotesk',
                       fontSize: 16,
@@ -128,15 +127,19 @@ class _SuccessAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               IconButton(
                 onPressed: () {
-                   Navigator.pushAndRemoveUntil(
+                  Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const AppShell(),
-                     ),
+                    ),
                     (route) => false,
                   );
                 },
-                icon: const Icon(Icons.chevron_left, color: Colors.white, size: 28),
+                icon: const Icon(
+                  Icons.chevron_left,
+                  color: Colors.white,
+                  size: 28,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -144,7 +147,7 @@ class _SuccessAppBar extends StatelessWidget implements PreferredSizeWidget {
               const Expanded(
                 child: Center(
                   child: Text(
-                    'Success',
+                    'Thành công',
                     style: TextStyle(
                       fontFamily: 'Space Grotesk',
                       fontSize: 18,

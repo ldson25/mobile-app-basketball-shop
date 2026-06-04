@@ -63,7 +63,7 @@ class _PaymentAppBar extends StatelessWidget implements PreferredSizeWidget {
                 constraints: const BoxConstraints(),
               ),
               const Text(
-                'PAYMENT',
+                'THANH TOÁN',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 24,
@@ -104,7 +104,7 @@ class _CardManagementHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const Text(
-          'Card Management',
+          'Quản lý thẻ',
           style: TextStyle(
             fontFamily: 'Space Grotesk',
             fontSize: 32,
@@ -120,7 +120,7 @@ class _CardManagementHeader extends StatelessWidget {
             foregroundColor: AppColors.neon,
           ),
           child: const Text(
-            'Add new+',
+            'Thêm mới+',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -232,7 +232,7 @@ class _VisaCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'CARDHOLDER NAME',
+                          'TÊN CHỦ THẺ',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -255,7 +255,7 @@ class _VisaCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         const Text(
-                          'VALID THRU',
+                          'HẾT HẠN',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -351,7 +351,7 @@ class _MastercardCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'CARDHOLDER NAME',
+                      'TÊN CHỦ THẺ',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -374,7 +374,7 @@ class _MastercardCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     const Text(
-                      'VALID THRU',
+                      'HẾT HẠN',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -411,7 +411,7 @@ class _DigitalWalletsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'or check out with',
+          'hoặc thanh toán bằng',
           style: TextStyle(
             fontSize: 16,
             color: AppColors.textSecondary,

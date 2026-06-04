@@ -1,19 +1,19 @@
-// lib/features/discover/presentation/discover_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../models/product_model.dart';
 import '../cart/mycart.dart';
-import '../menudrawer/menudrawer.dart';
-import '../../widgets/kinetic_bottom_nav.dart';
 import 'results_discover_screen.dart';
-import '../../widgets/product_card.dart';
 
 class DiscoverScreen extends StatelessWidget {
-  final VoidCallback onMenuTap; 
+  final VoidCallback onMenuTap;
+  final Future<bool> Function() onRequireAuth;
 
-  const DiscoverScreen({super.key, required this.onMenuTap});
+  const DiscoverScreen({
+    super.key,
+    required this.onMenuTap,
+    required this.onRequireAuth,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,19 +21,19 @@ class DiscoverScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(72),
-        child: _CustomAppBar(onMenuTap: onMenuTap), 
+        child: _CustomAppBar(onMenuTap: onMenuTap),
       ),
-      body: const SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              SizedBox(height: 20),
-              _SearchSection(),
-              SizedBox(height: 48),
-              _CategoriesSection(),
-              SizedBox(height: 32),
+              const SizedBox(height: 20),
+              _SearchSection(onRequireAuth: onRequireAuth),
+              const SizedBox(height: 48),
+              _CategoriesSection(onRequireAuth: onRequireAuth),
+              const SizedBox(height: 32),
             ],
           ),
         ),
@@ -43,7 +43,7 @@ class DiscoverScreen extends StatelessWidget {
 }
 
 class _CustomAppBar extends StatelessWidget {
-  final VoidCallback onMenuTap; 
+  final VoidCallback onMenuTap;
 
   const _CustomAppBar({required this.onMenuTap});
 
@@ -54,9 +54,7 @@ class _CustomAppBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.background.withAlpha(179),
         border: Border(
-          bottom: BorderSide(
-            color: AppColors.border.withAlpha(77),
-          ),
+          bottom: BorderSide(color: AppColors.border.withAlpha(77)),
         ),
       ),
       child: SafeArea(
@@ -74,7 +72,7 @@ class _CustomAppBar extends StatelessWidget {
             ),
             const Center(
               child: Text(
-                'DISCOVER',
+                'KHÁM PHÁ',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 24,
@@ -93,10 +91,15 @@ class _CustomAppBar extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const CartScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const CartScreen(),
+                      ),
                     );
                   },
-                  icon: const Icon(Icons.shopping_bag_outlined, color: Colors.white),
+                  icon: const Icon(
+                    Icons.shopping_bag_outlined,
+                    color: Colors.white,
+                  ),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
@@ -110,31 +113,28 @@ class _CustomAppBar extends StatelessWidget {
 }
 
 class _SearchSection extends StatelessWidget {
-  const _SearchSection();
+  final Future<bool> Function() onRequireAuth;
+
+  const _SearchSection({required this.onRequireAuth});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface2.withAlpha(128),
-        border: Border.all(
-          color: AppColors.border.withAlpha(77),
-        ),
+        border: Border.all(color: AppColors.border.withAlpha(77)),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         children: [
           const SizedBox(width: 20),
-          const Icon(
-            Icons.search,
-            color: AppColors.textSecondary,
-          ),
+          const Icon(Icons.search, color: AppColors.textSecondary),
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
               style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
-                hintText: 'FIND YOUR SPEED',
+                hintText: 'TÌM SẢN PHẨM',
                 hintStyle: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -144,18 +144,21 @@ class _SearchSection extends StatelessWidget {
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(vertical: 16),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
               ),
               onSubmitted: (value) {
-                // Điều hướng đến results với từ khóa tìm kiếm
                 if (value.isNotEmpty) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ResultsDiscoverScreen(
-                        categoryName: 'SEARCH RESULTS',
+                        categoryName: 'KẾT QUẢ TÌM KIẾM',
                         itemCount: 42,
                         searchKeyword: value,
+                        onRequireAuth: onRequireAuth,
                       ),
                     ),
                   );
@@ -164,14 +167,8 @@ class _SearchSection extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: () {
-              // Mở filter dialog
-              _showSearchFilter(context);
-            },
-            child: const Icon(
-              Icons.tune,
-              color: AppColors.textSecondary,
-            ),
+            onTap: () => _showSearchFilter(context),
+            child: const Icon(Icons.tune, color: AppColors.textSecondary),
           ),
           const SizedBox(width: 20),
         ],
@@ -193,7 +190,7 @@ class _SearchSection extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'FILTER SEARCH',
+                'BỘ LỌC TÌM KIẾM',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -202,8 +199,10 @@ class _SearchSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              // Thêm các filter options ở đây
-              const Text('Filter options will be added here'),
+              const Text(
+                'Tùy chọn lọc sẽ được bổ sung sau',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
@@ -211,7 +210,7 @@ class _SearchSection extends StatelessWidget {
                   backgroundColor: AppColors.neon,
                   foregroundColor: AppColors.background,
                 ),
-                child: const Text('APPLY'),
+                child: const Text('ÁP DỤNG'),
               ),
             ],
           ),
@@ -222,7 +221,23 @@ class _SearchSection extends StatelessWidget {
 }
 
 class _CategoriesSection extends StatelessWidget {
-  const _CategoriesSection();
+  final Future<bool> Function() onRequireAuth;
+
+  const _CategoriesSection({required this.onRequireAuth});
+
+  void _navigateToResults(BuildContext context, String categoryName) {
+    final products = ProductData.getProductsByCategory(categoryName);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ResultsDiscoverScreen(
+          categoryName: categoryName,
+          itemCount: products.length,
+          onRequireAuth: onRequireAuth,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -230,7 +245,7 @@ class _CategoriesSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'CATEGORIES',
+          'DANH MỤC',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
@@ -250,46 +265,27 @@ class _CategoriesSection extends StatelessWidget {
             children: [
               _CategoryItem(
                 icon: Icons.bolt,
-                label: 'FOOTWEAR',
+                label: 'GIÀY',
                 categoryName: 'Footwear',
-                onTap: () {
-                  _navigateToResults(context, 'Footwear');
-                },
+                onTap: () => _navigateToResults(context, 'Footwear'),
               ),
               _CategoryItem(
                 icon: Icons.checkroom,
-                label: 'APPAREL',
+                label: 'TRANG PHỤC',
                 categoryName: 'Apparel',
-                onTap: () {
-                  _navigateToResults(context, 'Apparel');
-                },
+                onTap: () => _navigateToResults(context, 'Apparel'),
               ),
               _CategoryItem(
                 icon: Icons.sports_basketball,
-                label: 'EQUIPMENT',
+                label: 'PHỤ KIỆN',
                 categoryName: 'Equipment',
-                onTap: () {
-                  _navigateToResults(context, 'Equipment');
-                },
+                onTap: () => _navigateToResults(context, 'Equipment'),
                 isLast: true,
               ),
             ],
           ),
         ),
       ],
-    );
-  }
-
-  void _navigateToResults(BuildContext context, String categoryName) {
-    final products = ProductData.getProductsByCategory(categoryName);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ResultsDiscoverScreen(
-          categoryName: categoryName,
-          itemCount: products.length, 
-        ),
-      ),
     );
   }
 }
@@ -311,10 +307,9 @@ class _CategoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Lấy số lượng sản phẩm chính xác từ ProductData
     final products = ProductData.getProductsByCategory(categoryName);
     final itemCount = products.length;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -331,11 +326,7 @@ class _CategoryItem extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  icon,
-                  size: 28,
-                  color: AppColors.textSecondary,
-                ),
+                Icon(icon, size: 28, color: AppColors.textSecondary),
                 const SizedBox(width: 20),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,7 +344,7 @@ class _CategoryItem extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '$itemCount items',
+                      '$itemCount sản phẩm',
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
@@ -363,10 +354,7 @@ class _CategoryItem extends StatelessWidget {
                 ),
               ],
             ),
-            const Icon(
-              Icons.chevron_right,
-              color: AppColors.textSecondary,
-            ),
+            const Icon(Icons.chevron_right, color: AppColors.textSecondary),
           ],
         ),
       ),

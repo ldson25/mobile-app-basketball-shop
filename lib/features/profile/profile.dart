@@ -1,8 +1,11 @@
 // lib/features/profile/profile.dart
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../services/auth_service.dart';
+import '../../core/theme/app_colors.dart';
+import '../../services/auth_service.dart';
 import '../cart/mycart.dart';
 import '../favorites/favorites.dart';
 import '../shipping_adresses/shipping_adresses.dart';
@@ -31,7 +34,7 @@ class ProfileScreen extends StatelessWidget {
               _NavigationMenu(onMenuTap: onMenuTap),
               const SizedBox(height: 40),
               const _SignOutButton(),
-              const SizedBox(height: 32),
+              const SizedBox(height: 112),
             ],
           ),
         ),
@@ -63,7 +66,7 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 icon: const Icon(Icons.menu, color: AppColors.textPrimary),
               ),
               const Text(
-                'MY PROFILE',
+                'HỒ SƠ',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 20,
@@ -98,10 +101,95 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 class _ProfileHeader extends StatelessWidget {
   const _ProfileHeader();
 
+  Future<void> _showAvatarSourceSheet(BuildContext context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                const SizedBox(height: 22),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'CẬP NHẬT ẢNH ĐẠI DIỆN',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _AvatarSourceTile(
+                  icon: Icons.photo_library_rounded,
+                  label: 'Chọn từ thư viện',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickAvatar(context, ImageSource.gallery);
+                  },
+                ),
+                const SizedBox(height: 10),
+                _AvatarSourceTile(
+                  icon: Icons.photo_camera_rounded,
+                  label: 'Chụp ảnh mới',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickAvatar(context, ImageSource.camera);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickAvatar(BuildContext context, ImageSource source) async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final picker = ImagePicker();
+
+    try {
+      final image = await picker.pickImage(
+        source: source,
+        maxWidth: 900,
+        maxHeight: 900,
+        imageQuality: 85,
+      );
+
+      if (image == null) return;
+
+      authService.updateAvatar(image.path);
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể cập nhật ảnh đại diện')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     final user = authService.currentUser;
+    final avatarUrl = user?.avatarUrl;
 
     return Column(
       children: [
@@ -118,57 +206,57 @@ class _ProfileHeader extends StatelessWidget {
                 ),
               ),
               child: ClipOval(
-                child: user?.avatarUrl != null
-                    ? Image.network(
-                        user!.avatarUrl!,
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: AppColors.surface2,
-                          child: const Icon(
-                            Icons.person,
-                            size: 60,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      )
+                child: avatarUrl != null
+                    ? avatarUrl.startsWith('http')
+                        ? Image.network(
+                            avatarUrl,
+                            width: 120,
+                            height: 120,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const _AvatarFallback(),
+                          )
+                        : Image.file(
+                            File(avatarUrl),
+                            width: 120,
+                            height: 120,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const _AvatarFallback(),
+                          )
                     : Image.asset(
                         'assets/images/profile/avatar.jpg',
                         width: 120,
                         height: 120,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: AppColors.surface2,
-                          child: const Icon(
-                            Icons.person,
-                            size: 60,
-                            color: Colors.grey,
-                          ),
-                        ),
+                        errorBuilder: (context, error, stackTrace) =>
+                            const _AvatarFallback(),
                       ),
               ),
             ),
             Positioned(
               bottom: 0,
               right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.neon,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(51),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.edit,
-                  size: 18,
-                  color: AppColors.background,
+              child: GestureDetector(
+                onTap: () => _showAvatarSourceSheet(context),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.neon,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(51),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.edit,
+                    size: 18,
+                    color: AppColors.background,
+                  ),
                 ),
               ),
             ),
@@ -176,7 +264,7 @@ class _ProfileHeader extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
-          user?.fullName.toUpperCase() ?? 'GUEST USER',
+          user?.fullName.toUpperCase() ?? 'KHÁCH',
           style: const TextStyle(
             fontFamily: 'Space Grotesk',
             fontSize: 28,
@@ -187,45 +275,47 @@ class _ProfileHeader extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          user?.email ?? 'No email',
+          user?.email ?? 'Chưa có email',
           style: const TextStyle(
             fontSize: 14,
             color: AppColors.textSecondary,
           ),
         ),
         const SizedBox(height: 12),
-        if (user?.isEarlyAccess ?? false)
-          Container(
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppColors.neon.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: AppColors.neon),
+          ),
+          child: Text(
+            user?.membershipLabel ?? 'MEMBER',
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.2,
+              color: AppColors.neon,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () => _showAvatarSourceSheet(context),
+          child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.neon.withOpacity(0.2),
+              color: AppColors.neon,
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: AppColors.neon),
             ),
             child: const Text(
-              'EARLY ACCESS MEMBER',
+              'SỬA HỒ SƠ',
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 1.2,
-                color: AppColors.neon,
+                color: AppColors.background,
               ),
-            ),
-          ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: AppColors.neon,
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: const Text(
-            'EDIT PROFILE',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.2,
-              color: AppColors.background,
             ),
           ),
         ),
@@ -245,7 +335,7 @@ class _NavigationMenu extends StatelessWidget {
       children: [
         _MenuItem(
           icon: Icons.favorite,
-          label: 'Favorites',
+          label: 'Yêu thích',
           onTap: () {
             Navigator.push(
               context,
@@ -258,7 +348,7 @@ class _NavigationMenu extends StatelessWidget {
         const SizedBox(height: 8),
         _MenuItem(
           icon: Icons.location_on,
-          label: 'Shipping Addresses',
+          label: 'Địa chỉ giao hàng',
           onTap: () {
             Navigator.push(
               context,
@@ -271,7 +361,7 @@ class _NavigationMenu extends StatelessWidget {
         const SizedBox(height: 8),
         _MenuItem(
           icon: Icons.credit_card,
-          label: 'Payment Methods',
+          label: 'Phương thức thanh toán',
           onTap: () {
             Navigator.push(
               context,
@@ -284,10 +374,10 @@ class _NavigationMenu extends StatelessWidget {
         const SizedBox(height: 8),
         _MenuItem(
           icon: Icons.settings,
-          label: 'Settings',
+          label: 'Cài đặt',
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Coming soon!')),
+              const SnackBar(content: Text('Chức năng sẽ được bổ sung sau')),
             );
           },
         ),
@@ -364,22 +454,22 @@ class _SignOutButton extends StatelessWidget {
           builder: (context) => AlertDialog(
             backgroundColor: AppColors.surface,
             title: const Text(
-              'Sign Out',
+              'Đăng xuất',
               style: TextStyle(color: Colors.white),
             ),
             content: const Text(
-              'Are you sure you want to sign out?',
+              'Bạn có chắc muốn đăng xuất?',
               style: TextStyle(color: AppColors.textSecondary),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('CANCEL'),
+                child: const Text('HỦY'),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
                 child: const Text(
-                  'SIGN OUT',
+                  'ĐĂNG XUẤT',
                   style: TextStyle(color: AppColors.error),
                 ),
               ),
@@ -414,7 +504,7 @@ class _SignOutButton extends StatelessWidget {
             ),
             SizedBox(width: 8),
             Text(
-              'SIGN OUT',
+              'ĐĂNG XUẤT',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -424,6 +514,62 @@ class _SignOutButton extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _AvatarFallback extends StatelessWidget {
+  const _AvatarFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppColors.surface2,
+      child: const Icon(
+        Icons.person,
+        size: 60,
+        color: Colors.grey,
+      ),
+    );
+  }
+}
+
+class _AvatarSourceTile extends StatelessWidget {
+  const _AvatarSourceTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+      leading: Container(
+        width: 44,
+        height: 44,
+        decoration: const BoxDecoration(
+          color: AppColors.neon,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: AppColors.background),
+      ),
+      title: Text(
+        label,
+        style: const TextStyle(
+          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      trailing: const Icon(
+        Icons.chevron_right_rounded,
+        color: AppColors.textSecondary,
       ),
     );
   }

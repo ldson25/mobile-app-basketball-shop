@@ -3,19 +3,28 @@ import 'cart_item_model.dart';
 
 enum OrderStatus {
   pending,
+  confirmed,
+  shipping,
   delivered,
   cancelled,
+  returned,
 }
 
 extension OrderStatusExtension on OrderStatus {
   String get label {
     switch (this) {
       case OrderStatus.pending:
-        return 'Pending';
+        return 'Cho xu ly';
+      case OrderStatus.confirmed:
+        return 'Da xac nhan';
+      case OrderStatus.shipping:
+        return 'Dang giao';
       case OrderStatus.delivered:
-        return 'Delivered';
+        return 'Da giao';
       case OrderStatus.cancelled:
-        return 'Cancelled';
+        return 'Da huy';
+      case OrderStatus.returned:
+        return 'Da tra';
     }
   }
 
@@ -23,10 +32,16 @@ extension OrderStatusExtension on OrderStatus {
     switch (this) {
       case OrderStatus.pending:
         return Colors.amber;
+      case OrderStatus.confirmed:
+        return Colors.lightGreen;
+      case OrderStatus.shipping:
+        return Colors.lightBlue;
       case OrderStatus.delivered:
         return Colors.green;
       case OrderStatus.cancelled:
         return Colors.red;
+      case OrderStatus.returned:
+        return Colors.grey;
     }
   }
 }
@@ -40,9 +55,14 @@ class OrderModel {
   final List<CartItemModel> items;
   final double subtotal;
   final double shippingCost;
+  final double discount;
   final double total;
   final String shippingAddress;
   final String phoneNumber;
+  final String customerName;
+  final String paymentMethod;
+  final String shippingMethod;
+  final String? voucherCode;
 
   OrderModel({
     required this.id,
@@ -53,9 +73,14 @@ class OrderModel {
     required this.items,
     required this.subtotal,
     required this.shippingCost,
+    this.discount = 0,
     required this.total,
     required this.shippingAddress,
     required this.phoneNumber,
+    this.customerName = '',
+    this.paymentMethod = 'cash',
+    this.shippingMethod = 'free',
+    this.voucherCode,
   });
 
   int get totalQuantity {

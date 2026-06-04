@@ -1,357 +1,320 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../../../core/constants/app_sizes.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_theme.dart';
-import 'package:doanltdd/features/menudrawer/menudrawer.dart';
-import 'package:doanltdd/features/cart/mycart.dart';
+
+import '../../core/constants/app_sizes.dart';
+import '../../core/theme/app_colors.dart';
+import '../../models/product_model.dart';
+import '../cart/mycart.dart';
+import '../products/presentation/product_detail_screen.dart';
 
 class HomeUserScreen extends StatelessWidget {
   final VoidCallback onMenuTap;
-  
-  const HomeUserScreen({super.key, required this.onMenuTap});
+  final Future<bool> Function() onRequireAuth;
+
+  const HomeUserScreen({
+    super.key,
+    required this.onMenuTap,
+    required this.onRequireAuth,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(64),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Builder(
-              builder: (context) => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: onMenuTap,
-                    icon: const Icon(Icons.menu, color: AppColors.textPrimary),
+      backgroundColor: AppColors.background,
+      appBar: _HomeAppBar(onMenuTap: onMenuTap),
+      body: HomeBody(onRequireAuth: onRequireAuth),
+    );
+  }
+}
+
+class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _HomeAppBar({required this.onMenuTap});
+
+  final VoidCallback onMenuTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+        child: Row(
+          children: [
+            _CircleIconButton(icon: Icons.menu_rounded, onTap: onMenuTap),
+            const Spacer(),
+            const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'KINETIC',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5,
+                    color: AppColors.neon,
                   ),
-                  const Text(
-                    'KINETIC',
-                    style: TextStyle(
-                      fontFamily: 'Space Grotesk',
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.5,
-                      color: AppColors.neon,
-                    ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'CỬA HÀNG THỂ THAO',
+                  style: TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.6,
                   ),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const CartScreen()),
-                      );
-                    },
-                    icon: const Icon(Icons.shopping_bag_outlined, color: AppColors.textPrimary),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
+            const Spacer(),
+            _CircleIconButton(
+              icon: Icons.shopping_bag_outlined,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CartScreen()),
+                );
+              },
+            ),
+          ],
         ),
       ),
-      body: const HomeBody(),
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(72);
+}
+
+class _CircleIconButton extends StatelessWidget {
+  const _CircleIconButton({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: AppColors.surface2,
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.border.withOpacity(0.35)),
+        ),
+        child: Icon(icon, color: AppColors.textPrimary, size: 22),
+      ),
     );
   }
 }
 
 class HomeBody extends StatelessWidget {
-  const HomeBody({super.key});
+  final Future<bool> Function() onRequireAuth;
+
+  const HomeBody({super.key, required this.onRequireAuth});
 
   @override
   Widget build(BuildContext context) {
-    return const SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 16),
-          FilterSection(),
-          SeasonalDropsHero(),
-          SizedBox(height: 64),
-          NewArrivalsSection(),
-          SizedBox(height: 64),
-          EditorialBanner(),
-          SizedBox(height: 64),
-          BestSellersSection(),
-          SizedBox(height: 80),
-        ],
-      ),
-    );
-  }
-}
-
-class FilterSection extends StatelessWidget {
-  const FilterSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSizes.pagePadding),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 44,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              children: [
-                _FilterChip(label: 'Tất cả', isSelected: true),
-                const SizedBox(width: 12),
-                _FilterChip(label: 'Giày'),
-                const SizedBox(width: 12),
-                _FilterChip(label: 'Áo đấu'),
-                const SizedBox(width: 12),
-                _FilterChip(label: 'Phụ kiện'),
-                const SizedBox(width: 12),
-                _FilterChip(label: 'Tập luyện'),
-              ],
-            ),
+          const SizedBox(height: 18),
+          SeasonalDropsHero(
+            product: ProductData.footwearProducts.first,
+            onRequireAuth: onRequireAuth,
           ),
+          const SizedBox(height: 48),
+          _ProductRail(
+            eyebrow: 'Vừa ra mắt',
+            title: 'Hàng mới về',
+            products: [
+              ProductData.footwearProducts[1],
+              ProductData.apparelProducts[0],
+              ProductData.footwearProducts[5],
+            ],
+            onRequireAuth: onRequireAuth,
+          ),
+          const SizedBox(height: 48),
+          EditorialBanner(onRequireAuth: onRequireAuth),
+          const SizedBox(height: 48),
+          _ProductRail(
+            eyebrow: 'Thịnh hành',
+            title: 'Bán chạy nhất',
+            compact: true,
+            products: [
+              ProductData.footwearProducts[3],
+              ProductData.footwearProducts[7],
+              ProductData.equipmentProducts[0],
+            ],
+            onRequireAuth: onRequireAuth,
+          ),
+          const SizedBox(height: 112),
         ],
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-
-  const _FilterChip({required this.label, this.isSelected = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-      decoration: BoxDecoration(
-        color: isSelected ? AppColors.neon : AppColors.surfaceHighest,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? AppColors.background : Colors.white,
-          fontSize: 12,
-          fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
-          letterSpacing: 1.2,
-        ),
       ),
     );
   }
 }
 
 class SeasonalDropsHero extends StatelessWidget {
-  const SeasonalDropsHero({super.key});
+  final ProductModel product;
+  final Future<bool> Function() onRequireAuth;
+
+  const SeasonalDropsHero({
+    super.key,
+    required this.product,
+    required this.onRequireAuth,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 540,
-      child: Stack(
-        children: [
-          Image.asset(
-            'assets/images/banners/hero_banner.png',
-            width: double.infinity,
-            height: double.infinity,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => Container(
-              color: AppColors.surface2,
-              child: const Center(
-                child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
-              ),
+    return Padding(
+      padding: AppSizes.pageHorizontal,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppSizes.cardRadius),
+        onTap: () async {
+          final authed = await onRequireAuth();
+          if (authed) {
+            _openDetail(context, product);
+          }
+        },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppSizes.cardRadius),
+          child: SizedBox(
+            height: 500,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset(
+                  product.imageAsset,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: AppColors.surface2,
+                    child: const Icon(
+                      Icons.image_not_supported_outlined,
+                      color: AppColors.textMuted,
+                      size: 42,
+                    ),
+                  ),
+                ),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        AppColors.background.withOpacity(0.96),
+                        AppColors.background.withOpacity(0.42),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 20,
+                  right: 20,
+                  bottom: 24,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _NeonTag(label: product.badgeText),
+                      const SizedBox(height: 16),
+                      Text(
+                        product.name.toUpperCase(),
+                        style: Theme.of(context).textTheme.displayLarge
+                            ?.copyWith(
+                              fontSize: 46,
+                              fontStyle: FontStyle.italic,
+                            ),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        'Còn ${product.stockQuantity} sản phẩm',
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 22),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          final authed = await onRequireAuth();
+                          if (authed) {
+                            _openDetail(context, product);
+                          }
+                        },
+                        icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                        label: const Text('MUA NGAY'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.neon,
+                          foregroundColor: AppColors.background,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          // Gradient Overlay
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [
-                  AppColors.background,
-                  AppColors.background.withAlpha(50),
-                  Colors.transparent,
-                ],
-              ),
-            ),
-          ),
-          // Content
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Padding(
-              padding: const EdgeInsets.all(AppSizes.pagePadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.neon,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Text(
-                      'BỘ SƯU TẬP MỚI',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2,
-                        color: AppColors.background,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'LEBRON\n21 GENERATION',
-                    style: TextStyle(
-                      fontFamily: 'Space Grotesk',
-                      fontSize: 48,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -1.4,
-                      height: 0.9,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Được thiết kế cho thế hệ vĩ đại tiếp theo. Siêu nhẹ, khóa chân và sẵn sàng cho mọi đường bay.',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.neon,
-                      foregroundColor: AppColors.background,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40,
-                        vertical: 16,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'MUA NGAY',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class NewArrivalsSection extends StatelessWidget {
-  const NewArrivalsSection({super.key});
+class _ProductRail extends StatelessWidget {
+  final String eyebrow;
+  final String title;
+  final List<ProductModel> products;
+  final bool compact;
+  final Future<bool> Function() onRequireAuth;
+
+  const _ProductRail({
+    required this.eyebrow,
+    required this.title,
+    required this.products,
+    this.compact = false,
+    required this.onRequireAuth,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSizes.pagePadding),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'VỪA MỚI RA MẮT',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
-                      color: AppColors.neon,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'HÀNG MỚI VỀ',
-                    style: TextStyle(
-                      fontFamily: 'Space Grotesk',
-                      fontSize: 28,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.5,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              GestureDetector(
-                onTap: () {},
-                child: const Padding(
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: Text(
-                    'XEM TẤT CẢ',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
+        _SectionHeader(eyebrow: eyebrow, title: title),
+        const SizedBox(height: 18),
         SizedBox(
-          height: 500, // Tăng chiều cao
-          child: ListView(
+          height: compact ? 356 : 438,
+          child: ListView.separated(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            children: [
-              _ProductCard(
-                imagePath: 'assets/images/products/kd17_cloud.png',
-                title: "KD 17 'Cloud'",
-                subtitle: 'Giày bóng rổ chuyên nghiệp',
-                price: '\$160',
-                offsetTop: 0,
-              ),
-              const SizedBox(width: 32),
-              _ProductCard(
-                
-                imagePath: 'assets/images/products/kinetic_elite_jersey.webp',
-                title: "Kinetic Elite Jersey",
-                subtitle: 'Trang phục thể thao',
-                price: '\$85',
-                offsetTop: 0,
-              ),
-              const SizedBox(width: 32),
-              _ProductCard(
-                imagePath: 'assets/images/products/zoom_gt_cut_3.jpg',
-                title: "Zoom GT Cut 3",
-                subtitle: 'Thiết kế tập trung tốc độ',
-                price: '\$190',
-                offsetTop: 0,
-              ),
-            ],
+            padding: AppSizes.pageHorizontal,
+            itemCount: products.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 18),
+            itemBuilder: (context, index) {
+              return _ProductCard(
+                product: products[index],
+                compact: compact,
+                onRequireAuth: onRequireAuth,
+              );
+            },
           ),
         ),
       ],
@@ -359,100 +322,165 @@ class NewArrivalsSection extends StatelessWidget {
   }
 }
 
-class _ProductCard extends StatelessWidget {
-  final String imagePath;
-  final String title;
-  final String subtitle;
-  final String price;
-  final double offsetTop;
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.eyebrow, required this.title});
 
-  const _ProductCard({
-    required this.imagePath,
-    required this.title,
-    required this.subtitle,
-    required this.price,
-    this.offsetTop = 0,
-  });
+  final String eyebrow;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: offsetTop),
-      child: SizedBox(
-        width: 280,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Dùng AspectRatio để đồng bộ tỷ lệ ảnh
-            AspectRatio(
-              aspectRatio: 4 / 5, 
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: Image.asset(
-                  imagePath,
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: AppColors.surface2,
-                    child: const Icon(Icons.broken_image, color: Colors.grey),
+      padding: AppSizes.pageHorizontal,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  eyebrow.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                    color: AppColors.neon,
                   ),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  title.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () {},
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+            ),
+            child: const Text(
+              'XEM TẤT CẢ',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.1,
               ),
             ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProductCard extends StatelessWidget {
+  final ProductModel product;
+  final bool compact;
+  final Future<bool> Function() onRequireAuth;
+
+  const _ProductCard({
+    required this.product,
+    required this.compact,
+    required this.onRequireAuth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final width = compact ? 246.0 : 274.0;
+    final imageHeight = compact ? 198.0 : 310.0;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppSizes.cardRadius),
+      onTap: () async {
+        final authed = await onRequireAuth();
+        if (authed) {
+          _openDetail(context, product);
+        }
+      },
+      child: SizedBox(
+        width: width,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AppSizes.cardRadius),
+              child: Stack(
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontFamily: 'Space Grotesk',
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
-                            color: Colors.white,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          subtitle,
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                  Image.asset(
+                    product.imageAsset,
+                    width: width,
+                    height: imageHeight,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: width,
+                      height: imageHeight,
+                      color: AppColors.surface2,
+                      child: const Icon(
+                        Icons.image_not_supported_outlined,
+                        color: AppColors.textMuted,
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    price,
-                    style: const TextStyle(
-                      fontFamily: 'Space Grotesk',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.neon,
-                    ),
+                  Positioned(
+                    top: 12,
+                    left: 12,
+                    child: _NeonTag(label: product.badgeText),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Còn ${product.stockQuantity} sản phẩm',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  product.price,
+                  style: const TextStyle(
+                    color: AppColors.neon,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -461,219 +489,114 @@ class _ProductCard extends StatelessWidget {
 }
 
 class EditorialBanner extends StatelessWidget {
-  const EditorialBanner({super.key});
+  final Future<bool> Function() onRequireAuth;
+
+  const EditorialBanner({super.key, required this.onRequireAuth});
 
   @override
   Widget build(BuildContext context) {
+    final product = ProductData.apparelProducts.first;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSizes.pagePadding),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Stack(
-          children: [
-            Image.asset(
-              'assets/images/banners/streetwear_banner.png',
-              height: 320,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                height: 320,
-                color: AppColors.surface2,
-                child: const Center(
-                  child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
-                ),
-              ),
-            ),
-            Container(
-              height: 320,
-              width: double.infinity,
-              color: AppColors.neon.withAlpha(25),
-            ),
-            const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'OWN THE ASPHALT',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Space Grotesk',
-                      fontSize: 40,
-                      fontWeight: FontWeight.w900,
-                      fontStyle: FontStyle.italic,
-                      letterSpacing: -1,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  Text(
-                    'THE STREETWEAR SERIES',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 3,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class BestSellersSection extends StatelessWidget {
-  const BestSellersSection({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSizes.pagePadding),
+      padding: AppSizes.pageHorizontal,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppSizes.cardRadius),
+        onTap: () async {
+          final authed = await onRequireAuth();
+          if (authed) {
+            _openDetail(context, product);
+          }
+        },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppSizes.cardRadius),
           child: SizedBox(
-            width: double.infinity, // Thêm dòng này
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            height: 280,
+            child: Stack(
+              fit: StackFit.expand,
               children: [
-                Text(
-                  'THỊNH HÀNH NHẤT',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.2,
-                    color: AppColors.neon,
+                Image.asset(
+                  product.imageAsset,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: AppColors.surface2,
+                    child: const Icon(
+                      Icons.image_not_supported_outlined,
+                      color: AppColors.textMuted,
+                    ),
                   ),
                 ),
-                SizedBox(height: 4),
-                Text(
-                  'BÁN CHẠY NHẤT',
-                  style: TextStyle(
-                    fontFamily: 'Space Grotesk',
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -0.5,
-                    color: Colors.white,
+                Container(color: Colors.black.withOpacity(0.34)),
+                const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _NeonTag(label: 'Bộ sưu tập đường phố'),
+                      SizedBox(height: 14),
+                      Text(
+                        'LÀM CHỦ\nSÂN ĐẤU',
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 38,
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.6,
+                          height: 0.95,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Nhấn để xem bộ trang phục nổi bật.',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 20),
-        SizedBox(
-          height: 360,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            children: [
-              _BentoCard(
-                imagePath: 'assets/images/products/air_jordan_retro_4.webp',
-                tag: 'BIỂU TƯỢNG RETRO',
-                title: 'Air Jordan Retro 4',
-                price: '\$210',
-              ),
-              const SizedBox(width: 24),
-              _BentoCard(
-                imagePath: 'assets/images/products/kobe_6_protro.png',
-                tag: 'DÒNG CHỮ KÝ',
-                title: 'Kobe 6 Protro',
-                price: '\$180',
-              ),
-              const SizedBox(width: 24),
-              _BentoCard(
-                imagePath: 'assets/images/products/aeroswift_shorts.jpg',
-                tag: 'ĐỒ PRO',
-                title: 'Aeroswift Shorts',
-                price: '\$65',
-              ),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
-class _BentoCard extends StatelessWidget {
-  final String imagePath;
-  final String tag;
-  final String title;
-  final String price;
+class _NeonTag extends StatelessWidget {
+  const _NeonTag({required this.label});
 
-  const _BentoCard({
-    required this.imagePath,
-    required this.tag,
-    required this.title,
-    required this.price,
-  });
+  final String label;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 260,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: AppColors.surface2,
-        borderRadius: BorderRadius.circular(24),
+        color: AppColors.neon,
+        borderRadius: BorderRadius.circular(999),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Image.asset(
-              imagePath,
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                height: 200,
-                width: double.infinity,
-                color: AppColors.surface3,
-                child: const Icon(Icons.broken_image, color: Colors.grey),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            tag,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.2,
-              color: AppColors.textMuted,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              fontFamily: 'Space Grotesk',
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -0.5,
-              color: Colors.white,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            price,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-              color: AppColors.neon,
-            ),
-          ),
-        ],
+      child: Text(
+        label.toUpperCase(),
+        style: const TextStyle(
+          color: AppColors.background,
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 1.1,
+        ),
       ),
     );
   }
+}
+
+void _openDetail(BuildContext context, ProductModel product) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ProductDetailScreen(product: product),
+    ),
+  );
 }

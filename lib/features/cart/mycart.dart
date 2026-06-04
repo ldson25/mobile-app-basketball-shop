@@ -1,11 +1,22 @@
-// lib/features/cart/mycart.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/constants/app_sizes.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../services/cart_service.dart';
-import '../../models/cart_item_model.dart';
+
+import '../../core/theme/app_colors.dart';
+import '../../services/cart_service.dart';
 import '../checkout/checkoutstepo.dart';
+
+String formatVnd(double value) {
+  final number = value.round().toString();
+  final buffer = StringBuffer();
+  for (var i = 0; i < number.length; i++) {
+    final fromEnd = number.length - i;
+    buffer.write(number[i]);
+    if (fromEnd > 1 && fromEnd % 3 == 1) {
+      buffer.write('.');
+    }
+  }
+  return '${buffer}đ';
+}
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -19,28 +30,27 @@ class _CartScreenState extends State<CartScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const _CustomAppBar(),
+      appBar: const _CartAppBar(),
       body: Consumer<CartService>(
         builder: (context, cartService, child) {
           final cartItems = cartService.cartItems;
-          
+
           if (cartItems.isEmpty) {
             return const _EmptyCartView();
           }
-          
+
           final selectedItems = cartService.selectedItems;
           final selectedSubtotal = cartService.selectedTotalAmount;
-          
+
           return Column(
             children: [
-              // Select All header
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 child: Row(
                   children: [
                     GestureDetector(
                       onTap: () {
-                        for (var item in cartItems) {
+                        for (final item in cartItems) {
                           cartService.toggleCheck(item.id);
                         }
                       },
@@ -57,7 +67,7 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'SELECT ALL (${cartItems.length})',
+                            'CHỌN TẤT CẢ (${cartItems.length})',
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
@@ -71,38 +81,7 @@ class _CartScreenState extends State<CartScreen> {
                     const Spacer(),
                     if (selectedItems.isNotEmpty)
                       GestureDetector(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              backgroundColor: AppColors.surface,
-                              title: const Text(
-                                'Remove Items',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              content: Text(
-                                'Remove ${selectedItems.length} item(s) from cart?',
-                                style: const TextStyle(color: AppColors.textSecondary),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('CANCEL'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    cartService.removeCheckedItems();
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text(
-                                    'REMOVE',
-                                    style: TextStyle(color: AppColors.error),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                        onTap: () => _confirmRemoveSelected(context, cartService, selectedItems.length),
                         child: const Row(
                           children: [
                             Icon(
@@ -112,7 +91,7 @@ class _CartScreenState extends State<CartScreen> {
                             ),
                             SizedBox(width: 4),
                             Text(
-                              'REMOVE',
+                              'XÓA',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
@@ -132,27 +111,23 @@ class _CartScreenState extends State<CartScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       children: [
-                        ...cartItems.map((item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: _CartItem(
-                            id: item.id,
-                            imagePath: item.imagePath,
-                            title: item.title,
-                            size: item.size,
-                            price: item.price,
-                            quantity: item.quantity,
-                            isChecked: item.isChecked,
-                            onQuantityChanged: (id, newQuantity) {
-                              cartService.updateQuantity(id, newQuantity);
-                            },
-                            onCheckChanged: (id) {
-                              cartService.toggleCheck(id);
-                            },
-                            onRemove: (id) {
-                              cartService.removeFromCart(id);
-                            },
+                        ...cartItems.map(
+                          (item) => Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _CartItem(
+                              id: item.id,
+                              imagePath: item.imagePath,
+                              title: item.title,
+                              size: item.size,
+                              price: item.price,
+                              quantity: item.quantity,
+                              isChecked: item.isChecked,
+                              onQuantityChanged: cartService.updateQuantity,
+                              onCheckChanged: cartService.toggleCheck,
+                              onRemove: cartService.removeFromCart,
+                            ),
                           ),
-                        )),
+                        ),
                         const SizedBox(height: 32),
                         _OrderSummary(
                           selectedSubtotal: selectedSubtotal,
@@ -175,9 +150,45 @@ class _CartScreenState extends State<CartScreen> {
       ),
     );
   }
+
+  void _confirmRemoveSelected(
+    BuildContext context,
+    CartService cartService,
+    int selectedCount,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text(
+          'Xóa sản phẩm',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          'Xóa $selectedCount sản phẩm khỏi giỏ hàng?',
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('HỦY'),
+          ),
+          TextButton(
+            onPressed: () {
+              cartService.removeCheckedItems();
+              Navigator.pop(context);
+            },
+            child: const Text(
+              'XÓA',
+              style: TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-// View khi giỏ hàng trống
 class _EmptyCartView extends StatelessWidget {
   const _EmptyCartView();
 
@@ -194,7 +205,7 @@ class _EmptyCartView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const Text(
-            'YOUR CART IS EMPTY',
+            'GIỎ HÀNG ĐANG TRỐNG',
             style: TextStyle(
               fontFamily: 'Space Grotesk',
               fontSize: 20,
@@ -205,10 +216,8 @@ class _EmptyCartView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Add some products to get started',
-            style: TextStyle(
-              color: AppColors.textSecondary,
-            ),
+            'Thêm sản phẩm để bắt đầu mua sắm',
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
@@ -221,7 +230,7 @@ class _EmptyCartView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
-            child: const Text('START SHOPPING'),
+            child: const Text('MUA SẮM NGAY'),
           ),
         ],
       ),
@@ -229,8 +238,8 @@ class _EmptyCartView extends StatelessWidget {
   }
 }
 
-class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const _CustomAppBar();
+class _CartAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _CartAppBar();
 
   @override
   Widget build(BuildContext context) {
@@ -248,17 +257,14 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 padding: const EdgeInsets.only(left: 24),
                 child: GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
-                  child: const Icon(
-                    Icons.arrow_back,
-                    color: AppColors.neon,
-                  ),
+                  child: const Icon(Icons.arrow_back, color: AppColors.neon),
                 ),
               ),
             ),
             const Align(
               alignment: Alignment.center,
               child: Text(
-                'MY CART',
+                'GIỎ HÀNG',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 24,
@@ -269,7 +275,6 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 48), // Balance
           ],
         ),
       ),
@@ -281,17 +286,6 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class _CartItem extends StatelessWidget {
-  final String id;
-  final String imagePath;
-  final String title;
-  final String size;
-  final double price;
-  final int quantity;
-  final bool isChecked;
-  final Function(String, int) onQuantityChanged;
-  final Function(String) onCheckChanged;
-  final Function(String) onRemove;
-
   const _CartItem({
     required this.id,
     required this.imagePath,
@@ -304,6 +298,17 @@ class _CartItem extends StatelessWidget {
     required this.onCheckChanged,
     required this.onRemove,
   });
+
+  final String id;
+  final String imagePath;
+  final String title;
+  final String size;
+  final double price;
+  final int quantity;
+  final bool isChecked;
+  final void Function(String id, int quantity) onQuantityChanged;
+  final void Function(String id) onCheckChanged;
+  final void Function(String id) onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -318,45 +323,37 @@ class _CartItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product Image
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: AppColors.background,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                imagePath,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.asset(
+              imagePath,
+              width: 100,
+              height: 100,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
                 width: 100,
                 height: 100,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: AppColors.surface3,
-                  child: const Icon(
-                    Icons.image_not_supported,
-                    color: Colors.grey,
-                  ),
+                color: AppColors.surface3,
+                child: const Icon(
+                  Icons.image_not_supported,
+                  color: Colors.grey,
                 ),
               ),
             ),
           ),
           const SizedBox(width: 16),
-          // Product Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title and Checkbox
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Text(
                         title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontFamily: 'Space Grotesk',
                           fontSize: 16,
@@ -365,37 +362,30 @@ class _CartItem extends StatelessWidget {
                           letterSpacing: -0.5,
                           color: Colors.white,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => onCheckChanged(id),
-                          child: Icon(
-                            isChecked ? Icons.check_box : Icons.check_box_outline_blank,
-                            size: 22,
-                            color: isChecked ? AppColors.neon : AppColors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: () => onRemove(id),
-                          child: const Icon(
-                            Icons.delete_outline,
-                            size: 20,
-                            color: AppColors.error,
-                          ),
-                        ),
-                      ],
+                    GestureDetector(
+                      onTap: () => onCheckChanged(id),
+                      child: Icon(
+                        isChecked ? Icons.check_box : Icons.check_box_outline_blank,
+                        size: 22,
+                        color: isChecked ? AppColors.neon : AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () => onRemove(id),
+                      child: const Icon(
+                        Icons.delete_outline,
+                        size: 20,
+                        color: AppColors.error,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 6),
-                // Size
                 Text(
-                  'SIZE: $size',
+                  'TÙY CHỌN: $size',
                   style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -404,11 +394,9 @@ class _CartItem extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                // Quantity and Price
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Quantity selector
                     Container(
                       decoration: BoxDecoration(
                         color: AppColors.background,
@@ -419,11 +407,9 @@ class _CartItem extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           GestureDetector(
-                            onTap: () {
-                              if (quantity > 1) {
-                                onQuantityChanged(id, quantity - 1);
-                              }
-                            },
+                            onTap: quantity > 1
+                                ? () => onQuantityChanged(id, quantity - 1)
+                                : null,
                             child: const SizedBox(
                               width: 32,
                               height: 32,
@@ -461,9 +447,8 @@ class _CartItem extends StatelessWidget {
                         ],
                       ),
                     ),
-                    // Price
                     Text(
-                      '\$${totalPrice.toStringAsFixed(2)}',
+                      formatVnd(totalPrice),
                       style: const TextStyle(
                         fontFamily: 'Space Grotesk',
                         fontSize: 18,
@@ -483,80 +468,36 @@ class _CartItem extends StatelessWidget {
 }
 
 class _OrderSummary extends StatelessWidget {
-  final double selectedSubtotal;
-  final bool isFreeShipping;
-
   const _OrderSummary({
     required this.selectedSubtotal,
     required this.isFreeShipping,
   });
 
+  final double selectedSubtotal;
+  final bool isFreeShipping;
+
   @override
   Widget build(BuildContext context) {
-    final total = isFreeShipping ? selectedSubtotal : selectedSubtotal + 10.0;
-
     return Container(
       padding: const EdgeInsets.only(top: 32),
       decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(color: AppColors.border),
-        ),
+        border: Border(top: BorderSide(color: AppColors.border)),
       ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'SELECTED ITEMS',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              Text(
-                '\$${selectedSubtotal.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontFamily: 'Space Grotesk',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.neon,
-                ),
-              ),
-            ],
-          ),
+          _SummaryRow(label: 'SẢN PHẨM ĐÃ CHỌN', value: formatVnd(selectedSubtotal)),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'SHIPPING',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              Text(
-                isFreeShipping ? 'FREE' : '\$10.00',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
-                  color: isFreeShipping ? AppColors.neon : Colors.white,
-                ),
-              ),
-            ],
+          _SummaryRow(
+            label: 'PHÍ GIAO HÀNG',
+            value: isFreeShipping ? 'Tính ở bước sau' : formatVnd(30000),
+            highlighted: isFreeShipping,
           ),
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'TOTAL',
+                'TẠM TÍNH',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 28,
@@ -567,7 +508,7 @@ class _OrderSummary extends StatelessWidget {
                 ),
               ),
               Text(
-                '\$${total.toStringAsFixed(2)}',
+                formatVnd(selectedSubtotal),
                 style: const TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 28,
@@ -583,14 +524,53 @@ class _OrderSummary extends StatelessWidget {
   }
 }
 
-class _CheckoutButton extends StatelessWidget {
-  final bool isEnabled;
-  final double total;
+class _SummaryRow extends StatelessWidget {
+  const _SummaryRow({
+    required this.label,
+    required this.value,
+    this.highlighted = false,
+  });
 
+  final String label;
+  final String value;
+  final bool highlighted;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.2,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: highlighted ? 12 : 18,
+            fontWeight: FontWeight.w700,
+            letterSpacing: highlighted ? 1.2 : 0,
+            color: highlighted ? AppColors.neon : Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CheckoutButton extends StatelessWidget {
   const _CheckoutButton({
     required this.isEnabled,
     required this.total,
   });
+
+  final bool isEnabled;
+  final double total;
 
   @override
   Widget build(BuildContext context) {
@@ -623,7 +603,7 @@ class _CheckoutButton extends StatelessWidget {
               : [],
         ),
         child: Text(
-          'CHECKOUT (\$${total.toStringAsFixed(2)})',
+          'THANH TOÁN (${formatVnd(total)})',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: 'Space Grotesk',
