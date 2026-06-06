@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../../core/theme/app_colors.dart';
-import '../../../models/order_model.dart';
 import '../../../models/cart_item_model.dart';
+import '../../../models/order_model.dart';
 import '../../../services/order_service.dart';
 
 String formatVnd(double value) {
@@ -17,23 +18,24 @@ String formatVnd(double value) {
 }
 
 class CancelOrderScreen extends StatefulWidget {
-  final OrderModel order;
   const CancelOrderScreen({super.key, required this.order});
+
+  final OrderModel order;
 
   @override
   State<CancelOrderScreen> createState() => _CancelOrderScreenState();
 }
 
 class _CancelOrderScreenState extends State<CancelOrderScreen> {
-  String? _selectedReason;
   final TextEditingController _otherReasonController = TextEditingController();
-  Map<String, bool> _selectedItems = {}; // key = item.id
+  final Map<String, bool> _selectedItems = {};
+  String? _selectedReason;
   bool _isProcessing = false;
 
   @override
   void initState() {
     super.initState();
-    for (var item in widget.order.items) {
+    for (final item in widget.order.items) {
       _selectedItems[item.id] = true;
     }
   }
@@ -51,56 +53,65 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
   }
 
   double get _refundAmount {
-    double total = 0;
-    for (var item in _selectedItemsList) {
-      total += item.price * item.quantity;
-    }
-    return total;
+    return _selectedItemsList.fold<double>(
+      0,
+      (sum, item) => sum + item.price * item.quantity,
+    );
   }
 
   Future<void> _confirmCancel() async {
     if (_selectedReason == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng chọn lý do hủy hàng'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showMessage('Vui lòng chọn lý do hủy hàng');
       return;
     }
     if (_selectedItemsList.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Chọn ít nhất một sản phẩm để hủy'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showMessage('Chọn ít nhất một sản phẩm để hủy');
       return;
     }
 
     setState(() => _isProcessing = true);
-    await Future.delayed(const Duration(seconds: 1));
-    final orderService = Provider.of<OrderService>(context, listen: false);
-    orderService.updateOrderStatus(widget.order.id, OrderStatus.cancelled);
+    final reason = _selectedReason == 'other'
+        ? _otherReasonController.text.trim()
+        : _selectedReason!;
+    final orderService = context.read<OrderService>();
+    await orderService.createReturnRequest(
+      orderId: widget.order.id,
+      itemIds: _selectedItemsList.map((item) => item.id).toList(),
+      reason: reason.isEmpty ? 'other' : reason,
+      condition: 'not_required',
+      refundMethod: 'cod_refund',
+      refundAmount: _refundAmount,
+      requestType: 'cancel',
+      note: 'Khách yêu cầu hủy đơn',
+    );
+    await orderService.updateOrderStatus(
+      widget.order.id,
+      OrderStatus.cancelled,
+      note: 'Khách yêu cầu hủy đơn',
+    );
+    if (!mounted) return;
     setState(() => _isProcessing = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Hủy đơn hàng thành công'),
+        backgroundColor: Colors.green,
+      ),
+    );
+    Navigator.pop(context);
+    Navigator.pop(context);
+  }
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Hủy đơn hàng thành công'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pop(context);
-      Navigator.pop(context);
-    }
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: _CancelAppBar(),
+      appBar: const _CancelAppBar(),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
@@ -108,21 +119,21 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _OrderIdentity(order: widget.order),
-            const SizedBox(height: 32),
+            const SizedBox(height: 28),
             _SelectItemsSection(
               items: widget.order.items,
               selectedItems: _selectedItems,
-              onToggle: (id, val) => setState(() => _selectedItems[id] = val),
+              onToggle: (id, value) => setState(() => _selectedItems[id] = value),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 28),
             _ReasonSection(
               selectedReason: _selectedReason,
-              onChanged: (val) => setState(() => _selectedReason = val),
+              onChanged: (value) => setState(() => _selectedReason = value),
               otherController: _otherReasonController,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 28),
             _RefundNotice(amount: _refundAmount),
-            const SizedBox(height: 32),
+            const SizedBox(height: 28),
             _ActionButtons(
               isProcessing: _isProcessing,
               onConfirm: _confirmCancel,
@@ -135,21 +146,23 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
 }
 
 class _CancelAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _CancelAppBar();
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: AppColors.background.withOpacity(0.7),
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
         onPressed: () => Navigator.pop(context),
       ),
       title: const Text(
-        'CANCEL ORDER',
+        'HỦY ĐƠN HÀNG',
         style: TextStyle(
           fontFamily: 'Space Grotesk',
           fontSize: 18,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w900,
           fontStyle: FontStyle.italic,
           color: AppColors.neon,
         ),
@@ -163,8 +176,10 @@ class _CancelAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class _OrderIdentity extends StatelessWidget {
-  final OrderModel order;
   const _OrderIdentity({required this.order});
+
+  final OrderModel order;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -177,7 +192,7 @@ class _OrderIdentity extends StatelessWidget {
             borderRadius: BorderRadius.circular(999),
           ),
           child: const Text(
-            'VERIFICATION REQUIRED',
+            'CẦN XÁC NHẬN',
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w900,
@@ -188,34 +203,27 @@ class _OrderIdentity extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          'ORDER #${order.orderNumber}',
+          'ĐƠN ${order.orderNumber}',
           style: const TextStyle(
             fontFamily: 'Space Grotesk',
-            fontSize: 42,
+            fontSize: 34,
             fontWeight: FontWeight.w900,
             fontStyle: FontStyle.italic,
-            color: Colors.white,
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 8),
-        Row(
+        Wrap(
+          spacing: 12,
+          runSpacing: 6,
           children: [
             Text(
               order.formattedDate,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-              ),
+              style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
             ),
-            const SizedBox(width: 12),
-            Text('•', style: TextStyle(color: AppColors.border)),
-            const SizedBox(width: 12),
             Text(
-              '${order.totalQuantity} ITEMS TOTAL',
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-              ),
+              '${order.totalQuantity} sản phẩm',
+              style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -225,34 +233,28 @@ class _OrderIdentity extends StatelessWidget {
 }
 
 class _SelectItemsSection extends StatelessWidget {
-  final List<CartItemModel> items;
-  final Map<String, bool> selectedItems;
-  final Function(String, bool) onToggle;
   const _SelectItemsSection({
     required this.items,
     required this.selectedItems,
     required this.onToggle,
   });
+
+  final List<CartItemModel> items;
+  final Map<String, bool> selectedItems;
+  final void Function(String id, bool value) onToggle;
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'SELECT ITEMS TO CANCEL',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.2,
-            color: AppColors.textSecondary,
-          ),
-        ),
-        const SizedBox(height: 16),
+        const _SectionLabel('CHỌN SẢN PHẨM MUỐN HỦY'),
+        const SizedBox(height: 14),
         ...items.map(
           (item) => _CancelItemCard(
             item: item,
             isSelected: selectedItems[item.id] ?? false,
-            onToggle: (val) => onToggle(item.id, val),
+            onToggle: (value) => onToggle(item.id, value),
           ),
         ),
       ],
@@ -261,14 +263,16 @@ class _SelectItemsSection extends StatelessWidget {
 }
 
 class _CancelItemCard extends StatelessWidget {
-  final CartItemModel item;
-  final bool isSelected;
-  final Function(bool) onToggle;
   const _CancelItemCard({
     required this.item,
     required this.isSelected,
     required this.onToggle,
   });
+
+  final CartItemModel item;
+  final bool isSelected;
+  final ValueChanged<bool> onToggle;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -286,25 +290,14 @@ class _CancelItemCard extends StatelessWidget {
         children: [
           Checkbox(
             value: isSelected,
-            onChanged: (v) => onToggle(v ?? false),
+            onChanged: (value) => onToggle(value ?? false),
             activeColor: AppColors.neon,
             side: const BorderSide(color: AppColors.border),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              item.imagePath,
-              width: 56,
-              height: 56,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                color: AppColors.surface,
-                width: 56,
-                height: 56,
-                child: const Icon(Icons.image_not_supported),
-              ),
-            ),
+            child: _CartItemImage(path: item.imagePath, width: 56, height: 56),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -313,29 +306,29 @@ class _CancelItemCard extends StatelessWidget {
               children: [
                 Text(
                   item.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 14,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Size: ${item.size}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                  ),
+                  'Size: ${item.size} / SL: ${item.quantity}',
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           Text(
             formatVnd(item.price * item.quantity),
             style: const TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
-              color: Colors.white,
+              fontWeight: FontWeight.w900,
+              fontSize: 14,
+              color: AppColors.textPrimary,
             ),
           ),
         ],
@@ -345,28 +338,22 @@ class _CancelItemCard extends StatelessWidget {
 }
 
 class _ReasonSection extends StatelessWidget {
-  final String? selectedReason;
-  final Function(String?) onChanged;
-  final TextEditingController otherController;
   const _ReasonSection({
     required this.selectedReason,
     required this.onChanged,
     required this.otherController,
   });
+
+  final String? selectedReason;
+  final ValueChanged<String?> onChanged;
+  final TextEditingController otherController;
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'REASON FOR CANCELLATION',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.2,
-            color: AppColors.textSecondary,
-          ),
-        ),
+        const _SectionLabel('LÝ DO HỦY ĐƠN'),
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
@@ -381,22 +368,16 @@ class _ReasonSection extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: AppColors.neon.withOpacity(0.15),
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16),
-                  ),
-                  border: Border(bottom: BorderSide(color: AppColors.border)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  border: const Border(bottom: BorderSide(color: AppColors.border)),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    Icon(
-                      Icons.warning_amber_rounded,
-                      color: AppColors.neon,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 10),
+                    Icon(Icons.warning_amber_rounded, color: AppColors.neon, size: 20),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Please select a reason. This action cannot be undone.',
+                        'Vui lòng chọn lý do. Sau khi hủy, đơn không thể cập nhật lại.',
                         style: TextStyle(fontSize: 12, color: AppColors.neon),
                       ),
                     ),
@@ -408,31 +389,31 @@ class _ReasonSection extends StatelessWidget {
                 child: Column(
                   children: [
                     _RadioTile(
-                      label: 'Changed my mind',
+                      label: 'Đổi ý không muốn mua',
                       value: 'changed_mind',
                       groupValue: selectedReason,
                       onChanged: onChanged,
                     ),
                     _RadioTile(
-                      label: 'Found a better price',
+                      label: 'Tìm được giá tốt hơn',
                       value: 'better_price',
                       groupValue: selectedReason,
                       onChanged: onChanged,
                     ),
                     _RadioTile(
-                      label: 'Incorrect shipping address',
+                      label: 'Sai địa chỉ giao hàng',
                       value: 'wrong_address',
                       groupValue: selectedReason,
                       onChanged: onChanged,
                     ),
                     _RadioTile(
-                      label: 'Shipping time too long',
+                      label: 'Thời gian giao quá lâu',
                       value: 'shipping_time',
                       groupValue: selectedReason,
                       onChanged: onChanged,
                     ),
                     _RadioTile(
-                      label: 'Other',
+                      label: 'Lý do khác',
                       value: 'other',
                       groupValue: selectedReason,
                       onChanged: onChanged,
@@ -443,17 +424,15 @@ class _ReasonSection extends StatelessWidget {
                         child: TextField(
                           controller: otherController,
                           maxLines: 3,
-                          style: const TextStyle(color: Colors.white),
+                          style: const TextStyle(color: AppColors.textPrimary),
                           decoration: InputDecoration(
-                            hintText: 'Tell us more (Optional)',
-                            hintStyle: TextStyle(color: AppColors.textMuted),
+                            hintText: 'Nhập lý do hủy đơn',
+                            hintStyle: const TextStyle(color: AppColors.textMuted),
                             filled: true,
                             fillColor: AppColors.surface,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.border,
-                              ),
+                              borderSide: const BorderSide(color: AppColors.border),
                             ),
                           ),
                         ),
@@ -470,48 +449,42 @@ class _ReasonSection extends StatelessWidget {
 }
 
 class _RadioTile extends StatelessWidget {
-  final String label, value;
-  final String? groupValue;
-  final Function(String?) onChanged;
   const _RadioTile({
     required this.label,
     required this.value,
     required this.groupValue,
     required this.onChanged,
   });
+
+  final String label;
+  final String value;
+  final String? groupValue;
+  final ValueChanged<String?> onChanged;
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Radio<String>(
-          value: value,
-          groupValue: groupValue,
-          onChanged: onChanged,
-          activeColor: AppColors.neon,
-          fillColor: WidgetStateProperty.resolveWith(
-            (states) => states.contains(WidgetState.selected)
-                ? AppColors.neon
-                : AppColors.border,
-          ),
+    return RadioListTile<String>(
+      value: value,
+      groupValue: groupValue,
+      onChanged: onChanged,
+      activeColor: AppColors.neon,
+      contentPadding: EdgeInsets.zero,
+      title: Text(
+        label,
+        style: TextStyle(
+          fontSize: 14,
+          color: groupValue == value ? AppColors.neon : AppColors.textSecondary,
         ),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: groupValue == value
-                ? AppColors.neon
-                : AppColors.textSecondary,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
 class _RefundNotice extends StatelessWidget {
-  final double amount;
   const _RefundNotice({required this.amount});
+
+  final double amount;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -519,7 +492,7 @@ class _RefundNotice extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface2,
         borderRadius: BorderRadius.circular(16),
-        border: Border(left: BorderSide(color: AppColors.neon, width: 3)),
+        border: const Border(left: BorderSide(color: AppColors.neon, width: 3)),
       ),
       child: Row(
         children: [
@@ -530,7 +503,7 @@ class _RefundNotice extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'REFUND NOTICE',
+                  'THÔNG TIN HOÀN TIỀN',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -538,16 +511,13 @@ class _RefundNotice extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  'Refunds process in 3-5 business days. Shipping fees refundable for unshipped orders.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                  ),
+                const Text(
+                  'Nếu đơn chưa giao, hệ thống sẽ loại đơn này khỏi doanh thu báo cáo.',
+                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Refund amount: ${formatVnd(amount)}',
+                  'Số tiền dự kiến: ${formatVnd(amount)}',
                   style: const TextStyle(
                     fontWeight: FontWeight.w900,
                     color: AppColors.neon,
@@ -564,9 +534,14 @@ class _RefundNotice extends StatelessWidget {
 }
 
 class _ActionButtons extends StatelessWidget {
+  const _ActionButtons({
+    required this.isProcessing,
+    required this.onConfirm,
+  });
+
   final bool isProcessing;
   final VoidCallback onConfirm;
-  const _ActionButtons({required this.isProcessing, required this.onConfirm});
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -577,10 +552,9 @@ class _ActionButtons extends StatelessWidget {
             onPressed: isProcessing ? null : onConfirm,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.neon,
+              foregroundColor: AppColors.background,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(999),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
             ),
             child: isProcessing
                 ? const SizedBox(
@@ -589,7 +563,7 @@ class _ActionButtons extends StatelessWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Text(
-                    'CONFIRM CANCELLATION',
+                    'XÁC NHẬN HỦY ĐƠN',
                     style: TextStyle(fontWeight: FontWeight.w900),
                   ),
           ),
@@ -602,20 +576,89 @@ class _ActionButtons extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: AppColors.border),
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(999),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
             ),
             child: const Text(
-              'KEEP ORDER',
+              'GIỮ LẠI ĐƠN',
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.textPrimary,
                 fontWeight: FontWeight.w900,
               ),
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w900,
+        letterSpacing: 1.2,
+        color: AppColors.textSecondary,
+      ),
+    );
+  }
+}
+
+class _CartItemImage extends StatelessWidget {
+  const _CartItemImage({
+    required this.path,
+    required this.width,
+    required this.height,
+  });
+
+  final String path;
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    if (path.startsWith('http')) {
+      return Image.network(
+        path,
+        width: width,
+        height: height,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _ImageFallback(width: width, height: height),
+      );
+    }
+    return Image.asset(
+      path,
+      width: width,
+      height: height,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => _ImageFallback(width: width, height: height),
+    );
+  }
+}
+
+class _ImageFallback extends StatelessWidget {
+  const _ImageFallback({required this.width, required this.height});
+
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      color: AppColors.surface,
+      child: const Icon(
+        Icons.image_not_supported,
+        color: AppColors.textSecondary,
+      ),
     );
   }
 }

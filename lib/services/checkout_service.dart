@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'cart_service.dart';
 import 'order_service.dart';
-import '../models/cart_item_model.dart';
+
 
 class CheckoutService {
   final CartService _cartService = CartService();

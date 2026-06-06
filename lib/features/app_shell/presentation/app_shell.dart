@@ -18,6 +18,7 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int currentIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final List<Widget?> _screenCache = List<Widget?>.filled(4, null);
 
   void openDrawer() {
     _scaffoldKey.currentState?.openDrawer();
@@ -87,12 +88,11 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    final screens = <Widget>[
-      HomeUserScreen(onMenuTap: openDrawer, onRequireAuth: _requireAuth),
-      DiscoverScreen(onMenuTap: openDrawer, onRequireAuth: _requireAuth),
-      OrderHistoryScreen(onMenuTap: openDrawer),
-      ProfileScreen(onMenuTap: openDrawer),
-    ];
+    _screenCache[currentIndex] ??= _buildScreen(currentIndex);
+    final screens = List<Widget>.generate(
+      4,
+      (index) => _screenCache[index] ?? const SizedBox.shrink(),
+    );
     return Scaffold(
       key: _scaffoldKey,
       body: IndexedStack(index: currentIndex, children: screens),
@@ -103,5 +103,20 @@ class _AppShellState extends State<AppShell> {
       ),
       drawer: MenuDrawer(onMenuItemTap: _onMenuItemSelected),
     );
+  }
+
+  Widget _buildScreen(int index) {
+    switch (index) {
+      case 0:
+        return HomeUserScreen(onMenuTap: openDrawer, onRequireAuth: _requireAuth);
+      case 1:
+        return DiscoverScreen(onMenuTap: openDrawer, onRequireAuth: _requireAuth);
+      case 2:
+        return OrderHistoryScreen(onMenuTap: openDrawer);
+      case 3:
+        return ProfileScreen(onMenuTap: openDrawer);
+      default:
+        return HomeUserScreen(onMenuTap: openDrawer, onRequireAuth: _requireAuth);
+    }
   }
 }

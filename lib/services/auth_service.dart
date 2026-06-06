@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart' as gsign;
 import '../models/user_model.dart';
+import 'cloudinary_service.dart';
 
 class AuthService extends ChangeNotifier {
   static final AuthService _instance = AuthService._internal();
@@ -141,15 +142,37 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateProfile({
+    required String fullName,
+    String? phoneNumber,
+  }) async {
+    final user = _currentUser;
+    if (user == null) return;
+
+    final updated = user.copyWith(
+      fullName: fullName.trim().isEmpty ? user.fullName : fullName.trim(),
+      phoneNumber: phoneNumber?.trim(),
+    );
+    _currentUser = updated;
+    await FirebaseFirestore.instance.collection('users').doc(user.id).update({
+      'fullName': updated.fullName,
+      'phoneNumber': updated.phoneNumber,
+    });
+    notifyListeners();
+  }
+
   Future<void> updateAvatar(String avatarPath) async {
     final user = _currentUser;
     if (user == null) return;
 
-    // TODO: Upload ảnh thực tế lên Firebase Storage sau.
-    // Tạm thời update local path vào Firestore.
-    _currentUser = user.copyWith(avatarUrl: avatarPath);
+    final cloudinary = CloudinaryService();
+    final avatarUrl = cloudinary.isConfigured
+        ? (await cloudinary.uploadImagePath(avatarPath, folder: 'avatars')).imageUrl
+        : avatarPath;
+
+    _currentUser = user.copyWith(avatarUrl: avatarUrl);
     await FirebaseFirestore.instance.collection('users').doc(user.id).update({
-      'avatarUrl': avatarPath
+      'avatarUrl': avatarUrl,
     });
     notifyListeners();
   }

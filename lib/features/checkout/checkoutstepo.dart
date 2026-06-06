@@ -4,9 +4,22 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/shipping_address_model.dart';
 import '../../services/shipping_address_service.dart';
+import '../../services/shipping_rule_service.dart';
 import '../../widgets/address_picker.dart';
-import '../cart/mycart.dart';
 import 'checkoutstept.dart';
+
+String _formatShippingVnd(double value) {
+  final number = value.round().toString();
+  final buffer = StringBuffer();
+  for (var i = 0; i < number.length; i++) {
+    final fromEnd = number.length - i;
+    buffer.write(number[i]);
+    if (fromEnd > 1 && fromEnd % 3 == 1) {
+      buffer.write('.');
+    }
+  }
+  return '${buffer}d';
+}
 
 class CheckoutShippingScreen extends StatefulWidget {
   final VoidCallback onMenuTap;
@@ -691,6 +704,17 @@ class _ShippingMethodSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final rules = context.watch<ShippingRuleService>().activeRules;
+    double costFor(String method, double fallback) {
+      for (final rule in rules) {
+        if (rule.method == method) return rule.cost;
+      }
+      return fallback;
+    }
+
+    final freeCost = costFor('free', 0);
+    final standardCost = costFor('standard', 30000);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -715,7 +739,7 @@ class _ShippingMethodSection extends StatelessWidget {
           value: 'free',
           title: 'Giao hàng tiêu chuẩn',
           subtitle: '2 - 5 ngày làm việc',
-          price: 'Miễn phí',
+          price: freeCost > 0 ? _formatShippingVnd(freeCost) : 'Mien phi',
           isSelected: selectedShipping == 'free',
           onTap: () => onShippingChanged('free'),
         ),
@@ -724,7 +748,7 @@ class _ShippingMethodSection extends StatelessWidget {
           value: 'standard',
           title: 'Giao hàng nhanh',
           subtitle: '1 - 2 ngày làm việc',
-          price: '30.000đ',
+          price: _formatShippingVnd(standardCost),
           isSelected: selectedShipping == 'standard',
           onTap: () => onShippingChanged('standard'),
         ),
@@ -895,7 +919,13 @@ class _ContinueButton extends StatelessWidget {
     required this.onMenuTap,
   });
 
-  double get _shippingCost => selectedShipping == 'standard' ? 30000 : 0;
+  double _shippingCost(BuildContext context) {
+    final rules = context.read<ShippingRuleService>().activeRules;
+    for (final rule in rules) {
+      if (rule.method == (selectedShipping ?? 'free')) return rule.cost;
+    }
+    return selectedShipping == 'standard' ? 30000 : 0;
+  }
   String get _shippingLabel => selectedShipping == 'standard'
       ? 'Giao hàng nhanh'
       : 'Giao hàng tiêu chuẩn';
@@ -914,7 +944,7 @@ class _ContinueButton extends StatelessWidget {
                   shippingData: savedAddress!.toCheckoutData(
                     shippingMethod: selectedShipping ?? 'free',
                     shippingLabel: _shippingLabel,
-                    shippingCost: _shippingCost,
+                    shippingCost: _shippingCost(context),
                   ),
                   onMenuTap: onMenuTap,
                 ),
@@ -937,8 +967,6 @@ class _ContinueButton extends StatelessWidget {
             return;
           }
 
-          final fullAddress =
-              '${streetController.text.trim()}, $selectedWard, $selectedDistrict, $selectedCity';
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -953,7 +981,7 @@ class _ContinueButton extends StatelessWidget {
                   'phone': phoneController.text.trim(),
                   'shippingMethod': selectedShipping ?? 'free',
                   'shippingLabel': _shippingLabel,
-                  'shippingCost': _shippingCost.toString(),
+                  'shippingCost': _shippingCost(context).toString(),
                 },
                 onMenuTap: onMenuTap,
               ),

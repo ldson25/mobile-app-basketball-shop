@@ -515,9 +515,9 @@ class _ActionButtons extends StatelessWidget {
               ),
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
-            child: const Text(
-              'QUAY LAI DON HANG',
-              style: TextStyle(fontWeight: FontWeight.w900),
+            child: Text(
+              isDelivered ? 'DA NHAN HANG' : 'QUAY LAI DON HANG',
+              style: const TextStyle(fontWeight: FontWeight.w900),
             ),
           ),
         ),

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/constants/app_sizes.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/product_model.dart';
+import '../../services/banner_service.dart';
+import '../../services/product_service.dart';
+import '../../widgets/product_image.dart';
 import '../cart/mycart.dart';
 import '../products/presentation/product_detail_screen.dart';
 
@@ -117,14 +121,23 @@ class HomeBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    final productService = context.watch<ProductService>();
+    final footwear = productService.getProductsByCategory('footwear');
+    final apparel = productService.getProductsByCategory('apparel');
+    final equipment = productService.getProductsByCategory('equipment');
+
+    if (footwear.isEmpty || apparel.isEmpty || equipment.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.neon),
+      );
+    }
+
+    return ListView(
       physics: const BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      children: [
           const SizedBox(height: 18),
           SeasonalDropsHero(
-            product: ProductData.footwearProducts.first,
+            product: footwear.first,
             onRequireAuth: onRequireAuth,
           ),
           const SizedBox(height: 48),
@@ -132,29 +145,28 @@ class HomeBody extends StatelessWidget {
             eyebrow: 'Vừa ra mắt',
             title: 'Hàng mới về',
             products: [
-              ProductData.footwearProducts[1],
-              ProductData.apparelProducts[0],
-              ProductData.footwearProducts[5],
+              if (footwear.length > 1) footwear[1],
+              apparel.first,
+              if (footwear.length > 5) footwear[5],
             ],
             onRequireAuth: onRequireAuth,
           ),
           const SizedBox(height: 48),
-          EditorialBanner(onRequireAuth: onRequireAuth),
+          FirestoreEditorialBanner(onRequireAuth: onRequireAuth),
           const SizedBox(height: 48),
           _ProductRail(
             eyebrow: 'Thịnh hành',
             title: 'Bán chạy nhất',
             compact: true,
             products: [
-              ProductData.footwearProducts[3],
-              ProductData.footwearProducts[7],
-              ProductData.equipmentProducts[0],
+              if (footwear.length > 3) footwear[3],
+              if (footwear.length > 7) footwear[7],
+              equipment.first,
             ],
             onRequireAuth: onRequireAuth,
           ),
           const SizedBox(height: 112),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -175,12 +187,7 @@ class SeasonalDropsHero extends StatelessWidget {
       padding: AppSizes.pageHorizontal,
       child: InkWell(
         borderRadius: BorderRadius.circular(AppSizes.cardRadius),
-        onTap: () async {
-          final authed = await onRequireAuth();
-          if (authed) {
-            _openDetail(context, product);
-          }
-        },
+        onTap: () => _openDetail(context, product),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(AppSizes.cardRadius),
           child: SizedBox(
@@ -188,18 +195,7 @@ class SeasonalDropsHero extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Image.asset(
-                  product.imageAsset,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: AppColors.surface2,
-                    child: const Icon(
-                      Icons.image_not_supported_outlined,
-                      color: AppColors.textMuted,
-                      size: 42,
-                    ),
-                  ),
-                ),
+                ProductImage(product: product, fit: BoxFit.cover),
                 DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -241,12 +237,7 @@ class SeasonalDropsHero extends StatelessWidget {
                       ),
                       const SizedBox(height: 22),
                       ElevatedButton.icon(
-                        onPressed: () async {
-                          final authed = await onRequireAuth();
-                          if (authed) {
-                            _openDetail(context, product);
-                          }
-                        },
+                        onPressed: () => _openDetail(context, product),
                         icon: const Icon(Icons.arrow_forward_rounded, size: 18),
                         label: const Text('MUA NGAY'),
                         style: ElevatedButton.styleFrom(
@@ -400,12 +391,7 @@ class _ProductCard extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(AppSizes.cardRadius),
-      onTap: () async {
-        final authed = await onRequireAuth();
-        if (authed) {
-          _openDetail(context, product);
-        }
-      },
+      onTap: () => _openDetail(context, product),
       child: SizedBox(
         width: width,
         child: Column(
@@ -415,20 +401,11 @@ class _ProductCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppSizes.cardRadius),
               child: Stack(
                 children: [
-                  Image.asset(
-                    product.imageAsset,
+                  ProductImage(
+                    product: product,
                     width: width,
                     height: imageHeight,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: width,
-                      height: imageHeight,
-                      color: AppColors.surface2,
-                      child: const Icon(
-                        Icons.image_not_supported_outlined,
-                        color: AppColors.textMuted,
-                      ),
-                    ),
                   ),
                   Positioned(
                     top: 12,
@@ -495,18 +472,15 @@ class EditorialBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final product = ProductData.apparelProducts.first;
+    final apparel = context.watch<ProductService>().getProductsByCategory('apparel');
+    if (apparel.isEmpty) return const SizedBox.shrink();
+    final product = apparel.first;
 
     return Padding(
       padding: AppSizes.pageHorizontal,
       child: InkWell(
         borderRadius: BorderRadius.circular(AppSizes.cardRadius),
-        onTap: () async {
-          final authed = await onRequireAuth();
-          if (authed) {
-            _openDetail(context, product);
-          }
-        },
+        onTap: () => _openDetail(context, product),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(AppSizes.cardRadius),
           child: SizedBox(
@@ -514,17 +488,7 @@ class EditorialBanner extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Image.asset(
-                  product.imageAsset,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: AppColors.surface2,
-                    child: const Icon(
-                      Icons.image_not_supported_outlined,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-                ),
+                ProductImage(product: product, fit: BoxFit.cover),
                 Container(color: Colors.black.withOpacity(0.34)),
                 const Padding(
                   padding: EdgeInsets.all(24),
@@ -549,6 +513,86 @@ class EditorialBanner extends StatelessWidget {
                       Text(
                         'Nhấn để xem bộ trang phục nổi bật.',
                         style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class FirestoreEditorialBanner extends StatelessWidget {
+  final Future<bool> Function() onRequireAuth;
+
+  const FirestoreEditorialBanner({super.key, required this.onRequireAuth});
+
+  @override
+  Widget build(BuildContext context) {
+    final bannerService = context.watch<BannerService>();
+    final productService = context.read<ProductService>();
+    final apparel = productService.getProductsByCategory('apparel');
+    if (apparel.isEmpty) return const SizedBox.shrink();
+
+    final banner = bannerService.activeBanners.isEmpty
+        ? null
+        : bannerService.activeBanners.first;
+    final bannerProduct = banner != null && banner.productId.isNotEmpty
+        ? productService.getProductById(banner.productId)
+        : null;
+    final product = bannerProduct ?? apparel.first;
+    final title = banner != null && banner.title.isNotEmpty
+        ? banner.title
+        : 'LAM CHU\nSAN DAU';
+    final subtitle = banner != null && banner.subtitle.isNotEmpty
+        ? banner.subtitle
+        : 'Nhan de xem bo trang phuc noi bat.';
+
+    return Padding(
+      padding: AppSizes.pageHorizontal,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppSizes.cardRadius),
+        onTap: () => _openDetail(context, product),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppSizes.cardRadius),
+          child: SizedBox(
+            height: 280,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                ProductImage(product: product, fit: BoxFit.cover),
+                Container(color: Colors.black.withOpacity(0.34)),
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _NeonTag(label: banner?.title ?? 'Street series'),
+                      const SizedBox(height: 14),
+                      Text(
+                        title.toUpperCase(),
+                        style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 38,
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.6,
+                          height: 0.95,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/order_model.dart';
+import '../../../models/order_return_request_model.dart';
 import '../../../services/order_service.dart';
 import '../../../widgets/glow_button.dart';
 import '../../../widgets/section_card.dart';
@@ -46,16 +48,32 @@ class AdminOrderManagementPage extends StatefulWidget {
 
 class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
   OrderStatus? _status;
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => context.read<OrderService>().loadAllOrdersForAdmin());
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<OrderService>(
       builder: (context, orderService, child) {
-        final orders = _status == null
+        final filteredByStatus = _status == null
             ? orderService.orders
             : orderService.orders
                 .where((order) => order.status == _status)
                 .toList();
+        final normalized = _query.trim().toLowerCase();
+        final orders = normalized.isEmpty
+            ? filteredByStatus
+            : filteredByStatus.where((order) {
+                return order.orderNumber.toLowerCase().contains(normalized) ||
+                    order.customerName.toLowerCase().contains(normalized) ||
+                    order.phoneNumber.toLowerCase().contains(normalized) ||
+                    order.trackingNumber.toLowerCase().contains(normalized);
+              }).toList();
 
         return AdminPageScaffold(
           title: 'QUAN LY\nDON HANG',
@@ -71,8 +89,19 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
               expanded: true,
               onPressed: () => _showExportSheet(context),
             ),
+            const SizedBox(height: 10),
+            GlowButton(
+              label: 'YEU CAU HUY / TRA HANG',
+              icon: Icons.assignment_return_rounded,
+              expanded: true,
+              isPrimary: false,
+              onPressed: () => _showReturnRequestsSheet(context),
+            ),
             const SizedBox(height: 14),
-            const AdminSearchField(hint: 'Tim ma don, ten khach hoac so dien thoai...'),
+            AdminSearchField(
+              hint: 'Tim ma don, ten khach hoac so dien thoai...',
+              onChanged: (value) => setState(() => _query = value),
+            ),
             const SizedBox(height: 14),
             _StatusFilter(
               selected: _status,
@@ -143,6 +172,18 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
     );
   }
 
+  void _showReturnRequestsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => _ReturnRequestsSheet(),
+    );
+  }
+
   void _showOrderDetail(BuildContext context, OrderModel order) {
     showModalBottomSheet(
       context: context,
@@ -156,6 +197,17 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
   }
 
   void _showStatusSheet(BuildContext context, OrderModel order) {
+    if (order.status == OrderStatus.cancelled ||
+        order.status == OrderStatus.returned) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => _LockedOrderStatusPage(order: order),
+        ),
+      );
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
@@ -182,6 +234,7 @@ class _StatusFilter extends StatelessWidget {
       (label: 'Dang giao', status: OrderStatus.shipping),
       (label: 'Da giao', status: OrderStatus.delivered),
       (label: 'Da huy', status: OrderStatus.cancelled),
+      (label: 'Da tra', status: OrderStatus.returned),
     ];
 
     return SizedBox(
@@ -397,6 +450,79 @@ class _OrderDetailSheet extends StatelessWidget {
   }
 }
 
+class _LockedOrderStatusPage extends StatelessWidget {
+  const _LockedOrderStatusPage({required this.order});
+
+  final OrderModel order;
+
+  @override
+  Widget build(BuildContext context) {
+    final isCancelled = order.status == OrderStatus.cancelled;
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background.withOpacity(0.7),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+        ),
+        title: const Text(
+          'TRANG THAI DON',
+          style: TextStyle(
+            color: AppColors.neon,
+            fontWeight: FontWeight.w900,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: SectionCard(
+            color: AppColors.surface2,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  isCancelled ? Icons.cancel_rounded : Icons.assignment_return_rounded,
+                  color: isCancelled ? AppColors.error : AppColors.warning,
+                  size: 44,
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  isCancelled ? 'Don hang da huy' : 'Don hang da tra hang',
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  '${order.orderNumber} dang o trang thai ${order.status.label}. Admin khong the cap nhat trang thai don nay nua.',
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    height: 1.45,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                GlowButton(
+                  label: 'QUAY LAI',
+                  icon: Icons.arrow_back_rounded,
+                  expanded: true,
+                  isPrimary: false,
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _StatusActionSheet extends StatelessWidget {
   const _StatusActionSheet({required this.order});
 
@@ -404,6 +530,22 @@ class _StatusActionSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (order.status == OrderStatus.cancelled ||
+        order.status == OrderStatus.returned) {
+      return SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: SectionCard(
+            color: AppColors.surface2,
+            child: Text(
+              '${order.orderNumber} da ${order.status.label.toLowerCase()}, khong the cap nhat trang thai.',
+              style: const TextStyle(color: AppColors.textPrimary),
+            ),
+          ),
+        ),
+      );
+    }
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -443,11 +585,116 @@ class _StatusActionSheet extends StatelessWidget {
     );
   }
 
-  void _updateStatus(BuildContext context, OrderStatus status) {
-    context.read<OrderService>().updateOrderStatus(order.id, status);
+  Future<void> _updateStatus(BuildContext context, OrderStatus status) async {
+    await context.read<OrderService>().updateOrderStatus(
+          order.id,
+          status,
+          note: 'Updated by admin',
+        );
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Da cap nhat: ${status.label}')),
+    );
+  }
+}
+
+class _ReturnRequestsSheet extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const AdminSectionTitle(
+              eyebrow: 'Yeu cau',
+              title: 'Huy / Tra hang',
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.62,
+              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: FirebaseFirestore.instance
+                    .collectionGroup('return_requests')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  final requests = (snapshot.data?.docs ?? []).map((doc) {
+                    return OrderReturnRequestModel.fromJson({
+                      ...doc.data(),
+                      'id': doc.data()['id'] ?? doc.id,
+                    });
+                  }).toList()
+                    ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+                  if (snapshot.connectionState == ConnectionState.waiting &&
+                      requests.isEmpty) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: AppColors.neon),
+                    );
+                  }
+
+                  if (requests.isEmpty) {
+                    return const _EmptyOrdersCard();
+                  }
+
+                  return ListView.separated(
+                    itemCount: requests.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      return _ReturnRequestCard(request: requests[index]);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReturnRequestCard extends StatelessWidget {
+  const _ReturnRequestCard({required this.request});
+
+  final OrderReturnRequestModel request;
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionCard(
+      color: AppColors.surface2,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${request.requestType.toUpperCase()} / ${request.orderId}',
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              AdminStatusChip(label: request.status, color: AppColors.warning),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Reason: ${request.reason}',
+            style: const TextStyle(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Items: ${request.itemIds.length} / Refund: ${_formatVnd(request.refundAmount)}',
+            style: const TextStyle(color: AppColors.textMuted),
+          ),
+        ],
+      ),
     );
   }
 }

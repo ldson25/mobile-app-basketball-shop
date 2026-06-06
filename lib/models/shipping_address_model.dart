@@ -73,4 +73,34 @@ class ShippingAddressModel {
       'shippingCost': shippingCost.toString(),
     };
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'label': label,
+      'fullName': fullName,
+      'phone': phone,
+      'street': street,
+      'ward': ward,
+      'district': district,
+      'city': city,
+      'country': country,
+      'isDefault': isDefault,
+    };
+  }
+
+  factory ShippingAddressModel.fromJson(Map<String, dynamic> json) {
+    return ShippingAddressModel(
+      id: (json['id'] ?? '').toString(),
+      label: (json['label'] ?? '').toString(),
+      fullName: (json['fullName'] ?? '').toString(),
+      phone: (json['phone'] ?? '').toString(),
+      street: (json['street'] ?? '').toString(),
+      ward: (json['ward'] ?? '').toString(),
+      district: (json['district'] ?? '').toString(),
+      city: (json['city'] ?? '').toString(),
+      country: (json['country'] ?? 'VIET NAM').toString(),
+      isDefault: json['isDefault'] == true,
+    );
+  }
 }

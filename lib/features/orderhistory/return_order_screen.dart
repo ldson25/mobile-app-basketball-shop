@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../../core/theme/app_colors.dart';
-import '../../../models/order_model.dart';
 import '../../../models/cart_item_model.dart';
+import '../../../models/order_model.dart';
 import '../../../services/order_service.dart';
 
-// Hàm format tiền VND
 String formatVnd(double value) {
   final number = value.round().toString();
   final buffer = StringBuffer();
@@ -18,25 +18,25 @@ String formatVnd(double value) {
 }
 
 class ReturnOrderScreen extends StatefulWidget {
-  final OrderModel order;
   const ReturnOrderScreen({super.key, required this.order});
+
+  final OrderModel order;
 
   @override
   State<ReturnOrderScreen> createState() => _ReturnOrderScreenState();
 }
 
 class _ReturnOrderScreenState extends State<ReturnOrderScreen> {
+  final Map<String, bool> _selectedItems = {};
   String? _selectedReason;
   String? _selectedMethod;
   bool _conditionConfirmed = false;
-  Map<String, bool> _selectedItems = {}; // key = CartItemModel.id
   bool _isProcessing = false;
 
   @override
   void initState() {
     super.initState();
-    // Mặc định chọn tất cả items
-    for (var item in widget.order.items) {
+    for (final item in widget.order.items) {
       _selectedItems[item.id] = true;
     }
   }
@@ -48,114 +48,99 @@ class _ReturnOrderScreenState extends State<ReturnOrderScreen> {
   }
 
   double get _refundAmount {
-    double total = 0;
-    for (var item in _selectedItemsList) {
-      total += item.price * item.quantity;
-    }
-    return total;
+    return _selectedItemsList.fold<double>(
+      0,
+      (sum, item) => sum + item.price * item.quantity,
+    );
   }
 
   Future<void> _submitReturn() async {
     if (_selectedItemsList.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Chọn ít nhất một sản phẩm để trả hàng'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showMessage('Chọn ít nhất một sản phẩm để trả hàng');
       return;
     }
     if (_selectedReason == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng chọn lý do trả hàng'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showMessage('Vui lòng chọn lý do trả hàng');
       return;
     }
     if (!_conditionConfirmed) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Bạn cần xác nhận sản phẩm còn nguyên tem mác'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showMessage('Bạn cần xác nhận sản phẩm còn nguyên tem mác');
       return;
     }
     if (_selectedMethod == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng chọn phương thức trả hàng'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showMessage('Vui lòng chọn phương thức trả hàng');
       return;
     }
 
     setState(() => _isProcessing = true);
-    // Gọi service trả hàng (tạm thời giả lập)
-    await Future.delayed(const Duration(seconds: 1));
-    final orderService = Provider.of<OrderService>(context, listen: false);
-    // Giả sử cập nhật trạng thái đơn hàng thành returned (bạn có thể thêm enum nếu cần)
-    orderService.updateOrderStatus(
+    final orderService = context.read<OrderService>();
+    await orderService.createReturnRequest(
+      orderId: widget.order.id,
+      itemIds: _selectedItemsList.map((item) => item.id).toList(),
+      reason: _selectedReason!,
+      condition: 'confirmed_original_condition',
+      refundMethod: _selectedMethod!,
+      refundAmount: _refundAmount,
+      requestType: 'return',
+      note: 'Khách yêu cầu trả hàng',
+    );
+    await orderService.updateOrderStatus(
       widget.order.id,
-      OrderStatus.cancelled,
-    ); // tạm thời
+      OrderStatus.returned,
+      note: 'Khách yêu cầu trả hàng',
+    );
+    if (!mounted) return;
     setState(() => _isProcessing = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Yêu cầu trả hàng đã được gửi'),
+        backgroundColor: Colors.green,
+      ),
+    );
+    Navigator.pop(context);
+    Navigator.pop(context);
+  }
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Yêu cầu trả hàng đã được gửi'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pop(context); // đóng màn hình return
-      Navigator.pop(context); // quay về danh sách đơn hàng
-    }
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: _ReturnAppBar(),
+      appBar: const _ReturnAppBar(),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Order Context Header
             _OrderHeader(order: widget.order),
-            const SizedBox(height: 32),
-            // 1. SELECT ITEMS
+            const SizedBox(height: 28),
             _SelectItemsSection(
               items: widget.order.items,
               selectedItems: _selectedItems,
-              onToggle: (id, val) => setState(() => _selectedItems[id] = val),
+              onToggle: (id, value) => setState(() => _selectedItems[id] = value),
             ),
-            const SizedBox(height: 32),
-            // 2. REASON FOR RETURN
+            const SizedBox(height: 28),
             _ReasonSection(
               selectedReason: _selectedReason,
-              onChanged: (val) => setState(() => _selectedReason = val),
+              onChanged: (value) => setState(() => _selectedReason = value),
             ),
-            const SizedBox(height: 32),
-            // 3. CONDITION
+            const SizedBox(height: 28),
             _ConditionSection(
               value: _conditionConfirmed,
-              onChanged: (val) => setState(() => _conditionConfirmed = val),
+              onChanged: (value) => setState(() => _conditionConfirmed = value),
             ),
-            const SizedBox(height: 32),
-            // 4. RETURN METHOD
+            const SizedBox(height: 28),
             _MethodSection(
               selectedMethod: _selectedMethod,
-              onChanged: (val) => setState(() => _selectedMethod = val),
+              onChanged: (value) => setState(() => _selectedMethod = value),
             ),
-            const SizedBox(height: 48),
-            // Footer with refund total and submit button
+            const SizedBox(height: 36),
             _FooterSection(
               refundAmount: _refundAmount,
               isProcessing: _isProcessing,
@@ -169,21 +154,23 @@ class _ReturnOrderScreenState extends State<ReturnOrderScreen> {
 }
 
 class _ReturnAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _ReturnAppBar();
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: AppColors.background.withOpacity(0.7),
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
         onPressed: () => Navigator.pop(context),
       ),
       title: const Text(
-        'RETURN ITEMS',
+        'TRẢ HÀNG',
         style: TextStyle(
           fontFamily: 'Space Grotesk',
           fontSize: 18,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w900,
           fontStyle: FontStyle.italic,
           color: AppColors.neon,
         ),
@@ -197,8 +184,9 @@ class _ReturnAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class _OrderHeader extends StatelessWidget {
-  final OrderModel order;
   const _OrderHeader({required this.order});
+
+  final OrderModel order;
 
   @override
   Widget build(BuildContext context) {
@@ -206,7 +194,7 @@ class _OrderHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'ORDER SUMMARY',
+          'TÓM TẮT ĐƠN HÀNG',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w900,
@@ -216,41 +204,31 @@ class _OrderHeader extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'ORDER #${order.orderNumber}',
+          'ĐƠN ${order.orderNumber}',
           style: const TextStyle(
             fontFamily: 'Space Grotesk',
             fontSize: 32,
             fontWeight: FontWeight.w900,
             fontStyle: FontStyle.italic,
-            color: Colors.white,
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 8),
-        Row(
+        Wrap(
+          spacing: 12,
+          runSpacing: 6,
           children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                color: AppColors.neon,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 8),
             Text(
-              'Status: ${order.status.label}',
+              'Trạng thái: ${order.status.label}',
               style: const TextStyle(
                 fontSize: 14,
-                fontStyle: FontStyle.italic,
                 color: AppColors.textSecondary,
               ),
             ),
-            const Spacer(),
             Text(
-              'Delivered on ${order.formattedDate}',
+              'Ngày giao: ${order.formattedDate}',
               style: const TextStyle(
                 fontSize: 14,
-                fontStyle: FontStyle.italic,
                 color: AppColors.textSecondary,
               ),
             ),
@@ -262,63 +240,35 @@ class _OrderHeader extends StatelessWidget {
 }
 
 class _SelectItemsSection extends StatelessWidget {
-  final List<CartItemModel> items;
-  final Map<String, bool> selectedItems;
-  final Function(String, bool) onToggle;
   const _SelectItemsSection({
     required this.items,
     required this.selectedItems,
     required this.onToggle,
   });
 
+  final List<CartItemModel> items;
+  final Map<String, bool> selectedItems;
+  final void Function(String id, bool value) onToggle;
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                '1. SELECT ITEMS',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'Space Grotesk',
-                  fontStyle: FontStyle.italic,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            Text(
-              '${items.length} Items available',
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
+        _SectionTitle(
+          title: '1. CHỌN SẢN PHẨM',
+          trailing: '${items.length} sản phẩm',
         ),
-        const SizedBox(height: 16),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 0.75,
-          ),
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            final item = items[index];
-            final isSelected = selectedItems[item.id] ?? false;
-            return _ReturnItemCard(
+        const SizedBox(height: 14),
+        ...items.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _ReturnItemCard(
               item: item,
-              isSelected: isSelected,
-              onToggle: (val) => onToggle(item.id, val),
-            );
-          },
+              isSelected: selectedItems[item.id] ?? false,
+              onToggle: (value) => onToggle(item.id, value),
+            ),
+          ),
         ),
       ],
     );
@@ -326,20 +276,22 @@ class _SelectItemsSection extends StatelessWidget {
 }
 
 class _ReturnItemCard extends StatelessWidget {
-  final CartItemModel item;
-  final bool isSelected;
-  final Function(bool) onToggle;
   const _ReturnItemCard({
     required this.item,
     required this.isSelected,
     required this.onToggle,
   });
 
+  final CartItemModel item;
+  final bool isSelected;
+  final ValueChanged<bool> onToggle;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => onToggle(!isSelected),
       child: Container(
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: AppColors.surface2,
           borderRadius: BorderRadius.circular(16),
@@ -348,76 +300,53 @@ class _ReturnItemCard extends StatelessWidget {
             width: isSelected ? 1.5 : 1,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16),
-                  ),
-                  child: Image.asset(
-                    item.imagePath,
-                    height: 150,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      height: 150,
-                      color: AppColors.surface,
-                      child: const Icon(
-                        Icons.image_not_supported,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Checkbox(
-                    value: isSelected,
-                    onChanged: (val) => onToggle(val ?? false),
-                    activeColor: AppColors.neon,
-                    checkColor: AppColors.background,
-                    side: const BorderSide(color: AppColors.border),
-                  ),
-                ),
-              ],
+            Checkbox(
+              value: isSelected,
+              onChanged: (value) => onToggle(value ?? false),
+              activeColor: AppColors.neon,
+              checkColor: AppColors.background,
+              side: const BorderSide(color: AppColors.border),
             ),
-            Padding(
-              padding: const EdgeInsets.all(12),
+            const SizedBox(width: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: _CartItemImage(path: item.imagePath, width: 64, height: 64),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item.title.toUpperCase(),
+                    item.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 14,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'SIZE: ${item.size}',
+                    'Size: ${item.size} / SL: ${item.quantity}',
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    formatVnd(item.price),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                      color: AppColors.neon,
-                    ),
-                  ),
                 ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              formatVnd(item.price * item.quantity),
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 14,
+                color: AppColors.neon,
               ),
             ),
           ],
@@ -428,63 +357,42 @@ class _ReturnItemCard extends StatelessWidget {
 }
 
 class _ReasonSection extends StatelessWidget {
+  const _ReasonSection({
+    required this.selectedReason,
+    required this.onChanged,
+  });
+
   final String? selectedReason;
   final ValueChanged<String?> onChanged;
-  const _ReasonSection({required this.selectedReason, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return _OptionGroup(
+      title: '2. LÝ DO TRẢ HÀNG',
       children: [
-        Text(
-          '2. REASON FOR RETURN',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            fontFamily: 'Space Grotesk',
-            fontStyle: FontStyle.italic,
-            color: Colors.white,
-          ),
+        _ReasonRadio(
+          label: 'Sai kích cỡ',
+          value: 'wrong_size',
+          groupValue: selectedReason,
+          onChanged: onChanged,
         ),
-        const SizedBox(height: 16),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface2,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              children: [
-                _ReasonRadio(
-                  label: 'Wrong size',
-                  value: 'wrong_size',
-                  groupValue: selectedReason,
-                  onChanged: onChanged,
-                ),
-                _ReasonRadio(
-                  label: 'Defective/Damaged',
-                  value: 'defective',
-                  groupValue: selectedReason,
-                  onChanged: onChanged,
-                ),
-                _ReasonRadio(
-                  label: 'Not as described',
-                  value: 'not_as_described',
-                  groupValue: selectedReason,
-                  onChanged: onChanged,
-                ),
-                _ReasonRadio(
-                  label: 'Changed my mind',
-                  value: 'changed_mind',
-                  groupValue: selectedReason,
-                  onChanged: onChanged,
-                ),
-              ],
-            ),
-          ),
+        _ReasonRadio(
+          label: 'Sản phẩm lỗi / hư hỏng',
+          value: 'defective',
+          groupValue: selectedReason,
+          onChanged: onChanged,
+        ),
+        _ReasonRadio(
+          label: 'Không đúng mô tả',
+          value: 'not_as_described',
+          groupValue: selectedReason,
+          onChanged: onChanged,
+        ),
+        _ReasonRadio(
+          label: 'Đổi ý không muốn mua',
+          value: 'changed_mind',
+          groupValue: selectedReason,
+          onChanged: onChanged,
         ),
       ],
     );
@@ -492,9 +400,6 @@ class _ReasonSection extends StatelessWidget {
 }
 
 class _ReasonRadio extends StatelessWidget {
-  final String label, value;
-  final String? groupValue;
-  final ValueChanged<String?> onChanged;
   const _ReasonRadio({
     required this.label,
     required this.value,
@@ -502,84 +407,50 @@ class _ReasonRadio extends StatelessWidget {
     required this.onChanged,
   });
 
+  final String label;
+  final String value;
+  final String? groupValue;
+  final ValueChanged<String?> onChanged;
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Radio<String>(
-          value: value,
-          groupValue: groupValue,
-          onChanged: onChanged,
-          activeColor: AppColors.neon,
-        ),
-        const SizedBox(width: 8),
-        Text(label, style: const TextStyle(fontSize: 14, color: Colors.white)),
-      ],
+    return RadioListTile<String>(
+      value: value,
+      groupValue: groupValue,
+      onChanged: onChanged,
+      activeColor: AppColors.neon,
+      contentPadding: EdgeInsets.zero,
+      title: Text(
+        label,
+        style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+      ),
     );
   }
 }
 
 class _ConditionSection extends StatelessWidget {
+  const _ConditionSection({
+    required this.value,
+    required this.onChanged,
+  });
+
   final bool value;
   final ValueChanged<bool> onChanged;
-  const _ConditionSection({required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return _OptionGroup(
+      title: '3. TÌNH TRẠNG SẢN PHẨM',
       children: [
-        Text(
-          '3. CONDITION',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            fontFamily: 'Space Grotesk',
-            fontStyle: FontStyle.italic,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.surface2,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Row(
-            children: [
-              Checkbox(
-                value: value,
-                onChanged: (val) => onChanged(val ?? false),
-                activeColor: AppColors.neon,
-                checkColor: AppColors.background,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Condition Guarantee',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'I confirm the item is in its original packaging, unworn, and all tags are still attached.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+        CheckboxListTile(
+          value: value,
+          onChanged: (checked) => onChanged(checked ?? false),
+          activeColor: AppColors.neon,
+          checkColor: AppColors.background,
+          contentPadding: EdgeInsets.zero,
+          title: const Text(
+            'Tôi xác nhận sản phẩm còn bao bì, chưa sử dụng và còn đầy đủ tem mác.',
+            style: TextStyle(color: AppColors.textPrimary, fontSize: 14),
           ),
         ),
       ],
@@ -588,42 +459,37 @@ class _ConditionSection extends StatelessWidget {
 }
 
 class _MethodSection extends StatelessWidget {
+  const _MethodSection({
+    required this.selectedMethod,
+    required this.onChanged,
+  });
+
   final String? selectedMethod;
   final ValueChanged<String?> onChanged;
-  const _MethodSection({required this.selectedMethod, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '4. RETURN METHOD',
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            fontFamily: 'Space Grotesk',
-            fontStyle: FontStyle.italic,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 16),
+        const _SectionTitle(title: '4. PHƯƠNG THỨC TRẢ HÀNG'),
+        const SizedBox(height: 14),
         Row(
           children: [
             Expanded(
               child: _MethodCard(
                 icon: Icons.location_on,
-                label: 'DROP-OFF AT LOCATION',
+                label: 'Gửi tại điểm nhận',
                 value: 'drop_off',
                 selectedMethod: selectedMethod,
                 onChanged: onChanged,
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Expanded(
               child: _MethodCard(
                 icon: Icons.print,
-                label: 'PRINT SHIPPING LABEL',
+                label: 'In nhãn giao hàng',
                 value: 'print_label',
                 selectedMethod: selectedMethod,
                 onChanged: onChanged,
@@ -637,12 +503,6 @@ class _MethodSection extends StatelessWidget {
 }
 
 class _MethodCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final String? selectedMethod;
-  final ValueChanged<String?> onChanged;
-
   const _MethodCard({
     required this.icon,
     required this.label,
@@ -651,13 +511,20 @@ class _MethodCard extends StatelessWidget {
     required this.onChanged,
   });
 
+  final IconData icon;
+  final String label;
+  final String value;
+  final String? selectedMethod;
+  final ValueChanged<String?> onChanged;
+
   @override
   Widget build(BuildContext context) {
     final isSelected = selectedMethod == value;
     return GestureDetector(
       onTap: () => onChanged(value),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        constraints: const BoxConstraints(minHeight: 122),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: AppColors.surface2,
           borderRadius: BorderRadius.circular(16),
@@ -667,30 +534,23 @@ class _MethodCard extends StatelessWidget {
           ),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              size: 32,
+              size: 30,
               color: isSelected ? AppColors.neon : AppColors.textSecondary,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Text(
               label,
               textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
-                letterSpacing: 1,
-                color: isSelected ? Colors.white : AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected ? AppColors.neon : Colors.transparent,
+                color: isSelected ? AppColors.textPrimary : AppColors.textSecondary,
               ),
             ),
           ],
@@ -701,14 +561,15 @@ class _MethodCard extends StatelessWidget {
 }
 
 class _FooterSection extends StatelessWidget {
-  final double refundAmount;
-  final bool isProcessing;
-  final VoidCallback onSubmit;
   const _FooterSection({
     required this.refundAmount,
     required this.isProcessing,
     required this.onSubmit,
   });
+
+  final double refundAmount;
+  final bool isProcessing;
+  final VoidCallback onSubmit;
 
   @override
   Widget build(BuildContext context) {
@@ -721,76 +582,185 @@ class _FooterSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.border),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'ESTIMATED REFUND',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      formatVnd(refundAmount),
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w900,
-                        fontFamily: 'Space Grotesk',
-                        fontStyle: FontStyle.italic,
-                        color: AppColors.neon,
-                      ),
-                    ),
-                  ],
+              const Text(
+                'SỐ TIỀN DỰ KIẾN HOÀN',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1,
+                  color: AppColors.textSecondary,
                 ),
               ),
-              ElevatedButton(
-                onPressed: isProcessing ? null : onSubmit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.neon,
-                  foregroundColor: AppColors.background,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 16,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(999),
-                  ),
+              const SizedBox(height: 6),
+              Text(
+                formatVnd(refundAmount),
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  fontFamily: 'Space Grotesk',
+                  fontStyle: FontStyle.italic,
+                  color: AppColors.neon,
                 ),
-                child: isProcessing
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.background,
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: isProcessing ? null : onSubmit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.neon,
+                    foregroundColor: AppColors.background,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  child: isProcessing
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.background,
+                          ),
+                        )
+                      : const Text(
+                          'GỬI YÊU CẦU TRẢ HÀNG',
+                          style: TextStyle(fontWeight: FontWeight.w900),
                         ),
-                      )
-                    : const Text(
-                        'SUBMIT RETURN REQUEST',
-                        style: TextStyle(fontWeight: FontWeight.w900),
-                      ),
+                ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 16),
         const Text(
-          'Returns are processed within 3-5 business days upon receipt.',
+          'Yêu cầu trả hàng sẽ được xử lý trong 3-5 ngày làm việc sau khi nhận hàng.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 12,
             color: AppColors.textSecondary,
-            letterSpacing: 1,
+            letterSpacing: 0.2,
           ),
         ),
       ],
+    );
+  }
+}
+
+class _OptionGroup extends StatelessWidget {
+  const _OptionGroup({required this.title, required this.children});
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionTitle(title: title),
+        const SizedBox(height: 14),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColors.surface2,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(children: children),
+        ),
+      ],
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({required this.title, this.trailing});
+
+  final String title;
+  final String? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Space Grotesk',
+              fontStyle: FontStyle.italic,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ),
+        if (trailing != null)
+          Text(
+            trailing!,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondary,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _CartItemImage extends StatelessWidget {
+  const _CartItemImage({
+    required this.path,
+    required this.width,
+    required this.height,
+  });
+
+  final String path;
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    if (path.startsWith('http')) {
+      return Image.network(
+        path,
+        width: width,
+        height: height,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _ImageFallback(width: width, height: height),
+      );
+    }
+    return Image.asset(
+      path,
+      width: width,
+      height: height,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => _ImageFallback(width: width, height: height),
+    );
+  }
+}
+
+class _ImageFallback extends StatelessWidget {
+  const _ImageFallback({required this.width, required this.height});
+
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      color: AppColors.surface,
+      child: const Icon(
+        Icons.image_not_supported,
+        color: AppColors.textSecondary,
+      ),
     );
   }
 }

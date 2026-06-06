@@ -34,7 +34,7 @@ class VoucherModel {
   String get targetLabel {
     switch (targetTier) {
       case VoucherTargetTier.all:
-        return 'Tat ca';
+        return 'Tất cả';
       case VoucherTargetTier.member:
         return 'Member';
       case VoucherTargetTier.vip:
@@ -47,7 +47,7 @@ class VoucherModel {
       case VoucherDiscountType.percent:
         return '${discountValue.round()}%';
       case VoucherDiscountType.fixed:
-        return '${discountValue.round()}d';
+        return '${discountValue.round()}đ';
       case VoucherDiscountType.freeShipping:
         return 'Free ship';
     }
@@ -74,4 +74,72 @@ class VoucherModel {
       isActive: isActive ?? this.isActive,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'code': code,
+      'name': name,
+      'discountType': discountType.name,
+      'discountValue': discountValue,
+      'minOrderValue': minOrderValue,
+      'targetTier': targetTier.name,
+      'isActive': isActive,
+    };
+  }
+
+  factory VoucherModel.fromJson(Map<String, dynamic> json) {
+    final discountTypeName =
+        (json['discountType'] ?? json['type'] ?? json['discount_type'])
+            .toString()
+            .trim();
+    final targetTierName =
+        (json['targetTier'] ?? json['tier'] ?? json['target_tier'])
+            .toString()
+            .trim();
+    final rawCode = (json['code'] ?? json['voucherCode'] ?? '').toString();
+    final code = rawCode.trim().toUpperCase();
+    final rawName = (json['name'] ?? json['title'] ?? '').toString().trim();
+
+    return VoucherModel(
+      id: (json['id'] ?? '').toString(),
+      code: code,
+      name: rawName.isEmpty ? code : rawName,
+      discountType: VoucherDiscountType.values.firstWhere(
+        (type) => type.name == discountTypeName,
+        orElse: () => _parseDiscountType(discountTypeName),
+      ),
+      discountValue: _parseDouble(
+        json['discountValue'] ??
+            json['value'] ??
+            json['discount'] ??
+            json['discountPercent'] ??
+            json['amount'],
+      ),
+      minOrderValue: _parseDouble(
+        json['minOrderValue'] ?? json['minOrder'] ?? json['minimumOrder'],
+      ),
+      targetTier: VoucherTargetTier.values.firstWhere(
+        (tier) => tier.name == targetTierName,
+        orElse: () => VoucherTargetTier.all,
+      ),
+      isActive: json['isActive'] != false && json['active'] != false,
+    );
+  }
+}
+
+VoucherDiscountType _parseDiscountType(String value) {
+  final normalized = value.toLowerCase().replaceAll('_', '').replaceAll('-', '');
+  if (normalized.contains('free')) return VoucherDiscountType.freeShipping;
+  if (normalized.contains('fixed') ||
+      normalized.contains('amount') ||
+      normalized.contains('cash')) {
+    return VoucherDiscountType.fixed;
+  }
+  return VoucherDiscountType.percent;
+}
+
+double _parseDouble(dynamic value) {
+  if (value is num) return value.toDouble();
+  return double.tryParse((value ?? '0').toString()) ?? 0;
 }

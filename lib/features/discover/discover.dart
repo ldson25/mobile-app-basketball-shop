@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_sizes.dart';
+import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../models/product_model.dart';
+import '../../services/product_service.dart';
 import '../cart/mycart.dart';
 import 'results_discover_screen.dart';
 
@@ -177,45 +177,16 @@ class _SearchSection extends StatelessWidget {
   }
 
   void _showSearchFilter(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    final products = context.read<ProductService>().products;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ResultsDiscoverScreen(
+          categoryName: 'All',
+          itemCount: products.length,
+          onRequireAuth: onRequireAuth,
+        ),
       ),
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'BỘ LỌC TÌM KIẾM',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 2,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Tùy chọn lọc sẽ được bổ sung sau',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.neon,
-                  foregroundColor: AppColors.background,
-                ),
-                child: const Text('ÁP DỤNG'),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }
@@ -226,7 +197,7 @@ class _CategoriesSection extends StatelessWidget {
   const _CategoriesSection({required this.onRequireAuth});
 
   void _navigateToResults(BuildContext context, String categoryName) {
-    final products = ProductData.getProductsByCategory(categoryName);
+    final products = context.read<ProductService>().getProductsByCategory(categoryName);
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -241,6 +212,12 @@ class _CategoriesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final productService = context.watch<ProductService>();
+    final footwearCount = productService.getProductsByCategory('Footwear').length;
+    final apparelCount = productService.getProductsByCategory('Apparel').length;
+    final equipmentCount =
+        productService.getProductsByCategory('Equipment').length;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -267,18 +244,21 @@ class _CategoriesSection extends StatelessWidget {
                 icon: Icons.bolt,
                 label: 'GIÀY',
                 categoryName: 'Footwear',
+                itemCount: footwearCount,
                 onTap: () => _navigateToResults(context, 'Footwear'),
               ),
               _CategoryItem(
                 icon: Icons.checkroom,
                 label: 'TRANG PHỤC',
                 categoryName: 'Apparel',
+                itemCount: apparelCount,
                 onTap: () => _navigateToResults(context, 'Apparel'),
               ),
               _CategoryItem(
                 icon: Icons.sports_basketball,
                 label: 'PHỤ KIỆN',
                 categoryName: 'Equipment',
+                itemCount: equipmentCount,
                 onTap: () => _navigateToResults(context, 'Equipment'),
                 isLast: true,
               ),
@@ -294,6 +274,7 @@ class _CategoryItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final String categoryName;
+  final int itemCount;
   final VoidCallback onTap;
   final bool isLast;
 
@@ -301,15 +282,13 @@ class _CategoryItem extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.categoryName,
+    required this.itemCount,
     required this.onTap,
     this.isLast = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final products = ProductData.getProductsByCategory(categoryName);
-    final itemCount = products.length;
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
