@@ -27,11 +27,11 @@ String _formatVnd(double value) {
 String _paymentLabel(String method) {
   switch (method) {
     case 'bank_transfer':
-      return 'Chuyen khoan';
+      return 'Chuyển khoản';
     case 'e_wallet':
-      return 'Vi dien tu';
+      return 'Ví điện tử';
     case 'credit_card':
-      return 'The';
+      return 'Thẻ';
     case 'cash':
     default:
       return 'COD';
@@ -53,7 +53,9 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => context.read<OrderService>().loadAllOrdersForAdmin());
+    Future.microtask(
+      () => context.read<OrderService>().loadAllOrdersForAdmin(),
+    );
   }
 
   @override
@@ -63,8 +65,8 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
         final filteredByStatus = _status == null
             ? orderService.orders
             : orderService.orders
-                .where((order) => order.status == _status)
-                .toList();
+                  .where((order) => order.status == _status)
+                  .toList();
         final normalized = _query.trim().toLowerCase();
         final orders = normalized.isEmpty
             ? filteredByStatus
@@ -76,22 +78,22 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
               }).toList();
 
         return AdminPageScaffold(
-          title: 'QUAN LY\nDON HANG',
-          subtitle: 'Theo doi, xac nhan va cap nhat trang thai don',
+          title: 'QUẢN LÝ\nĐƠN HÀNG',
+          subtitle: 'Theo dõi, xác nhận và cập nhật trạng thái đơn',
           trailing: IconButton(
             onPressed: () => _showExportSheet(context),
             icon: const Icon(Icons.download_rounded, color: AppColors.neon),
           ),
           children: [
             GlowButton(
-              label: 'XUAT CSV',
+              label: 'XUẤT CSV',
               icon: Icons.download_rounded,
               expanded: true,
               onPressed: () => _showExportSheet(context),
             ),
             const SizedBox(height: 10),
             GlowButton(
-              label: 'YEU CAU HUY / TRA HANG',
+              label: 'YÊU CẦU HỦY / TRẢ HÀNG',
               icon: Icons.assignment_return_rounded,
               expanded: true,
               isPrimary: false,
@@ -99,7 +101,7 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
             ),
             const SizedBox(height: 14),
             AdminSearchField(
-              hint: 'Tim ma don, ten khach hoac so dien thoai...',
+              hint: 'Tìm mã đơn, tên khách hoặc số điện thoại...',
               onChanged: (value) => setState(() => _query = value),
             ),
             const SizedBox(height: 14),
@@ -109,7 +111,7 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
             ),
             const SizedBox(height: AppSizes.sectionGap),
             Text(
-              '${orders.length} DON HANG',
+              '${orders.length} ĐƠN HÀNG',
               style: const TextStyle(
                 color: AppColors.neon,
                 fontSize: 11,
@@ -151,16 +153,19 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const AdminSectionTitle(eyebrow: 'Xuat du lieu', title: 'CSV don hang'),
+              const AdminSectionTitle(
+                eyebrow: 'Xuat du lieu',
+                title: 'CSV don hang',
+              ),
               const SizedBox(height: 16),
-              const _ExportOption(label: 'Cac don dang loc'),
+              const _ExportOption(label: 'Các đơn đang lọc'),
               const SizedBox(height: 10),
-              const _ExportOption(label: 'Don hang thang nay'),
+              const _ExportOption(label: 'Đơn hàng tháng này'),
               const SizedBox(height: 10),
-              const _ExportOption(label: 'Chi don cho xu ly'),
+              const _ExportOption(label: 'Chỉ đơn chờ xử lý'),
               const SizedBox(height: 18),
               GlowButton(
-                label: 'TAO FILE CSV',
+                label: 'TẠO FILE CSV',
                 icon: Icons.file_download_rounded,
                 expanded: true,
                 onPressed: () => Navigator.pop(context),
@@ -228,13 +233,13 @@ class _StatusFilter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final values = <({String label, OrderStatus? status})>[
-      (label: 'Tat ca', status: null),
-      (label: 'Cho xu ly', status: OrderStatus.pending),
-      (label: 'Da xac nhan', status: OrderStatus.confirmed),
-      (label: 'Dang giao', status: OrderStatus.shipping),
-      (label: 'Da giao', status: OrderStatus.delivered),
-      (label: 'Da huy', status: OrderStatus.cancelled),
-      (label: 'Da tra', status: OrderStatus.returned),
+      (label: 'TẤt cả', status: null),
+      (label: 'Chờ xử lý', status: OrderStatus.pending),
+      (label: 'Đã xác nhận', status: OrderStatus.confirmed),
+      (label: 'Đang giao', status: OrderStatus.shipping),
+      (label: 'Đã giao', status: OrderStatus.delivered),
+      (label: 'Đã hủy', status: OrderStatus.cancelled),
+      (label: 'Đã trả', status: OrderStatus.returned),
     ];
 
     return SizedBox(
@@ -306,13 +311,19 @@ class _AdminOrderCard extends StatelessWidget {
                   ),
                 ),
               ),
-              AdminStatusChip(label: order.status.label, color: order.status.color),
+              AdminStatusChip(
+                label: order.status.label,
+                color: order.status.color,
+              ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            '${order.customerName.isEmpty ? 'Khach hang' : order.customerName} / ${order.totalQuantity} san pham',
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 15),
+            '${order.customerName.isEmpty ? 'Khách hàng' : order.customerName} / ${order.totalQuantity} sản phẩm',
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 15,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
@@ -399,22 +410,36 @@ class _OrderDetailSheet extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AdminSectionTitle(eyebrow: 'Chi tiet don', title: order.orderNumber),
+            AdminSectionTitle(
+              eyebrow: 'Chi tiết đơn',
+              title: order.orderNumber,
+            ),
             const SizedBox(height: 16),
             _DetailRow(
-              label: 'Khach hang',
-              value: order.customerName.isEmpty ? 'Khach hang' : order.customerName,
+              label: 'Khách hàng',
+              value: order.customerName.isEmpty
+                  ? 'Khách hàng'
+                  : order.customerName,
             ),
-            _DetailRow(label: 'Dien thoai', value: order.phoneNumber),
-            _DetailRow(label: 'Dia chi', value: order.shippingAddress),
-            _DetailRow(label: 'Thanh toan', value: _paymentLabel(order.paymentMethod)),
-            _DetailRow(label: 'Tam tinh', value: _formatVnd(order.subtotal)),
-            _DetailRow(label: 'Phi ship', value: _formatVnd(order.shippingCost)),
+            _DetailRow(label: 'Điện thoại', value: order.phoneNumber),
+            _DetailRow(label: 'Địa chỉ', value: order.shippingAddress),
+            _DetailRow(
+              label: 'Thanh toán',
+              value: _paymentLabel(order.paymentMethod),
+            ),
+            _DetailRow(label: 'Tạm tính', value: _formatVnd(order.subtotal)),
+            _DetailRow(
+              label: 'Phí ship',
+              value: _formatVnd(order.shippingCost),
+            ),
             if (order.discount > 0)
-              _DetailRow(label: 'Voucher', value: '-${_formatVnd(order.discount)}'),
-            _DetailRow(label: 'Tong tien', value: _formatVnd(order.total)),
+              _DetailRow(
+                label: 'Voucher',
+                value: '-${_formatVnd(order.discount)}',
+              ),
+            _DetailRow(label: 'Tổng tiền', value: _formatVnd(order.total)),
             const SizedBox(height: 16),
-            const AdminSectionTitle(eyebrow: 'San pham', title: 'Snapshot'),
+            const AdminSectionTitle(eyebrow: 'Sản phẩm', title: 'Snapshot'),
             const SizedBox(height: 12),
             ...order.items.map(
               (item) => Padding(
@@ -428,7 +453,7 @@ class _OrderDetailSheet extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             GlowButton(
-              label: 'CAP NHAT TRANG THAI',
+              label: 'CậP NHậT TRẠNG THÁI',
               icon: Icons.sync_rounded,
               expanded: true,
               onPressed: () {
@@ -437,7 +462,9 @@ class _OrderDetailSheet extends StatelessWidget {
                   context: context,
                   backgroundColor: AppColors.surface,
                   shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
                   ),
                   builder: (context) => _StatusActionSheet(order: order),
                 );
@@ -464,7 +491,10 @@ class _LockedOrderStatusPage extends StatelessWidget {
         backgroundColor: AppColors.background.withOpacity(0.7),
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.textPrimary,
+          ),
         ),
         title: const Text(
           'TRANG THAI DON',
@@ -485,13 +515,15 @@ class _LockedOrderStatusPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
-                  isCancelled ? Icons.cancel_rounded : Icons.assignment_return_rounded,
+                  isCancelled
+                      ? Icons.cancel_rounded
+                      : Icons.assignment_return_rounded,
                   color: isCancelled ? AppColors.error : AppColors.warning,
                   size: 44,
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  isCancelled ? 'Don hang da huy' : 'Don hang da tra hang',
+                  isCancelled ? 'Đơn hàng đã hủy' : 'Đơn hàng đã trả hàng',
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 24,
@@ -500,7 +532,7 @@ class _LockedOrderStatusPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  '${order.orderNumber} dang o trang thai ${order.status.label}. Admin khong the cap nhat trang thai don nay nua.',
+                  '${order.orderNumber} đang ở trạng thái ${order.status.label}. Admin không thể cập nhật trạng thái đơn này nữa.',
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     height: 1.45,
@@ -508,7 +540,7 @@ class _LockedOrderStatusPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 GlowButton(
-                  label: 'QUAY LAI',
+                  label: 'QUÂY LẠI',
                   icon: Icons.arrow_back_rounded,
                   expanded: true,
                   isPrimary: false,
@@ -538,7 +570,7 @@ class _StatusActionSheet extends StatelessWidget {
           child: SectionCard(
             color: AppColors.surface2,
             child: Text(
-              '${order.orderNumber} da ${order.status.label.toLowerCase()}, khong the cap nhat trang thai.',
+              '${order.orderNumber} đã ${order.status.label.toLowerCase()}, không thể cập nhật trạng thái.',
               style: const TextStyle(color: AppColors.textPrimary),
             ),
           ),
@@ -553,28 +585,28 @@ class _StatusActionSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AdminSectionTitle(eyebrow: 'Trang thai', title: order.orderNumber),
+            AdminSectionTitle(eyebrow: 'Trạng thái', title: order.orderNumber),
             const SizedBox(height: 16),
             _StatusAction(
-              label: 'Xac nhan don',
+              label: 'Xác nhận đơn',
               icon: Icons.task_alt_rounded,
               onTap: () => _updateStatus(context, OrderStatus.confirmed),
             ),
             const SizedBox(height: 10),
             _StatusAction(
-              label: 'Chuyen sang dang giao',
+              label: 'Chuyển sang đang giao',
               icon: Icons.local_shipping_rounded,
               onTap: () => _updateStatus(context, OrderStatus.shipping),
             ),
             const SizedBox(height: 10),
             _StatusAction(
-              label: 'Danh dau da giao',
+              label: 'Đánh dấu đã giao',
               icon: Icons.check_circle_rounded,
               onTap: () => _updateStatus(context, OrderStatus.delivered),
             ),
             const SizedBox(height: 10),
             _StatusAction(
-              label: 'Huy don',
+              label: 'Hủy đơn',
               icon: Icons.cancel_rounded,
               color: AppColors.error,
               onTap: () => _updateStatus(context, OrderStatus.cancelled),
@@ -587,14 +619,14 @@ class _StatusActionSheet extends StatelessWidget {
 
   Future<void> _updateStatus(BuildContext context, OrderStatus status) async {
     await context.read<OrderService>().updateOrderStatus(
-          order.id,
-          status,
-          note: 'Updated by admin',
-        );
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Da cap nhat: ${status.label}')),
+      order.id,
+      status,
+      note: 'Updated by admin',
     );
+    Navigator.pop(context);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Đã cập nhật: ${status.label}')));
   }
 }
 
@@ -620,13 +652,14 @@ class _ReturnRequestsSheet extends StatelessWidget {
                     .collectionGroup('return_requests')
                     .snapshots(),
                 builder: (context, snapshot) {
-                  final requests = (snapshot.data?.docs ?? []).map((doc) {
-                    return OrderReturnRequestModel.fromJson({
-                      ...doc.data(),
-                      'id': doc.data()['id'] ?? doc.id,
-                    });
-                  }).toList()
-                    ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+                  final requests =
+                      (snapshot.data?.docs ?? []).map((doc) {
+                          return OrderReturnRequestModel.fromJson({
+                            ...doc.data(),
+                            'id': doc.data()['id'] ?? doc.id,
+                          });
+                        }).toList()
+                        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
                   if (snapshot.connectionState == ConnectionState.waiting &&
                       requests.isEmpty) {
@@ -814,7 +847,10 @@ class _DetailRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Text(label, style: const TextStyle(color: AppColors.textMuted)),
+            child: Text(
+              label,
+              style: const TextStyle(color: AppColors.textMuted),
+            ),
           ),
           const SizedBox(width: 12),
           Flexible(
@@ -862,7 +898,10 @@ class _OrderItemPreview extends StatelessWidget {
               ),
             ),
           ),
-          Text('Size $size / x$qty', style: const TextStyle(color: AppColors.textMuted)),
+          Text(
+            'Size $size / x$qty',
+            style: const TextStyle(color: AppColors.textMuted),
+          ),
         ],
       ),
     );

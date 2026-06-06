@@ -16,10 +16,7 @@ import '../../cart/mycart.dart';
 import '../../favorites/favorites.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  const ProductDetailScreen({
-    super.key,
-    required this.product,
-  });
+  const ProductDetailScreen({super.key, required this.product});
 
   final ProductModel product;
 
@@ -38,8 +35,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedOption =
-        widget.product.options.isEmpty ? 'Default' : widget.product.options.first;
+    _selectedOption = widget.product.options.isEmpty
+        ? 'Default'
+        : widget.product.options.first;
   }
 
   Future<bool> _requireAuthForAction() async {
@@ -50,16 +48,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       context: context,
       barrierDismissible: true,
       builder: (context) => AlertDialog(
-        title: const Text('Yeu cau dang nhap'),
-        content: const Text('Ban can dang nhap hoac dang ky de thuc hien chuc nang nay.'),
+        title: const Text('Yêu cầu đăng nhập'),
+        content: const Text(
+          'Bạn cần đăng nhập hoặc đăng ký để thực hiện chức năng này.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('De sau'),
+            child: const Text('Để sau'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Dang nhap'),
+            child: const Text('Đăng nhập'),
           ),
         ],
       ),
@@ -144,7 +144,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const CartScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const CartScreen(),
+                      ),
                     );
                   },
                 ),
@@ -275,7 +277,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         GridView.count(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: widget.product.category == ProductCategory.footwear ? 4 : 3,
+          crossAxisCount: widget.product.category == ProductCategory.footwear
+              ? 4
+              : 3,
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
           childAspectRatio: widget.product.category == ProductCategory.footwear
@@ -318,8 +322,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           color: isSelected
                               ? AppColors.background
                               : isAvailable
-                                  ? AppColors.textPrimary
-                                  : AppColors.textMuted,
+                              ? AppColors.textPrimary
+                              : AppColors.textMuted,
                         ),
                       ),
                       if (isAvailable && widget.product.options.length <= 4)
@@ -417,9 +421,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       child: Row(
         children: [
           _buildSpecItem('Trọng lượng', widget.product.specWeight),
-          Container(width: 1, height: 56, color: AppColors.border.withOpacity(0.2)),
+          Container(
+            width: 1,
+            height: 56,
+            color: AppColors.border.withOpacity(0.2),
+          ),
           _buildSpecItem('Tính năng', widget.product.specFeature),
-          Container(width: 1, height: 56, color: AppColors.border.withOpacity(0.2)),
+          Container(
+            width: 1,
+            height: 56,
+            color: AppColors.border.withOpacity(0.2),
+          ),
           _buildSpecItem('Chất liệu', widget.product.specMaterial),
         ],
       ),
@@ -506,7 +518,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 decoration: BoxDecoration(
-                  color: _selectedStock == 0 ? AppColors.border : AppColors.neon,
+                  color: _selectedStock == 0
+                      ? AppColors.border
+                      : AppColors.neon,
                   borderRadius: BorderRadius.circular(999),
                   boxShadow: _selectedStock == 0
                       ? []
@@ -553,9 +567,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => FavoritesScreen(
-                              onMenuTap: () {},
-                            ),
+                            builder: (context) =>
+                                FavoritesScreen(onMenuTap: () {}),
                           ),
                         );
                       },
@@ -576,7 +589,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   children: [
                     Icon(
                       isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: isFavorite ? AppColors.neon : AppColors.textPrimary,
+                      color: isFavorite
+                          ? AppColors.neon
+                          : AppColors.textPrimary,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
@@ -588,7 +603,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.5,
-                        color: isFavorite ? AppColors.neon : AppColors.textPrimary,
+                        color: isFavorite
+                            ? AppColors.neon
+                            : AppColors.textPrimary,
                       ),
                     ),
                   ],
@@ -607,9 +624,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         _ExpandableRow(
           title: 'MÔ TẢ SẢN PHẨM',
           expanded: _isDescriptionExpanded,
-          onTap: () => setState(
-            () => _isDescriptionExpanded = !_isDescriptionExpanded,
-          ),
+          onTap: () =>
+              setState(() => _isDescriptionExpanded = !_isDescriptionExpanded),
         ),
         if (_isDescriptionExpanded)
           const Padding(
@@ -626,9 +642,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         _ExpandableRow(
           title: 'GIAO HÀNG & ĐỔI TRẢ',
           expanded: _isShippingExpanded,
-          onTap: () => setState(
-            () => _isShippingExpanded = !_isShippingExpanded,
-          ),
+          onTap: () =>
+              setState(() => _isShippingExpanded = !_isShippingExpanded),
         ),
         if (_isShippingExpanded)
           const Padding(
@@ -685,13 +700,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final canReview = _canReviewProduct(context);
 
     return StreamBuilder<List<ReviewModel>>(
-      stream: context.read<ReviewService>().watchProductReviews(widget.product.id),
+      stream: context.read<ReviewService>().watchProductReviews(
+        widget.product.id,
+      ),
       builder: (context, snapshot) {
         final reviews = snapshot.data ?? const <ReviewModel>[];
         final average = reviews.isEmpty
             ? 0.0
             : reviews.fold<int>(0, (sum, review) => sum + review.rating) /
-                reviews.length;
+                  reviews.length;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -725,9 +742,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             top: Radius.circular(24),
                           ),
                         ),
-                        builder: (context) => _ReviewFormSheet(
-                          productId: widget.product.id,
-                        ),
+                        builder: (context) =>
+                            _ReviewFormSheet(productId: widget.product.id),
                       );
                     },
                     icon: const Icon(Icons.rate_review_rounded, size: 18),
@@ -739,9 +755,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             _FirestoreReviewSummary(average: average, count: reviews.length),
             const SizedBox(height: 12),
             if (snapshot.connectionState == ConnectionState.waiting)
-              const _ReviewMessageCard(message: 'Dang tai danh gia...')
+              const _ReviewMessageCard(message: 'Đang tải đánh giá...')
             else if (reviews.isEmpty)
-              const _ReviewMessageCard(message: 'Chua co danh gia nao.')
+              const _ReviewMessageCard(message: 'Chưa có đánh giá nào.')
             else
               ...reviews.map(
                 (review) => Padding(
@@ -891,7 +907,7 @@ class _FirestoreReviewSummary extends StatelessWidget {
                 _Stars(rating: average.round()),
                 const SizedBox(height: 6),
                 Text(
-                  count == 0 ? 'Chua co danh gia' : 'Dua tren $count danh gia',
+                  count == 0 ? 'Chưa có đánh giá' : 'Dựa trên $count đánh giá',
                   style: const TextStyle(color: AppColors.textSecondary),
                 ),
               ],
@@ -935,7 +951,7 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'VIET DANH GIA',
+              'VIẾT ĐÁNH GIÁ',
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 22,
@@ -965,17 +981,21 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
               maxLines: 5,
               style: const TextStyle(color: AppColors.textPrimary),
               decoration: InputDecoration(
-                hintText: 'Nhap cam nhan ve san pham...',
+                hintText: 'Nhập cảm nhận về sản phẩm...',
                 hintStyle: const TextStyle(color: AppColors.textMuted),
                 filled: true,
                 fillColor: AppColors.surface2,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: AppColors.border.withOpacity(0.3)),
+                  borderSide: BorderSide(
+                    color: AppColors.border.withOpacity(0.3),
+                  ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: AppColors.border.withOpacity(0.3)),
+                  borderSide: BorderSide(
+                    color: AppColors.border.withOpacity(0.3),
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -995,7 +1015,7 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.send_rounded),
-                label: const Text('GUI DANH GIA'),
+                label: const Text('GỬI ĐÁNH GIÁ'),
               ),
             ),
           ],
@@ -1008,7 +1028,7 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
     final comment = _commentController.text.trim();
     if (comment.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui long nhap noi dung danh gia.')),
+        const SnackBar(content: Text('Vui lòng nhập nội dung đánh giá.')),
       );
       return;
     }
@@ -1017,21 +1037,22 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
     try {
       final auth = context.read<AuthService>();
       await context.read<ReviewService>().addReview(
-            productId: widget.productId,
-            rating: _rating,
-            comment: comment,
-            userName: auth.currentUser?.fullName ?? auth.currentUser?.email ?? 'User',
-          );
+        productId: widget.productId,
+        rating: _rating,
+        comment: comment,
+        userName:
+            auth.currentUser?.fullName ?? auth.currentUser?.email ?? 'User',
+      );
       if (!mounted) return;
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Da gui danh gia.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Đã gửi đánh giá.')));
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Khong the gui danh gia: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Không thể gửi đánh giá: $error')));
     } finally {
       if (mounted) setState(() => _saving = false);
     }

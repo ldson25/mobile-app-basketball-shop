@@ -63,7 +63,8 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
           final selectedItems = cartService.selectedItems;
           final subtotal = cartService.selectedTotalAmount;
           final shippingCost =
-              double.tryParse(widget.shippingData?['shippingCost'] ?? '') ?? 0.0;
+              double.tryParse(widget.shippingData?['shippingCost'] ?? '') ??
+              0.0;
           final discount = _voucherDiscount.clamp(0, subtotal).toDouble();
           final total = subtotal + shippingCost - discount;
           final appConfig = context.watch<AppConfigService>().config;
@@ -102,8 +103,7 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
                     const _CashOnDeliveryInfo(),
                   if (selectedPaymentMethod == 'bank_transfer')
                     const _BankTransferInfo(),
-                  if (selectedPaymentMethod == 'e_wallet')
-                    const _EWalletInfo(),
+                  if (selectedPaymentMethod == 'e_wallet') const _EWalletInfo(),
                   const SizedBox(height: 32),
                   _VoucherSection(
                     controller: voucherController,
@@ -133,7 +133,9 @@ class _CheckoutPaymentScreenState extends State<CheckoutPaymentScreen> {
                         });
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Voucher không hợp lệ hoặc chưa đủ điều kiện'),
+                            content: Text(
+                              'Voucher không hợp lệ hoặc chưa đủ điều kiện',
+                            ),
                           ),
                         );
                         return;
@@ -226,7 +228,11 @@ class _PaymentAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.chevron_left, color: Colors.white, size: 28),
+                icon: const Icon(
+                  Icons.chevron_left,
+                  color: Colors.white,
+                  size: 28,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -395,7 +401,11 @@ class _CashOnDeliveryInfo extends StatelessWidget {
               color: AppColors.neon.withAlpha(26),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.info_outline, color: AppColors.neon, size: 24),
+            child: const Icon(
+              Icons.info_outline,
+              color: AppColors.neon,
+              size: 24,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -425,7 +435,6 @@ class _CashOnDeliveryInfo extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class _BankTransferInfo extends StatelessWidget {
@@ -542,7 +551,7 @@ class _PaymentMethodSection extends StatelessWidget {
           isSelected: selectedMethod == 'cash',
           onTap: codEnabled
               ? () => onMethodChanged('cash')
-              : () => _showDisabledPayment(context, 'COD dang tat.'),
+              : () => _showDisabledPayment(context, 'COD đang tắt.'),
         ),
         const SizedBox(height: 12),
         _PaymentOption(
@@ -585,9 +594,7 @@ class _PaymentMethodSection extends StatelessWidget {
 }
 
 void _showDisabledPayment(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(message)),
-  );
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 
 class _PaymentOption extends StatelessWidget {
@@ -846,7 +853,9 @@ class _VoucherSection extends StatelessWidget {
                   color: hasVoucher ? AppColors.error : AppColors.background,
                 ),
                 style: IconButton.styleFrom(
-                  backgroundColor: hasVoucher ? AppColors.surfaceHighest : AppColors.neon,
+                  backgroundColor: hasVoucher
+                      ? AppColors.surfaceHighest
+                      : AppColors.neon,
                   fixedSize: const Size(52, 52),
                 ),
               ),
@@ -965,10 +974,7 @@ class _OrderSummary extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _SummaryRow(
-            label: 'Tạm tính',
-            value: formatVnd(subtotal),
-          ),
+          _SummaryRow(label: 'Tạm tính', value: formatVnd(subtotal)),
           const SizedBox(height: 12),
           _SummaryRow(
             label: shippingLabel ?? 'Phí giao hàng',
@@ -976,10 +982,7 @@ class _OrderSummary extends StatelessWidget {
           ),
           if (discount > 0) ...[
             const SizedBox(height: 12),
-            _SummaryRow(
-              label: 'Voucher',
-              value: '-${formatVnd(discount)}',
-            ),
+            _SummaryRow(label: 'Voucher', value: '-${formatVnd(discount)}'),
           ],
           const Divider(color: AppColors.border, height: 24),
           _SummaryRow(
@@ -1091,10 +1094,10 @@ class _PlaceOrderButton extends StatelessWidget {
                 final checkoutService = CheckoutService();
                 final shippingAddress = [
                   shippingData?['street'],
-                      shippingData?['ward'],
-                      shippingData?['district'],
-                      shippingData?['city'],
-                      shippingData?['country'],
+                  shippingData?['ward'],
+                  shippingData?['district'],
+                  shippingData?['city'],
+                  shippingData?['country'],
                 ].where((part) => part != null && part.isNotEmpty).join(', ');
 
                 if (selectedMethod == 'e_wallet') {
@@ -1103,7 +1106,7 @@ class _PlaceOrderButton extends StatelessWidget {
                     final momoResult = await momo.createPayment(
                       orderId: 'MOMO_${DateTime.now().millisecondsSinceEpoch}',
                       amount: total,
-                      orderInfo: 'Thanh toan don hang Kinetic',
+                      orderInfo: 'Thanh toán đơn hàng Kinetic',
                     );
 
                     if (!momoResult.canPay) {
@@ -1111,7 +1114,7 @@ class _PlaceOrderButton extends StatelessWidget {
                       _showDisabledPayment(
                         context,
                         momoResult.message.isEmpty
-                            ? 'Khong tao duoc phien thanh toan MoMo.'
+                            ? 'Không tạo được phiên thanh toán MoMo.'
                             : momoResult.message,
                       );
                       return;
@@ -1123,7 +1126,7 @@ class _PlaceOrderButton extends StatelessWidget {
                       onProcessingChanged(false);
                       _showDisabledPayment(
                         context,
-                        'Khong co link thanh toan MoMo web.',
+                        'Không có link thanh toán MoMo web.',
                       );
                       return;
                     }
@@ -1132,9 +1135,8 @@ class _PlaceOrderButton extends StatelessWidget {
                     final paid = await Navigator.push<bool>(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MomoPaymentWebViewScreen(
-                          paymentUrl: paymentUrl,
-                        ),
+                        builder: (context) =>
+                            MomoPaymentWebViewScreen(paymentUrl: paymentUrl),
                       ),
                     );
 
@@ -1142,7 +1144,7 @@ class _PlaceOrderButton extends StatelessWidget {
                     if (paid != true) {
                       _showDisabledPayment(
                         context,
-                        'Thanh toan MoMo chua hoan tat.',
+                        'Thanh toán MoMo chưa hoàn tất.',
                       );
                       return;
                     }
@@ -1175,9 +1177,8 @@ class _PlaceOrderButton extends StatelessWidget {
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CheckoutSuccessScreen(
-                        onMenuTap: onMenuTap,
-                      ),
+                      builder: (context) =>
+                          CheckoutSuccessScreen(onMenuTap: onMenuTap),
                     ),
                     (route) => false,
                   );

@@ -22,14 +22,14 @@ String formatVnd(double value) {
 String _paymentLabel(String method) {
   switch (method) {
     case 'bank_transfer':
-      return 'Chuyen khoan ngan hang';
+      return 'Chuyển khoản ngân hàng';
     case 'e_wallet':
-      return 'Vi dien tu';
+      return 'Ví điện tử';
     case 'credit_card':
-      return 'The tin dung / ghi no';
+      return 'Thẻ tín dụng / ghi nợ';
     case 'cash':
     default:
-      return 'Thanh toan khi nhan hang';
+      return 'Thanh toán khi nhận hàng';
   }
 }
 
@@ -50,7 +50,7 @@ class OrderDetailScreen extends StatelessWidget {
           if (order == null) {
             return const Center(
               child: Text(
-                'Khong tim thay don hang',
+                'Không tìm thấy đơn hàng',
                 style: TextStyle(color: AppColors.textSecondary),
               ),
             );
@@ -147,14 +147,14 @@ class _OrderStatusCard extends StatelessWidget {
         : 1.0;
 
     final statusMessage = isPending
-        ? 'Don hang dang cho xu ly'
+        ? 'Đơn hàng đang chờ xử lý'
         : isConfirmed
-        ? 'Don hang da duoc xac nhan'
+        ? 'Đơn hàng đã được xác nhận'
         : isShipping
-        ? 'Don hang dang duoc giao'
+        ? 'Đơn hàng đang được giao'
         : isDelivered
-        ? 'Don hang da giao thanh cong'
-        : 'Don hang da bi huy';
+        ? 'Đơn hàng đã giao thành công'
+        : 'Đơn hàng đã bị hủy';
 
     final icon = isPending
         ? Icons.pending_actions
@@ -222,10 +222,10 @@ class _OrderStatusCard extends StatelessWidget {
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _ProgressLabel('Da dat'),
-                _ProgressLabel('Xu ly'),
-                _ProgressLabel('Dang giao'),
-                _ProgressLabel('Da giao'),
+                _ProgressLabel('Đã đặt'),
+                _ProgressLabel('Xử lý'),
+                _ProgressLabel('Đang giao'),
+                _ProgressLabel('Đã giao'),
               ],
             ),
           ],
@@ -246,13 +246,13 @@ class _OrderInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _SectionTitle('THONG TIN DON HANG'),
+          const _SectionTitle('THÔNG TIN ĐƠN HÀNG'),
           const SizedBox(height: 16),
-          _InfoRow(label: 'Ma don', value: order.orderNumber),
-          _InfoRow(label: 'Ngay dat', value: order.formattedDate),
-          _InfoRow(label: 'Ma van don', value: order.trackingNumber),
+          _InfoRow(label: 'Mã đơn', value: order.orderNumber),
+          _InfoRow(label: 'Ngày đặt', value: order.formattedDate),
+          _InfoRow(label: 'Mã vận đơn', value: order.trackingNumber),
           _InfoRow(
-            label: 'Thanh toan',
+            label: 'Thanh toán',
             value: _paymentLabel(order.paymentMethod),
           ),
         ],
@@ -272,16 +272,16 @@ class _ShippingInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _SectionTitle('THONG TIN GIAO HANG'),
+          const _SectionTitle('THÔNG TIN GIAO HÀNG'),
           const SizedBox(height: 16),
           _InfoRow(
-            label: 'Nguoi nhan',
+            label: 'Người nhận',
             value: order.customerName.isEmpty
-                ? 'Khach hang'
+                ? 'Khách hàng'
                 : order.customerName,
           ),
-          _InfoRow(label: 'Dia chi', value: order.shippingAddress),
-          _InfoRow(label: 'So dien thoai', value: order.phoneNumber),
+          _InfoRow(label: 'Địa chỉ', value: order.shippingAddress),
+          _InfoRow(label: 'Số điện thoại', value: order.phoneNumber),
         ],
       ),
     );
@@ -301,9 +301,9 @@ class _ProductsList extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Expanded(child: _SectionTitle('SAN PHAM TRONG DON')),
+              const Expanded(child: _SectionTitle('SẢN PHẨM TRONG ĐƠN')),
               Text(
-                '${order.totalQuantity} san pham',
+                '${order.totalQuantity} sản phẩm',
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12,
@@ -402,14 +402,14 @@ class _PaymentSummary extends StatelessWidget {
     return _Card(
       child: Column(
         children: [
-          const _SectionTitle('TOM TAT THANH TOAN'),
+          const _SectionTitle('TỔNG HỢP THANH TOÁN'),
           const SizedBox(height: 16),
-          _InfoRow(label: 'Tam tinh', value: formatVnd(order.subtotal)),
+          _InfoRow(label: 'Tạm tính', value: formatVnd(order.subtotal)),
           _InfoRow(
-            label: 'Phi giao hang',
+            label: 'Phí giao hàng',
             value: order.shippingCost > 0
                 ? formatVnd(order.shippingCost)
-                : 'Mien phi',
+                : 'Miễn phí',
           ),
           if (order.discount > 0)
             _InfoRow(
@@ -420,7 +420,7 @@ class _PaymentSummary extends StatelessWidget {
             ),
           const Divider(color: AppColors.border, height: 24),
           _InfoRow(
-            label: 'Tong cong',
+            label: 'Tổng cộng',
             value: formatVnd(order.total),
             isStrong: true,
           ),
@@ -516,7 +516,7 @@ class _ActionButtons extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
             child: Text(
-              isDelivered ? 'DA NHAN HANG' : 'QUAY LAI DON HANG',
+              isDelivered ? 'Đã nhận hàng' : 'Quay lại đơn hàng',
               style: const TextStyle(fontWeight: FontWeight.w900),
             ),
           ),

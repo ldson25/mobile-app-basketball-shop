@@ -22,7 +22,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => context.read<OrderService>().loadAllOrdersForAdmin());
+    Future.microtask(
+      () => context.read<OrderService>().loadAllOrdersForAdmin(),
+    );
   }
 
   @override
@@ -33,84 +35,98 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     final products = productService.adminProducts;
     final todayOrders = orders.where(_isToday).toList();
     final todayRevenue = todayOrders
-        .where((order) =>
-            order.status != OrderStatus.cancelled &&
-            order.status != OrderStatus.returned)
+        .where(
+          (order) =>
+              order.status != OrderStatus.cancelled &&
+              order.status != OrderStatus.returned,
+        )
         .fold<double>(0, (sum, order) => sum + order.total);
-    final pendingOrders =
-        orders.where((order) => order.status == OrderStatus.pending).length;
-    final lowStockProducts =
-        products.where((product) => product.stockQuantity <= 10).toList();
+    final pendingOrders = orders
+        .where((order) => order.status == OrderStatus.pending)
+        .length;
+    final lowStockProducts = products
+        .where((product) => product.stockQuantity <= 10)
+        .toList();
 
     return AdminPageScaffold(
-      title: 'TONG QUAN\nADMIN',
-      subtitle: 'Theo doi van hanh cua hang theo du lieu Firestore',
+      title: 'TỔNG QUAN\nADMIN',
+      subtitle: 'Theo dõi hoạt động của cửa hàng theo dữ liệu Firestore',
       children: [
         GlowButton(
-          label: 'TAI LAI BAO CAO',
+          label: 'TẢI LẠI BÁO CÁO',
           icon: Icons.refresh_rounded,
           expanded: true,
           onPressed: () => context.read<OrderService>().loadAllOrdersForAdmin(),
         ),
         const SizedBox(height: AppSizes.sectionGap),
         AdminMetricCard(
-          label: 'Doanh thu hom nay',
+          label: 'Doanh thu hôm nay',
           value: _formatVnd(todayRevenue),
           icon: Icons.bolt_rounded,
-          delta: '${todayOrders.length} don trong ngay',
+          delta: '${todayOrders.length} đơn trong ngày',
         ),
         const SizedBox(height: 14),
         AdminMetricCard(
-          label: 'Don cho xu ly',
+          label: 'Đơn chờ xử lý',
           value: '$pendingOrders',
           icon: Icons.receipt_long_rounded,
           delta: pendingOrders == 0
-              ? 'Khong co don can xu ly'
-              : '$pendingOrders don can xac nhan',
+              ? 'Không có đơn cần xử lý'
+              : '$pendingOrders đơn cần xác nhận',
         ),
         const SizedBox(height: 14),
         AdminMetricCard(
-          label: 'San pham sap het hang',
+          label: 'Sản phẩm sắp hết hàng',
           value: '${lowStockProducts.length}',
           icon: Icons.inventory_2_outlined,
           delta: lowStockProducts.isEmpty
-              ? 'Ton kho dang on dinh'
+              ? 'tồn kho đang ổn định'
               : lowStockProducts.take(2).map((item) => item.name).join(', '),
         ),
         const SizedBox(height: 14),
         _NewCustomersMetric(),
         const SizedBox(height: AppSizes.sectionGap),
-        const AdminSectionTitle(eyebrow: 'Van hanh', title: 'Viec can xu ly'),
+        const AdminSectionTitle(eyebrow: 'Vận Hành', title: 'Việc cần xử lý'),
         const SizedBox(height: 14),
         _ActionQueueCard(
-          title: 'Xac nhan don cho xu ly',
-          detail: '$pendingOrders don hang dang cho admin xac nhan',
+          title: 'ác nhận đơn chờ xử lý',
+          detail: '$pendingOrders đơn hàng đang chờ admin xác nhận',
           icon: Icons.task_alt_rounded,
-          color: pendingOrders == 0 ? AppColors.textSecondary : AppColors.warning,
+          color: pendingOrders == 0
+              ? AppColors.textSecondary
+              : AppColors.warning,
         ),
         const SizedBox(height: 12),
         _ActionQueueCard(
-          title: 'Nhap them hang ton thap',
+          title: 'Nhập thêm hàng tồn thấp',
           detail: lowStockProducts.isEmpty
-              ? 'Khong co san pham ton kho thap'
+              ? 'Không có sản phẩm tồn kho thấp'
               : lowStockProducts.take(3).map((item) => item.name).join(', '),
           icon: Icons.inventory_rounded,
-          color: lowStockProducts.isEmpty ? AppColors.textSecondary : AppColors.error,
+          color: lowStockProducts.isEmpty
+              ? AppColors.textSecondary
+              : AppColors.error,
         ),
         const SizedBox(height: AppSizes.sectionGap),
-        const AdminSectionTitle(eyebrow: 'Don gan day', title: 'Hoat dong moi'),
+        const AdminSectionTitle(
+          eyebrow: 'Đơn gần đáo hạn',
+          title: 'Hoạt động mới nhất',
+        ),
         const SizedBox(height: 14),
         if (orders.isEmpty)
           const _EmptyActivityCard()
         else
-          ...orders.take(3).map(
+          ...orders
+              .take(3)
+              .map(
                 (order) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: _ActivityLogTile(
                     actor: order.customerName.isEmpty
                         ? (order.userId ?? 'user')
                         : order.customerName,
-                    action: 'da tao don ${order.orderNumber} - ${order.status.label}',
+                    action:
+                        'da tao don ${order.orderNumber} - ${order.status.label}',
                     time: order.formattedDate,
                   ),
                 ),
@@ -145,7 +161,7 @@ class _NewCustomersMetric extends StatelessWidget {
         }).length;
 
         return AdminMetricCard(
-          label: 'Khach hang moi',
+          label: 'Khách hàng mới',
           value: '$newToday',
           icon: Icons.groups_rounded,
           delta: '${users.length} tong tai khoan',
@@ -189,7 +205,10 @@ class _ActionQueueCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(detail, style: const TextStyle(color: AppColors.textSecondary)),
+                Text(
+                  detail,
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
               ],
             ),
           ),
@@ -236,11 +255,17 @@ class _ActivityLogTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 3),
-                Text(action, style: const TextStyle(color: AppColors.textSecondary)),
+                Text(
+                  action,
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
               ],
             ),
           ),
-          Text(time, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+          Text(
+            time,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+          ),
         ],
       ),
     );

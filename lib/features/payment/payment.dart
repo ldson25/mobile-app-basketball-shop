@@ -164,7 +164,9 @@ class _SavedPaymentMethodCard extends StatelessWidget {
     return _PaymentActionCard(
       icon: Icons.payments_rounded,
       title: method.label,
-      subtitle: method.isDefault ? 'Dang la mac dinh' : 'Nhan de dat mac dinh',
+      subtitle: method.isDefault
+          ? 'Đang là mặc định'
+          : 'Nhấn để đặt làm mặc định',
       trailing: method.isDefault
           ? const Icon(Icons.check_circle_rounded, color: AppColors.neon)
           : const Icon(Icons.radio_button_unchecked_rounded),

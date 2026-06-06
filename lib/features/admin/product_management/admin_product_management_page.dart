@@ -28,13 +28,18 @@ class _AdminProductManagementPageState
 
   List<ProductModel> _visibleProducts(ProductService service) {
     return service.adminProducts.where((product) {
-      final matchesCategory = _category == 'All' ||
-          (_category == 'Footwear' && product.category == ProductCategory.footwear) ||
-          (_category == 'Apparel' && product.category == ProductCategory.apparel) ||
-          (_category == 'Equipment' && product.category == ProductCategory.equipment);
+      final matchesCategory =
+          _category == 'All' ||
+          (_category == 'Footwear' &&
+              product.category == ProductCategory.footwear) ||
+          (_category == 'Apparel' &&
+              product.category == ProductCategory.apparel) ||
+          (_category == 'Equipment' &&
+              product.category == ProductCategory.equipment);
       final matchesStock = !_lowStockOnly || product.stockQuantity <= 10;
       final normalized = _query.trim().toLowerCase();
-      final matchesQuery = normalized.isEmpty ||
+      final matchesQuery =
+          normalized.isEmpty ||
           product.name.toLowerCase().contains(normalized) ||
           product.id.toLowerCase().contains(normalized) ||
           product.badgeText.toLowerCase().contains(normalized);
@@ -48,8 +53,8 @@ class _AdminProductManagementPageState
     final products = _visibleProducts(service);
 
     return AdminPageScaffold(
-      title: 'QUAN LY\nSAN PHAM',
-      subtitle: 'Danh muc, ton kho va trang thai hien thi',
+      title: 'QUẢN LÝ\nSẢN PHẨM',
+      subtitle: 'Danh mục, tồn kho và trạng thái hiển thị',
       trailing: IconButton(
         onPressed: () => _showProductForm(context),
         icon: const Icon(Icons.add_circle_outline, color: AppColors.neon),
@@ -58,7 +63,7 @@ class _AdminProductManagementPageState
         _ProductSummaryStrip(products: service.adminProducts),
         const SizedBox(height: 14),
         GlowButton(
-          label: 'THEM SAN PHAM',
+          label: 'THÊM SẢN PHẨM',
           icon: Icons.add_rounded,
           expanded: true,
           onPressed: () => _showProductForm(context),
@@ -66,7 +71,7 @@ class _AdminProductManagementPageState
         if (service.usingFallback) ...[
           const SizedBox(height: 10),
           GlowButton(
-            label: 'SEED SAN PHAM LEN FIRESTORE',
+            label: 'SEED SẢN PHẨM LÊNCH FIRESTORE',
             icon: Icons.cloud_upload_rounded,
             expanded: true,
             isPrimary: false,
@@ -75,7 +80,7 @@ class _AdminProductManagementPageState
         ],
         const SizedBox(height: 14),
         AdminSearchField(
-          hint: 'Tim ten san pham hoac SKU...',
+          hint: 'Tìm tên sản phẩm hoặc SKU...',
           onChanged: (value) => setState(() => _query = value),
         ),
         const SizedBox(height: 14),
@@ -85,13 +90,13 @@ class _AdminProductManagementPageState
         ),
         const SizedBox(height: 12),
         _SwitchTile(
-          title: 'Chi hien thi ton kho thap',
+          title: 'Chỉ hiển thị tồn kho thấp',
           value: _lowStockOnly,
           onChanged: (value) => setState(() => _lowStockOnly = value),
         ),
         const SizedBox(height: AppSizes.sectionGap),
         Text(
-          '${products.length} SAN PHAM',
+          '${products.length} SẢN PHẨM',
           style: const TextStyle(
             color: AppColors.neon,
             fontSize: 11,
@@ -203,7 +208,9 @@ class _ProductSummaryStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = products.where((product) => product.isActive).length;
-    final lowStock = products.where((product) => product.stockQuantity <= 10).length;
+    final lowStock = products
+        .where((product) => product.stockQuantity <= 10)
+        .length;
 
     return Row(
       children: [
@@ -357,7 +364,9 @@ class _ProductAdminCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product.isActive ? product.badgeText.toUpperCase() : 'DANG AN',
+                  product.isActive
+                      ? product.badgeText.toUpperCase()
+                      : 'DANG AN',
                   style: const TextStyle(
                     color: AppColors.neon,
                     fontSize: 10,
@@ -381,10 +390,15 @@ class _ProductAdminCard extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    AdminStatusChip(label: product.price, color: AppColors.neon),
+                    AdminStatusChip(
+                      label: product.price,
+                      color: AppColors.neon,
+                    ),
                     AdminStatusChip(
                       label: '${product.stockQuantity} con lai',
-                      color: lowStock ? AppColors.warning : AppColors.textSecondary,
+                      color: lowStock
+                          ? AppColors.warning
+                          : AppColors.textSecondary,
                     ),
                   ],
                 ),
@@ -393,7 +407,10 @@ class _ProductAdminCard extends StatelessWidget {
                   children: [
                     _IconAction(icon: Icons.edit_outlined, onTap: onEdit),
                     const SizedBox(width: 8),
-                    _IconAction(icon: Icons.inventory_2_outlined, onTap: onStock),
+                    _IconAction(
+                      icon: Icons.inventory_2_outlined,
+                      onTap: onStock,
+                    ),
                     const SizedBox(width: 8),
                     _IconAction(
                       icon: product.isActive
@@ -459,7 +476,10 @@ class _ProductFormPage extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.textPrimary,
+          ),
         ),
         title: Text(
           editing ? 'SUA SAN PHAM' : 'THEM SAN PHAM',
@@ -508,9 +528,12 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
         ? _defaultStockRows(_category)
         : _stockRowsFromMap(product.optionStock);
     _imageUrlController = TextEditingController(text: product?.imageUrl ?? '');
-    _imagePublicIdController =
-        TextEditingController(text: product?.imagePublicId ?? '');
-    _imageAssetController = TextEditingController(text: product?.imageAsset ?? '');
+    _imagePublicIdController = TextEditingController(
+      text: product?.imagePublicId ?? '',
+    );
+    _imageAssetController = TextEditingController(
+      text: product?.imageAsset ?? '',
+    );
     _badgeController = TextEditingController(text: product?.badge ?? '');
     _isNewArrival = product?.isNewArrival ?? false;
     _isMemberExclusive = product?.isMemberExclusive ?? false;
@@ -551,20 +574,20 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
           children: [
             AdminSectionTitle(
               eyebrow: editing ? 'Chinh sua' : 'Tao moi',
-              title: editing ? widget.product!.name : 'Them san pham',
+              title: editing ? widget.product!.name : 'Thêm sản phẩm',
             ),
             const SizedBox(height: 18),
-            _TextInput(label: 'Ten san pham', controller: _nameController),
+            _TextInput(label: 'Tên sản phẩm', controller: _nameController),
             const SizedBox(height: 12),
             _TextInput(label: 'Gia ban', controller: _priceController),
             const SizedBox(height: 12),
-            _CategoryPicker(
-              value: _category,
-              onChanged: _changeCategory,
-            ),
+            _CategoryPicker(value: _category, onChanged: _changeCategory),
             const SizedBox(height: 12),
             if (_category != ProductCategory.equipment) ...[
-              _TextInput(label: 'Nhan tuy chon', controller: _optionLabelController),
+              _TextInput(
+                label: 'Nhan tuy chon',
+                controller: _optionLabelController,
+              ),
               const SizedBox(height: 12),
               _StockRowsEditor(
                 rows: _stockRows,
@@ -592,7 +615,8 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
               onNewArrival: (value) => setState(() => _isNewArrival = value),
               onMember: (value) => setState(() => _isMemberExclusive = value),
               onBestSeller: (value) => setState(() => _isBestSeller = value),
-              onSignature: (value) => setState(() => _isSignatureSeries = value),
+              onSignature: (value) =>
+                  setState(() => _isSignatureSeries = value),
               onActive: (value) => setState(() => _isActive = value),
             ),
             const SizedBox(height: 12),
@@ -608,7 +632,7 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
             ),
             const SizedBox(height: 18),
             GlowButton(
-              label: editing ? 'CAP NHAT SAN PHAM' : 'LUU SAN PHAM',
+              label: editing ? 'CậP NHậT SẢN PHẨM' : 'LưU SẢN PHẨM',
               icon: Icons.save_rounded,
               expanded: true,
               onPressed: _saveProduct,
@@ -616,7 +640,7 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
             if (editing) ...[
               const SizedBox(height: 12),
               GlowButton(
-                label: 'XOA SAN PHAM',
+                label: 'XOÁ SẢN PHẨM',
                 icon: Icons.delete_rounded,
                 expanded: true,
                 isPrimary: false,
@@ -635,8 +659,9 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
       name: _nameController.text.trim(),
       price: _priceController.text.trim(),
       imageAsset: _imageAssetController.text.trim(),
-      imageUrl:
-          _imageUrlController.text.trim().isEmpty ? null : _imageUrlController.text.trim(),
+      imageUrl: _imageUrlController.text.trim().isEmpty
+          ? null
+          : _imageUrlController.text.trim(),
       imagePublicId: _imagePublicIdController.text.trim().isEmpty
           ? null
           : _imagePublicIdController.text.trim(),
@@ -669,9 +694,9 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       if (mounted) setState(() => _isUploading = false);
     }
@@ -680,9 +705,9 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
   void _saveProduct() {
     if (_nameController.text.trim().isEmpty ||
         _priceController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nhap ten va gia san pham')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Nhập tên và giá sản phẩm')));
       return;
     }
     if (_normalizedStock().isEmpty) {
@@ -693,7 +718,9 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
     }
 
     final product = _previewProduct().copyWith(
-      id: widget.product?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      id:
+          widget.product?.id ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
     );
     context.read<ProductService>().saveProduct(product);
     Navigator.pop(context);
@@ -769,7 +796,7 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Xoa san pham'),
+        title: const Text('Xoá sản phẩm'),
         content: Text('Xoa ${product.name}?'),
         actions: [
           TextButton(
@@ -861,19 +888,22 @@ class _StockSheetState extends State<_StockSheet> {
               icon: Icons.check_rounded,
               expanded: true,
               onPressed: () {
-                final nextStock = widget.product.category == ProductCategory.equipment
+                final nextStock =
+                    widget.product.category == ProductCategory.equipment
                     ? {'Default': _stockRowsToMap(_stockRows)['Default'] ?? 1}
                     : _stockRowsToMap(_stockRows);
                 if (nextStock.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Nhap it nhat mot size/tuy chon')),
+                    const SnackBar(
+                      content: Text('Nhap it nhat mot size/tuy chon'),
+                    ),
                   );
                   return;
                 }
                 context.read<ProductService>().updateStock(
-                      widget.product.id,
-                      nextStock,
-                    );
+                  widget.product.id,
+                  nextStock,
+                );
                 Navigator.pop(context);
               },
             ),
@@ -937,18 +967,23 @@ class _VisibilitySheet extends StatelessWidget {
               product.isActive
                   ? 'San pham dang hien thi cho user.'
                   : 'San pham dang bi an khoi danh muc user.',
-              style: const TextStyle(color: AppColors.textSecondary, height: 1.45),
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                height: 1.45,
+              ),
             ),
             const SizedBox(height: 18),
             GlowButton(
-              label: product.isActive ? 'AN SAN PHAM' : 'HIEN SAN PHAM',
+              label: product.isActive ? 'ẨN SẢN PHẨM' : 'HIỂN SẢN PHẨM',
               icon: product.isActive
                   ? Icons.visibility_off_rounded
                   : Icons.visibility_rounded,
               expanded: true,
               isPrimary: false,
               onPressed: () {
-                context.read<ProductService>().toggleProductVisibility(product.id);
+                context.read<ProductService>().toggleProductVisibility(
+                  product.id,
+                );
                 Navigator.pop(context);
               },
             ),
@@ -1064,10 +1099,7 @@ class _StockRowsEditor extends StatelessWidget {
 }
 
 class _NoSizeNotice extends StatelessWidget {
-  const _NoSizeNotice({
-    required this.stock,
-    required this.onChanged,
-  });
+  const _NoSizeNotice({required this.stock, required this.onChanged});
 
   final int stock;
   final ValueChanged<int> onChanged;
@@ -1081,7 +1113,7 @@ class _NoSizeNotice extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'San pham nay khong can size',
+            'Sản phẩm này không cần size',
             style: TextStyle(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w900,
@@ -1108,8 +1140,8 @@ class _NoSizeNotice extends StatelessWidget {
 
 class _StockOptionController {
   _StockOptionController({String option = '', String quantity = '0'})
-      : option = TextEditingController(text: option),
-        quantity = TextEditingController(text: quantity);
+    : option = TextEditingController(text: option),
+      quantity = TextEditingController(text: quantity);
 
   final TextEditingController option;
   final TextEditingController quantity;
@@ -1190,10 +1222,8 @@ class _CategoryPicker extends StatelessWidget {
       decoration: const InputDecoration(labelText: 'Danh muc'),
       items: ProductCategory.values
           .map(
-            (category) => DropdownMenuItem(
-              value: category,
-              child: Text(category.name),
-            ),
+            (category) =>
+                DropdownMenuItem(value: category, child: Text(category.name)),
           )
           .toList(),
       onChanged: (value) {
@@ -1235,9 +1265,21 @@ class _FlagRow extends StatelessWidget {
       runSpacing: 8,
       children: [
         _FlagChip(label: 'New', value: isNewArrival, onChanged: onNewArrival),
-        _FlagChip(label: 'Member', value: isMemberExclusive, onChanged: onMember),
-        _FlagChip(label: 'Best seller', value: isBestSeller, onChanged: onBestSeller),
-        _FlagChip(label: 'Signature', value: isSignatureSeries, onChanged: onSignature),
+        _FlagChip(
+          label: 'Member',
+          value: isMemberExclusive,
+          onChanged: onMember,
+        ),
+        _FlagChip(
+          label: 'Best seller',
+          value: isBestSeller,
+          onChanged: onBestSeller,
+        ),
+        _FlagChip(
+          label: 'Signature',
+          value: isSignatureSeries,
+          onChanged: onSignature,
+        ),
         _FlagChip(label: 'Active', value: isActive, onChanged: onActive),
       ],
     );
@@ -1320,7 +1362,10 @@ class _ImagePreview extends StatelessWidget {
                       color: AppColors.neon,
                     ),
                   )
-                : const Icon(Icons.photo_library_rounded, color: AppColors.neon),
+                : const Icon(
+                    Icons.photo_library_rounded,
+                    color: AppColors.neon,
+                  ),
           ),
           IconButton(
             onPressed: isUploading ? null : onPickCamera,

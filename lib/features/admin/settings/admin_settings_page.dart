@@ -27,74 +27,69 @@ class AdminSettingsPage extends StatelessWidget {
     final config = configService.config;
 
     return AdminPageScaffold(
-      title: 'CAI DAT\nADMIN',
-      subtitle: 'Cau hinh app, thanh toan, van chuyen va log admin',
+      title: 'CÀI ĐẶT\nADMIN',
+      subtitle: 'Cấu hình app, thanh toán, vận chuyển và log admin',
       trailing: IconButton(
         onPressed: () => Navigator.maybePop(context),
         icon: const Icon(Icons.arrow_back_rounded, color: AppColors.neon),
       ),
       children: [
         AdminMetricCard(
-          label: 'Trang thai he thong',
-          value: config.maintenanceMode ? 'Bao tri' : 'Dang hoat dong',
+          label: 'Trạng thái hệ thống',
+          value: config.maintenanceMode ? 'bảo trì' : 'Đang hoạt động',
           icon: Icons.verified_rounded,
           delta: 'Tu app_config/settings',
         ),
         const SizedBox(height: AppSizes.sectionGap),
-        const AdminSectionTitle(eyebrow: 'App', title: 'Cau hinh chung'),
+        const AdminSectionTitle(eyebrow: 'App', title: 'Cấu hình chung'),
         const SizedBox(height: 14),
         _ThemeModeSwitch(),
         const SizedBox(height: 12),
         _SettingsSwitch(
           icon: Icons.construction_rounded,
           title: 'Maintenance mode',
-          subtitle: 'Tam khoa luong mua hang cua user',
+          subtitle: 'Tạm khóa lượng mua hàng của user',
           value: config.maintenanceMode,
-          onChanged: (value) => _saveConfig(
-            context,
-            config.copyWith(maintenanceMode: value),
-          ),
+          onChanged: (value) =>
+              _saveConfig(context, config.copyWith(maintenanceMode: value)),
         ),
         const SizedBox(height: AppSizes.sectionGap),
-        const AdminSectionTitle(eyebrow: 'Thanh toan', title: 'Cong thanh toan'),
+        const AdminSectionTitle(
+          eyebrow: 'Thanh toán',
+          title: 'Cổng thanh toán',
+        ),
         const SizedBox(height: 14),
         _SettingsSwitch(
           icon: Icons.money_rounded,
           title: 'COD',
-          subtitle: 'Cho phep thanh toan khi nhan hang',
+          subtitle: 'Cho phép thanh toán khi nhận hàng',
           value: config.codEnabled,
-          onChanged: (value) => _saveConfig(
-            context,
-            config.copyWith(codEnabled: value),
-          ),
+          onChanged: (value) =>
+              _saveConfig(context, config.copyWith(codEnabled: value)),
         ),
         const SizedBox(height: 12),
         _SettingsSwitch(
           icon: Icons.account_balance_rounded,
-          title: 'Chuyen khoan',
-          subtitle: 'Bat/tat phuong thuc chuyen khoan',
+          title: 'Chuyển khoản',
+          subtitle: 'bật/tắt phương thức chuyển khoản',
           value: config.bankTransferEnabled,
-          onChanged: (value) => _saveConfig(
-            context,
-            config.copyWith(bankTransferEnabled: value),
-          ),
+          onChanged: (value) =>
+              _saveConfig(context, config.copyWith(bankTransferEnabled: value)),
         ),
         const SizedBox(height: 12),
         _SettingsSwitch(
           icon: Icons.account_balance_wallet_rounded,
-          title: 'Vi dien tu',
-          subtitle: 'Bat/tat vi dien tu, MoMo lam sau',
+          title: 'Ví điện tử',
+          subtitle: 'bật/tắt ví điện tử, MoMo làm sau',
           value: config.eWalletEnabled,
-          onChanged: (value) => _saveConfig(
-            context,
-            config.copyWith(eWalletEnabled: value),
-          ),
+          onChanged: (value) =>
+              _saveConfig(context, config.copyWith(eWalletEnabled: value)),
         ),
         const SizedBox(height: 12),
         _SettingsTile(
           icon: Icons.local_offer_rounded,
-          title: 'Quan ly voucher',
-          subtitle: 'Ma giam gia va trang thai voucher',
+          title: 'Quản lý voucher',
+          subtitle: 'Mã giảm giá và trạng thái voucher',
           onTap: () {
             Navigator.push(
               context,
@@ -105,44 +100,42 @@ class AdminSettingsPage extends StatelessWidget {
           },
         ),
         const SizedBox(height: AppSizes.sectionGap),
-        const AdminSectionTitle(eyebrow: 'Giao hang', title: 'Shipping rules'),
+        const AdminSectionTitle(eyebrow: 'Giao hàng', title: 'Shipping rules'),
         const SizedBox(height: 14),
         _SettingsSwitch(
           icon: Icons.local_shipping_rounded,
           title: 'Free shipping',
-          subtitle: 'Bat/tat mien phi giao hang',
+          subtitle: 'bật/tắt miễn phí giao hàng',
           value: config.freeShippingEnabled,
-          onChanged: (value) => _saveConfig(
-            context,
-            config.copyWith(freeShippingEnabled: value),
-          ),
+          onChanged: (value) =>
+              _saveConfig(context, config.copyWith(freeShippingEnabled: value)),
         ),
         const SizedBox(height: 12),
         _SettingsTile(
           icon: Icons.map_rounded,
-          title: 'Quan ly shipping rules',
-          subtitle: 'Doc tu collection shipping_rules',
+          title: 'Quản lý shipping rules',
+          subtitle: 'Đọc từ collection shipping_rules',
           onTap: () => _showShippingSheet(context),
         ),
         const SizedBox(height: AppSizes.sectionGap),
-        const AdminSectionTitle(eyebrow: 'Noi dung', title: 'Banner va log'),
+        const AdminSectionTitle(eyebrow: 'Nội dung', title: 'Banner và log'),
         const SizedBox(height: 14),
         _SettingsTile(
           icon: Icons.image_rounded,
           title: 'Banner management',
-          subtitle: 'Doc tu collection banners',
+          subtitle: 'Đọc từ collection banners',
           onTap: () => _showBannerSheet(context),
         ),
         const SizedBox(height: 12),
         _SettingsTile(
           icon: Icons.history_rounded,
           title: 'Admin activity logs',
-          subtitle: 'Theo doi thay doi tu admin_logs',
+          subtitle: 'Theo dõi thay đổi từ admin_logs',
           onTap: () => _showActivitySheet(context),
         ),
         const SizedBox(height: AppSizes.sectionGap),
         GlowButton(
-          label: 'DANG XUAT ADMIN',
+          label: 'ĐĂNG XUẤT ADMIN',
           icon: Icons.logout_rounded,
           expanded: true,
           isPrimary: false,
@@ -165,7 +158,7 @@ class AdminSettingsPage extends StatelessWidget {
         builder: (context, service, child) {
           if (service.rules.isEmpty) {
             return GlowButton(
-              label: 'TAO RULE MAC DINH',
+              label: 'TẠO RULE MẶC ĐỊNH',
               icon: Icons.cloud_upload_rounded,
               expanded: true,
               onPressed: service.seedDefaultRules,
@@ -194,7 +187,7 @@ class AdminSettingsPage extends StatelessWidget {
         builder: (context, service, child) {
           if (service.banners.isEmpty) {
             return GlowButton(
-              label: 'TAO BANNER MAC DINH',
+              label: 'TẠO BANNER MẶC ĐỊNH',
               icon: Icons.cloud_upload_rounded,
               expanded: true,
               onPressed: service.seedDefaultBanners,
@@ -226,7 +219,7 @@ class AdminSettingsPage extends StatelessWidget {
       child: Consumer<AdminActivityLogService>(
         builder: (context, service, child) {
           if (service.logs.isEmpty) {
-            return const _EmptyConfigText(text: 'Chua co admin log.');
+            return const _EmptyConfigText(text: 'Chưa có admin log.');
           }
           return Column(
             children: service.logs
@@ -264,7 +257,7 @@ class AdminSettingsPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              AdminSectionTitle(eyebrow: 'Cau hinh', title: title),
+              AdminSectionTitle(eyebrow: 'Cấu hình', title: title),
               const SizedBox(height: 18),
               child,
             ],
@@ -292,7 +285,7 @@ class _ThemeModeSwitch extends StatelessWidget {
     return _SettingsSwitch(
       icon: Icons.light_mode_rounded,
       title: 'Light mode',
-      subtitle: 'Bat/tat giao dien sang cho admin va user',
+      subtitle: 'bật/tắt giao diện sáng cho admin và user',
       value: themeService.isLightMode,
       onChanged: themeService.setLightMode,
     );
@@ -441,7 +434,9 @@ class _ShippingRuleTile extends StatelessWidget {
 
   void _showShippingRuleEditor(BuildContext context, ShippingRuleModel rule) {
     final nameController = TextEditingController(text: rule.name);
-    final costController = TextEditingController(text: rule.cost.round().toString());
+    final costController = TextEditingController(
+      text: rule.cost.round().toString(),
+    );
     var active = rule.isActive;
 
     showModalBottomSheet(
@@ -477,7 +472,9 @@ class _ShippingRuleTile extends StatelessWidget {
                     controller: costController,
                     keyboardType: TextInputType.number,
                     style: const TextStyle(color: AppColors.textPrimary),
-                    decoration: const InputDecoration(labelText: 'Phi giao hang'),
+                    decoration: const InputDecoration(
+                      labelText: 'Phi giao hang',
+                    ),
                   ),
                   const SizedBox(height: 12),
                   SwitchListTile(
@@ -496,16 +493,17 @@ class _ShippingRuleTile extends StatelessWidget {
                     expanded: true,
                     onPressed: () {
                       context.read<ShippingRuleService>().saveRule(
-                            ShippingRuleModel(
-                              id: rule.id,
-                              name: nameController.text.trim(),
-                              method: rule.method,
-                              cost: double.tryParse(costController.text.trim()) ??
-                                  rule.cost,
-                              area: rule.area,
-                              isActive: active,
-                            ),
-                          );
+                        ShippingRuleModel(
+                          id: rule.id,
+                          name: nameController.text.trim(),
+                          method: rule.method,
+                          cost:
+                              double.tryParse(costController.text.trim()) ??
+                              rule.cost,
+                          area: rule.area,
+                          isActive: active,
+                        ),
+                      );
                       Navigator.pop(context);
                     },
                   ),
@@ -560,7 +558,9 @@ class _BannerConfig extends StatelessWidget {
     final titleController = TextEditingController(text: banner.title);
     final subtitleController = TextEditingController(text: banner.subtitle);
     final productIdController = TextEditingController(text: banner.productId);
-    final sortController = TextEditingController(text: banner.sortOrder.toString());
+    final sortController = TextEditingController(
+      text: banner.sortOrder.toString(),
+    );
     var active = banner.isActive;
 
     showModalBottomSheet(
@@ -588,9 +588,15 @@ class _BannerConfig extends StatelessWidget {
                   const SizedBox(height: 16),
                   _SheetInput(label: 'Title', controller: titleController),
                   const SizedBox(height: 12),
-                  _SheetInput(label: 'Subtitle', controller: subtitleController),
+                  _SheetInput(
+                    label: 'Subtitle',
+                    controller: subtitleController,
+                  ),
                   const SizedBox(height: 12),
-                  _SheetInput(label: 'Product ID', controller: productIdController),
+                  _SheetInput(
+                    label: 'Product ID',
+                    controller: productIdController,
+                  ),
                   const SizedBox(height: 12),
                   _SheetInput(label: 'Sort order', controller: sortController),
                   const SizedBox(height: 12),
@@ -605,24 +611,24 @@ class _BannerConfig extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   GlowButton(
-                    label: 'LUU BANNER',
+                    label: 'LƯU BANNER',
                     icon: Icons.save_rounded,
                     expanded: true,
                     onPressed: () {
                       context.read<BannerService>().saveBanner(
-                            BannerModel(
-                              id: banner.id,
-                              title: titleController.text.trim(),
-                              subtitle: subtitleController.text.trim(),
-                              imageUrl: banner.imageUrl,
-                              imageAsset: banner.imageAsset,
-                              productId: productIdController.text.trim(),
-                              isActive: active,
-                              sortOrder:
-                                  int.tryParse(sortController.text.trim()) ??
-                                      banner.sortOrder,
-                            ),
-                          );
+                        BannerModel(
+                          id: banner.id,
+                          title: titleController.text.trim(),
+                          subtitle: subtitleController.text.trim(),
+                          imageUrl: banner.imageUrl,
+                          imageAsset: banner.imageAsset,
+                          productId: productIdController.text.trim(),
+                          isActive: active,
+                          sortOrder:
+                              int.tryParse(sortController.text.trim()) ??
+                              banner.sortOrder,
+                        ),
+                      );
                       Navigator.pop(context);
                     },
                   ),
@@ -667,7 +673,10 @@ class _ActivityTile extends StatelessWidget {
           const Icon(Icons.history_rounded, color: AppColors.neon),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(text, style: const TextStyle(color: AppColors.textPrimary)),
+            child: Text(
+              text,
+              style: const TextStyle(color: AppColors.textPrimary),
+            ),
           ),
         ],
       ),
