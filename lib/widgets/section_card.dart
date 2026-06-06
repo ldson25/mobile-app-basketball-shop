@@ -18,14 +18,30 @@ class SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final resolvedColor = isLight
+        ? _lightCardColor(color ?? AppColors.surface)
+        : color ?? AppColors.surface;
+
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: color ?? AppColors.surface,
+        color: resolvedColor,
         borderRadius: BorderRadius.circular(24),
-        border: border,
+        border: border ??
+            (isLight ? Border.all(color: const Color(0xFFE2E2E2)) : null),
       ),
       child: child,
     );
+  }
+
+  Color _lightCardColor(Color source) {
+    if (source == AppColors.surface ||
+        source == AppColors.surface2 ||
+        source == AppColors.surface3 ||
+        source == AppColors.surfaceHighest) {
+      return Colors.white;
+    }
+    return source;
   }
 }

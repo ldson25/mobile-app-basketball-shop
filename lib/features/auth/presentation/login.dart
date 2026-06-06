@@ -355,7 +355,11 @@ class _LoginFormState extends State<_LoginForm> {
                               (route) => false,
                             );
                           } else {
-                            Navigator.pushReplacementNamed(context, '/');
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => const AppShell()),
+                              (route) => false,
+                            );
                           }
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(

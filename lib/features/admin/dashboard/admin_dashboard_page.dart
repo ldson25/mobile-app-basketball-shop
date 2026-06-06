@@ -1,119 +1,172 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../models/order_model.dart';
+import '../../../services/order_service.dart';
+import '../../../services/product_service.dart';
 import '../../../widgets/glow_button.dart';
 import '../../../widgets/section_card.dart';
 import '../presentation/widgets/admin_widgets.dart';
 
-class AdminDashboardPage extends StatelessWidget {
+class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
 
   @override
+  State<AdminDashboardPage> createState() => _AdminDashboardPageState();
+}
+
+class _AdminDashboardPageState extends State<AdminDashboardPage> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(
+      () => context.read<OrderService>().loadAllOrdersForAdmin(),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final orderService = context.watch<OrderService>();
+    final productService = context.watch<ProductService>();
+    final orders = orderService.orders;
+    final products = productService.adminProducts;
+    final todayOrders = orders.where(_isToday).toList();
+    final todayRevenue = todayOrders
+        .where(
+          (order) =>
+              order.status != OrderStatus.cancelled &&
+              order.status != OrderStatus.returned,
+        )
+        .fold<double>(0, (sum, order) => sum + order.total);
+    final pendingOrders = orders
+        .where((order) => order.status == OrderStatus.pending)
+        .length;
+    final lowStockProducts = products
+        .where((product) => product.stockQuantity <= 10)
+        .toList();
+
     return AdminPageScaffold(
       title: 'TỔNG QUAN\nADMIN',
-      subtitle: 'Theo dõi vận hành cửa hàng theo thời gian thực',
+      subtitle: 'Theo dõi hoạt động của cửa hàng theo dữ liệu Firestore',
       children: [
         GlowButton(
-          label: 'XEM BÁO CÁO',
-          icon: Icons.analytics_outlined,
+          label: 'TẢI LẠI BÁO CÁO',
+          icon: Icons.refresh_rounded,
           expanded: true,
-          onPressed: () => _showReportSheet(context),
+          onPressed: () => context.read<OrderService>().loadAllOrdersForAdmin(),
         ),
         const SizedBox(height: AppSizes.sectionGap),
-        const AdminMetricCard(
+        AdminMetricCard(
           label: 'Doanh thu hôm nay',
-          value: '321.000.000đ',
+          value: _formatVnd(todayRevenue),
           icon: Icons.bolt_rounded,
-          delta: '+18% so với hôm qua',
+          delta: '${todayOrders.length} đơn trong ngày',
         ),
         const SizedBox(height: 14),
-        const AdminMetricCard(
+        AdminMetricCard(
           label: 'Đơn chờ xử lý',
-          value: '42',
+          value: '$pendingOrders',
           icon: Icons.receipt_long_rounded,
-          delta: '8 đơn cần xác nhận',
+          delta: pendingOrders == 0
+              ? 'Không có đơn cần xử lý'
+              : '$pendingOrders đơn cần xác nhận',
         ),
         const SizedBox(height: 14),
-        const AdminMetricCard(
+        AdminMetricCard(
           label: 'Sản phẩm sắp hết hàng',
-          value: '11',
+          value: '${lowStockProducts.length}',
           icon: Icons.inventory_2_outlined,
-          delta: 'Cần bổ sung tồn kho',
+          delta: lowStockProducts.isEmpty
+              ? 'tồn kho đang ổn định'
+              : lowStockProducts.take(2).map((item) => item.name).join(', '),
         ),
         const SizedBox(height: 14),
-        const AdminMetricCard(
-          label: 'Khách hàng mới',
-          value: '36',
-          icon: Icons.groups_rounded,
-          delta: 'Tuần này',
-        ),
+        _NewCustomersMetric(),
         const SizedBox(height: AppSizes.sectionGap),
-        const AdminSectionTitle(eyebrow: 'Vận hành', title: 'Việc cần xử lý'),
+        const AdminSectionTitle(eyebrow: 'Vận Hành', title: 'Việc cần xử lý'),
         const SizedBox(height: 14),
-        const _ActionQueueCard(
-          title: 'Xác nhận đơn chờ xử lý',
-          detail: '8 đơn hàng đang chờ admin xác nhận',
+        _ActionQueueCard(
+          title: 'ác nhận đơn chờ xử lý',
+          detail: '$pendingOrders đơn hàng đang chờ admin xác nhận',
           icon: Icons.task_alt_rounded,
-          color: AppColors.warning,
+          color: pendingOrders == 0
+              ? AppColors.textSecondary
+              : AppColors.warning,
         ),
         const SizedBox(height: 12),
-        const _ActionQueueCard(
+        _ActionQueueCard(
           title: 'Nhập thêm hàng tồn thấp',
-          detail: 'Velocity X, Apex Core và 9 sản phẩm khác',
+          detail: lowStockProducts.isEmpty
+              ? 'Không có sản phẩm tồn kho thấp'
+              : lowStockProducts.take(3).map((item) => item.name).join(', '),
           icon: Icons.inventory_rounded,
-          color: AppColors.error,
+          color: lowStockProducts.isEmpty
+              ? AppColors.textSecondary
+              : AppColors.error,
         ),
         const SizedBox(height: AppSizes.sectionGap),
-        const AdminSectionTitle(eyebrow: 'Nhật ký', title: 'Hoạt động gần đây'),
+        const AdminSectionTitle(
+          eyebrow: 'Đơn gần đáo hạn',
+          title: 'Hoạt động mới nhất',
+        ),
         const SizedBox(height: 14),
-        const _ActivityLogTile(
-          actor: 'admin@kinetic.app',
-          action: 'đã xác nhận đơn #ORD-8821',
-          time: '2 phút trước',
-        ),
-        const SizedBox(height: 10),
-        const _ActivityLogTile(
-          actor: 'ops@kinetic.app',
-          action: 'đã cập nhật tồn kho Hypervolt v1',
-          time: '18 phút trước',
-        ),
-        const SizedBox(height: 10),
-        const _ActivityLogTile(
-          actor: 'admin@kinetic.app',
-          action: 'đã tạo banner nổi bật',
-          time: '1 giờ trước',
-        ),
+        if (orders.isEmpty)
+          const _EmptyActivityCard()
+        else
+          ...orders
+              .take(3)
+              .map(
+                (order) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _ActivityLogTile(
+                    actor: order.customerName.isEmpty
+                        ? (order.userId ?? 'user')
+                        : order.customerName,
+                    action:
+                        'da tao don ${order.orderNumber} - ${order.status.label}',
+                    time: order.formattedDate,
+                  ),
+                ),
+              ),
       ],
     );
   }
 
-  void _showReportSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => const SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AdminSectionTitle(eyebrow: 'Báo cáo', title: 'Tùy chọn xuất'),
-              SizedBox(height: 16),
-              _ReportOption(icon: Icons.today_rounded, label: 'Tổng kết ngày'),
-              SizedBox(height: 10),
-              _ReportOption(icon: Icons.date_range_rounded, label: 'Doanh thu tháng'),
-              SizedBox(height: 10),
-              _ReportOption(icon: Icons.inventory_2_rounded, label: 'Tình trạng tồn kho'),
-            ],
-          ),
-        ),
-      ),
+  bool _isToday(OrderModel order) {
+    final now = DateTime.now();
+    return order.date.year == now.year &&
+        order.date.month == now.month &&
+        order.date.day == now.day;
+  }
+}
+
+class _NewCustomersMetric extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance.collection('users').snapshots(),
+      builder: (context, snapshot) {
+        final users = snapshot.data?.docs ?? [];
+        final newToday = users.where((doc) {
+          final createdAt = doc.data()['createdAt'];
+          final date = DateTime.tryParse((createdAt ?? '').toString());
+          if (date == null) return false;
+          final now = DateTime.now();
+          return date.year == now.year &&
+              date.month == now.month &&
+              date.day == now.day;
+        }).length;
+
+        return AdminMetricCard(
+          label: 'Khách hàng mới',
+          value: '$newToday',
+          icon: Icons.groups_rounded,
+          delta: '${users.length} tong tai khoan',
+        );
+      },
     );
   }
 }
@@ -152,7 +205,10 @@ class _ActionQueueCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(detail, style: const TextStyle(color: AppColors.textSecondary)),
+                Text(
+                  detail,
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
               ],
             ),
           ),
@@ -184,7 +240,7 @@ class _ActivityLogTile extends StatelessWidget {
           const CircleAvatar(
             backgroundColor: AppColors.neon,
             foregroundColor: AppColors.background,
-            child: Icon(Icons.admin_panel_settings_rounded, size: 18),
+            child: Icon(Icons.receipt_long_rounded, size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -199,44 +255,45 @@ class _ActivityLogTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 3),
-                Text(action, style: const TextStyle(color: AppColors.textSecondary)),
+                Text(
+                  action,
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
               ],
             ),
           ),
-          Text(time, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+          Text(
+            time,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+          ),
         ],
       ),
     );
   }
 }
 
-class _ReportOption extends StatelessWidget {
-  const _ReportOption({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
+class _EmptyActivityCard extends StatelessWidget {
+  const _EmptyActivityCard();
 
   @override
   Widget build(BuildContext context) {
-    return SectionCard(
+    return const SectionCard(
       color: AppColors.surface2,
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Icon(icon, color: AppColors.neon),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-          const Icon(Icons.download_rounded, color: AppColors.textMuted),
-        ],
+      child: Text(
+        'Chua co don hang nao.',
+        style: TextStyle(color: AppColors.textSecondary),
       ),
     );
   }
+}
+
+String _formatVnd(double value) {
+  final number = value.round().toString();
+  final buffer = StringBuffer();
+  for (var i = 0; i < number.length; i++) {
+    final fromEnd = number.length - i;
+    buffer.write(number[i]);
+    if (fromEnd > 1 && fromEnd % 3 == 1) buffer.write('.');
+  }
+  return '${buffer}d';
 }

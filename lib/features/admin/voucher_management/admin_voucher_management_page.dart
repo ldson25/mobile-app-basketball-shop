@@ -9,14 +9,26 @@ import '../../../widgets/glow_button.dart';
 import '../../../widgets/section_card.dart';
 import '../presentation/widgets/admin_widgets.dart';
 
-class AdminVoucherManagementPage extends StatelessWidget {
+class AdminVoucherManagementPage extends StatefulWidget {
   const AdminVoucherManagementPage({super.key});
+
+  @override
+  State<AdminVoucherManagementPage> createState() =>
+      _AdminVoucherManagementPageState();
+}
+
+class _AdminVoucherManagementPageState extends State<AdminVoucherManagementPage> {
+  String _query = '';
 
   @override
   Widget build(BuildContext context) {
     return AdminPageScaffold(
       title: 'QUAN LY\nVOUCHER',
       subtitle: 'Ma giam gia cho Member, VIP va tat ca user',
+      trailing: IconButton(
+        onPressed: () => Navigator.maybePop(context),
+        icon: const Icon(Icons.arrow_back_rounded, color: AppColors.neon),
+      ),
       children: [
         GlowButton(
           label: 'THEM VOUCHER',
@@ -24,10 +36,21 @@ class AdminVoucherManagementPage extends StatelessWidget {
           expanded: true,
           onPressed: () => _showVoucherForm(context),
         ),
+        const SizedBox(height: 14),
+        AdminSearchField(
+          hint: 'Tim ma voucher hoac ten chuong trinh...',
+          onChanged: (value) => setState(() => _query = value),
+        ),
         const SizedBox(height: AppSizes.sectionGap),
         Consumer<VoucherService>(
           builder: (context, voucherService, child) {
-            final vouchers = voucherService.vouchers;
+            final normalized = _query.trim().toLowerCase();
+            final vouchers = normalized.isEmpty
+                ? voucherService.vouchers
+                : voucherService.vouchers.where((voucher) {
+                    return voucher.code.toLowerCase().contains(normalized) ||
+                        voucher.name.toLowerCase().contains(normalized);
+                  }).toList();
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,

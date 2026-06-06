@@ -6,11 +6,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../services/auth_service.dart';
+import '../../services/theme_service.dart';
 import '../cart/mycart.dart';
 import '../favorites/favorites.dart';
 import '../shipping_adresses/shipping_adresses.dart';
 import '../payment/payment.dart';
 import '../auth/presentation/login.dart';
+import '../vouchers/voucher_wallet_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   final VoidCallback onMenuTap;
@@ -373,15 +375,116 @@ class _NavigationMenu extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         _MenuItem(
-          icon: Icons.settings,
-          label: 'Cài đặt',
+          icon: Icons.local_offer_rounded,
+          label: 'Voucher của tôi',
           onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Chức năng sẽ được bổ sung sau')),
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const VoucherWalletScreen(),
+              ),
             );
           },
         ),
+        const SizedBox(height: 8),
+        _MenuItem(
+          icon: Icons.settings,
+          label: 'Cài đặt',
+          onTap: () => _showProfileSettings(context),
+        ),
       ],
+    );
+  }
+
+  void _showProfileSettings(BuildContext context) {
+    final auth = context.read<AuthService>();
+    final user = auth.currentUser;
+    if (user == null) return;
+
+    final nameController = TextEditingController(text: user.fullName);
+    final phoneController = TextEditingController(text: user.phoneNumber ?? '');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            20,
+            20,
+            20,
+            MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'CAI DAT TAI KHOAN',
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nameController,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: const InputDecoration(labelText: 'Ho ten'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: const InputDecoration(labelText: 'So dien thoai'),
+              ),
+              const SizedBox(height: 12),
+              Consumer<ThemeService>(
+                builder: (context, themeService, child) {
+                  return SwitchListTile(
+                    value: themeService.isLightMode,
+                    onChanged: themeService.setLightMode,
+                    activeThumbColor: AppColors.neon,
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text(
+                      'Light mode',
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    subtitle: const Text(
+                      'Bật/tắt giao diện sáng',
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await context.read<AuthService>().updateProfile(
+                          fullName: nameController.text,
+                          phoneNumber: phoneController.text,
+                        );
+                    if (context.mounted) Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.save_rounded),
+                  label: const Text('LUU'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

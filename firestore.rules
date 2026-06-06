@@ -1,0 +1,124 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isOrderOwner(orderId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/orders/$(orderId))
+        && get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow create: if isOwner(userId);
+      allow read, update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+
+      match /cart/{cartItemId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+
+      match /favorites/{favoriteId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+
+      match /addresses/{addressId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+
+      match /payment_methods/{paymentMethodId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if signedIn()
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.productId == productId
+          && request.resource.data.rating is number
+          && request.resource.data.rating >= 1
+          && request.resource.data.rating <= 5;
+        allow update, delete: if isAdmin()
+          || (signedIn() && resource.data.userId == request.auth.uid);
+      }
+    }
+
+    match /orders/{orderId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid;
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.userId == request.auth.uid);
+      allow update: if isAdmin()
+        || (
+          signedIn()
+          && resource.data.userId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+          && request.resource.data.status in ['cancelled', 'returned']
+        );
+      allow delete: if isAdmin();
+
+      match /return_requests/{requestId} {
+        allow create: if isAdmin()
+          || (isOrderOwner(orderId) && request.resource.data.userId == request.auth.uid);
+        allow read: if isAdmin() || isOrderOwner(orderId);
+        allow update, delete: if isAdmin();
+      }
+
+      match /status_history/{historyId} {
+        allow create: if isAdmin() || isOrderOwner(orderId);
+        allow read: if isAdmin() || isOrderOwner(orderId);
+        allow update, delete: if isAdmin();
+      }
+    }
+
+    match /vouchers/{voucherId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /banners/{bannerId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /config/{configId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /app_config/{configId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /shipping_rules/{ruleId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /admin_logs/{logId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,11 +1,13 @@
 import 'package:doanltdd/features/products/presentation/product_detail_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../models/product_model.dart';
+import '../../../services/product_service.dart';
 import '../../../widgets/product_card.dart';
-import 'package:doanltdd/features/products/presentation/product_detail_screen.dart'; // ✅ đường dẫn đúng
+
 
 enum _PriceFilter {
   all,
@@ -40,15 +42,11 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
   @override
   void initState() {
     super.initState();
-    _baseProducts = _loadProducts();
+    _baseProducts = const [];
   }
 
-  List<ProductModel> _loadProducts() {
-    final allProducts = [
-      ...ProductData.footwearProducts,
-      ...ProductData.apparelProducts,
-      ...ProductData.equipmentProducts,
-    ];
+  List<ProductModel> _loadProducts(ProductService productService) {
+    final allProducts = productService.products;
 
     final keyword = widget.searchKeyword?.trim().toLowerCase();
     if (keyword != null && keyword.isNotEmpty) {
@@ -61,7 +59,11 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
           .toList();
     }
 
-    return ProductData.getProductsByCategory(widget.categoryName);
+    if (widget.categoryName.toLowerCase() == 'all') {
+      return allProducts;
+    }
+
+    return productService.getProductsByCategory(widget.categoryName);
   }
 
   List<ProductModel> get _visibleProducts {
@@ -117,6 +119,7 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _baseProducts = _loadProducts(context.watch<ProductService>());
     final products = _visibleProducts;
 
     return Scaffold(
@@ -191,17 +194,14 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
                       final product = products[index];
                       return ProductCard(
                         product: product,
-                        onProductTap: () async {
-                          final authed = await widget.onRequireAuth();
-                          if (authed) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ProductDetailScreen(product: product),
-                              ),
-                            );
-                          }
+                        onProductTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ProductDetailScreen(product: product),
+                            ),
+                          );
                         },
                       );
                     },

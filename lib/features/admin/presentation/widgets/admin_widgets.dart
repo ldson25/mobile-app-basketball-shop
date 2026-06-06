@@ -20,8 +20,12 @@ class AdminPageScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final secondaryText =
+        isLight ? const Color(0xFF555555) : AppColors.textSecondary;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -46,8 +50,8 @@ class AdminPageScaffold extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 subtitle.toUpperCase(),
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: secondaryText,
                   fontWeight: FontWeight.w700,
                   fontSize: 12,
                   letterSpacing: 1.2,
@@ -70,14 +74,19 @@ class AdminTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final iconBg = isLight ? Colors.white : AppColors.surface2;
+    final iconColor = isLight ? const Color(0xFF111111) : AppColors.textPrimary;
+
     return Row(
       children: [
         Container(
           width: 44,
           height: 44,
-          decoration: const BoxDecoration(
-            color: AppColors.surface2,
+          decoration: BoxDecoration(
+            color: iconBg,
             shape: BoxShape.circle,
+            border: isLight ? Border.all(color: const Color(0xFFE2E2E2)) : null,
           ),
           child: const Icon(Icons.admin_panel_settings, color: AppColors.neon),
         ),
@@ -96,9 +105,9 @@ class AdminTopBar extends StatelessWidget {
         trailing ??
             IconButton(
               onPressed: () {},
-              icon: const Icon(
+              icon: Icon(
                 Icons.notifications_none_rounded,
-                color: AppColors.textPrimary,
+                color: iconColor,
               ),
             ),
       ],
@@ -118,6 +127,9 @@ class AdminSectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final textColor = isLight ? const Color(0xFF111111) : AppColors.textPrimary;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -133,8 +145,8 @@ class AdminSectionTitle extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           title.toUpperCase(),
-          style: const TextStyle(
-            color: AppColors.textPrimary,
+          style: TextStyle(
+            color: textColor,
             fontSize: 24,
             fontWeight: FontWeight.w900,
             letterSpacing: -0.5,
@@ -161,6 +173,10 @@ class AdminMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final textColor = isLight ? const Color(0xFF111111) : AppColors.textPrimary;
+    final mutedColor = isLight ? const Color(0xFF666666) : AppColors.textSecondary;
+
     return SectionCard(
       color: AppColors.surface2,
       child: Row(
@@ -181,8 +197,8 @@ class AdminMetricCard extends StatelessWidget {
               children: [
                 Text(
                   label.toUpperCase(),
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  style: TextStyle(
+                    color: mutedColor,
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1.2,
@@ -191,8 +207,8 @@ class AdminMetricCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   value,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
+                  style: TextStyle(
+                    color: textColor,
                     fontSize: 26,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -0.6,
@@ -223,26 +239,41 @@ class AdminSearchField extends StatelessWidget {
     super.key,
     required this.hint,
     this.icon = Icons.search_rounded,
+    this.onChanged,
+    this.controller,
   });
 
   final String hint;
   final IconData icon;
+  final ValueChanged<String>? onChanged;
+  final TextEditingController? controller;
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final textColor = isLight ? const Color(0xFF111111) : AppColors.textPrimary;
+    final mutedColor = isLight ? const Color(0xFF777777) : AppColors.textMuted;
+
     return SectionCard(
       color: AppColors.surface2,
       child: Row(
         children: [
-          Icon(icon, color: AppColors.textMuted, size: 20),
+          Icon(icon, color: mutedColor, size: 20),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              hint,
-              style: const TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+            child: TextField(
+              controller: controller,
+              onChanged: onChanged,
+              style: TextStyle(color: textColor),
+              decoration: InputDecoration(
+                hintText: hint,
+                hintStyle: TextStyle(
+                  color: mutedColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+                border: InputBorder.none,
+                isDense: true,
               ),
             ),
           ),

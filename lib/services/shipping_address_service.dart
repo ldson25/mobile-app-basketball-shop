@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../models/shipping_address_model.dart';
@@ -6,11 +10,32 @@ class ShippingAddressService extends ChangeNotifier {
   static final ShippingAddressService _instance =
       ShippingAddressService._internal();
   factory ShippingAddressService() => _instance;
-  ShippingAddressService._internal();
 
-  final List<ShippingAddressModel> _addresses = [];
+  ShippingAddressService._internal() {
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      _subscription?.cancel();
+      _addresses = [];
+      if (user == null) {
+        notifyListeners();
+        return;
+      }
+      _subscribe(user.uid);
+    });
+  }
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _subscription;
+  List<ShippingAddressModel> _addresses = [];
 
   List<ShippingAddressModel> get addresses => List.unmodifiable(_addresses);
+
+  String? get _uid => FirebaseAuth.instance.currentUser?.uid;
+
+  CollectionReference<Map<String, dynamic>>? get _addressesRef {
+    final uid = _uid;
+    if (uid == null) return null;
+    return _firestore.collection('users').doc(uid).collection('addresses');
+  }
 
   ShippingAddressModel? get defaultAddress {
     if (_addresses.isEmpty) return null;
@@ -20,14 +45,35 @@ class ShippingAddressService extends ChangeNotifier {
     );
   }
 
+  void _subscribe(String uid) {
+    _subscription = _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('addresses')
+        .snapshots()
+        .listen((snapshot) {
+      _addresses = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return ShippingAddressModel.fromJson({
+          ...data,
+          'id': data['id'] ?? doc.id,
+        });
+      }).toList();
+      notifyListeners();
+    });
+  }
+
   void addAddress(ShippingAddressModel address) {
     final shouldBeDefault = _addresses.isEmpty || address.isDefault;
     if (shouldBeDefault) {
       _clearDefault();
     }
 
-    _addresses.add(address.copyWith(isDefault: shouldBeDefault));
+    final nextAddress = address.copyWith(isDefault: shouldBeDefault);
+    _addresses.add(nextAddress);
     notifyListeners();
+    _syncDefaults();
+    _addressesRef?.doc(nextAddress.id).set(nextAddress.toJson());
   }
 
   void updateAddress(ShippingAddressModel address) {
@@ -40,6 +86,8 @@ class ShippingAddressService extends ChangeNotifier {
 
     _addresses[index] = address;
     notifyListeners();
+    _syncDefaults();
+    _addressesRef?.doc(address.id).set(address.toJson());
   }
 
   void removeAddress(String id) {
@@ -53,6 +101,8 @@ class ShippingAddressService extends ChangeNotifier {
     }
 
     notifyListeners();
+    _addressesRef?.doc(id).delete();
+    _syncDefaults();
   }
 
   void setDefault(String id) {
@@ -60,11 +110,26 @@ class ShippingAddressService extends ChangeNotifier {
       _addresses[i] = _addresses[i].copyWith(isDefault: _addresses[i].id == id);
     }
     notifyListeners();
+    _syncDefaults();
   }
 
   void _clearDefault() {
     for (var i = 0; i < _addresses.length; i++) {
       _addresses[i] = _addresses[i].copyWith(isDefault: false);
     }
+  }
+
+  void _syncDefaults() {
+    final ref = _addressesRef;
+    if (ref == null) return;
+    for (final address in _addresses) {
+      ref.doc(address.id).set(address.toJson());
+    }
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 }

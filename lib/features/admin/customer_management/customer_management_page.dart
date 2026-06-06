@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_sizes.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../widgets/glow_button.dart';
+import '../../../models/order_model.dart';
+import '../../../models/user_model.dart';
 import '../../../widgets/section_card.dart';
 import '../presentation/widgets/admin_widgets.dart';
 
@@ -16,106 +18,154 @@ class AdminCustomerManagementPage extends StatefulWidget {
 
 class _AdminCustomerManagementPageState
     extends State<AdminCustomerManagementPage> {
-  String _segment = 'Tất cả';
-
-  final List<_AdminCustomer> _customers = const [
-    _AdminCustomer(
-      name: 'Nguyễn Minh',
-      email: 'marcus@kinetic.app',
-      phone: '0901000001',
-      status: 'VIP',
-      color: AppColors.neon,
-      totalOrders: 12,
-      totalSpent: '71.000.000đ',
-      lastOrder: '24/10/2023',
-    ),
-    _AdminCustomer(
-      name: 'Trần Hoàng',
-      email: 'elena@kinetic.app',
-      phone: '0901000002',
-      status: 'Member',
-      color: AppColors.neon,
-      totalOrders: 5,
-      totalSpent: '24.500.000đ',
-      lastOrder: '23/10/2023',
-    ),
-    _AdminCustomer(
-      name: 'Lê Quốc',
-      email: 'jordan@kinetic.app',
-      phone: '0901000003',
-      status: 'Member',
-      color: AppColors.warning,
-      totalOrders: 2,
-      totalSpent: '8.875.000đ',
-      lastOrder: '21/10/2023',
-    ),
-    _AdminCustomer(
-      name: 'Phạm An',
-      email: 'liam@kinetic.app',
-      phone: '0901000004',
-      status: 'Đã khóa',
-      color: AppColors.error,
-      totalOrders: 1,
-      totalSpent: '3.000.000đ',
-      lastOrder: '20/10/2023',
-    ),
-  ];
-
-  List<_AdminCustomer> get _visibleCustomers {
-    if (_segment == 'Tất cả') return _customers;
-    return _customers.where((customer) => customer.status == _segment).toList();
-  }
+  String _segment = 'All';
+  String _query = '';
 
   @override
   Widget build(BuildContext context) {
-    final customers = _visibleCustomers;
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance.collection('users').snapshots(),
+      builder: (context, usersSnapshot) {
+        return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: FirebaseFirestore.instance.collection('orders').snapshots(),
+          builder: (context, ordersSnapshot) {
+            final users = _parseUsers(usersSnapshot.data);
+            final orders = _parseOrders(ordersSnapshot.data);
+            final customers = _buildCustomers(users, orders);
+            final visibleCustomers = _filterCustomers(customers);
+            final loading =
+                usersSnapshot.connectionState == ConnectionState.waiting ||
+                    ordersSnapshot.connectionState == ConnectionState.waiting;
 
-    return AdminPageScaffold(
-      title: 'QUẢN LÝ\nKHÁCH HÀNG',
-      subtitle: 'Hồ sơ, hạng thành viên và lịch sử đơn hàng',
-      children: [
-        const AdminSearchField(hint: 'Tìm tên, email hoặc số điện thoại...'),
-        const SizedBox(height: 14),
-        _CustomerSegmentFilter(
-          selected: _segment,
-          onChanged: (value) => setState(() => _segment = value),
-        ),
-        const SizedBox(height: AppSizes.sectionGap),
-        const AdminMetricCard(
-          label: 'Tổng khách hàng',
-          value: '1.284',
-          icon: Icons.groups_rounded,
-          delta: '+36 khách hàng tuần này',
-        ),
-        const SizedBox(height: 14),
-        const AdminMetricCard(
-          label: 'Khách VIP',
-          value: '218',
-          icon: Icons.workspace_premium_rounded,
-          delta: 'Nhóm ưu đãi thành viên',
-        ),
-        const SizedBox(height: AppSizes.sectionGap),
-        Text(
-          '${customers.length} KHÁCH HÀNG',
-          style: const TextStyle(
-            color: AppColors.neon,
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.4,
-          ),
-        ),
-        const SizedBox(height: 14),
-        ...customers.map(
-          (customer) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: _CustomerCard(
-              customer: customer,
-              onTap: () => _showCustomerDetail(context, customer),
-            ),
-          ),
-        ),
-      ],
+            return AdminPageScaffold(
+              title: 'QUAN LY\nKHACH HANG',
+              subtitle: 'Du lieu that tu users va orders',
+              children: [
+                AdminSearchField(
+                  hint: 'Tim ten, email hoac so dien thoai...',
+                  onChanged: (value) => setState(() => _query = value),
+                ),
+                const SizedBox(height: 14),
+                _CustomerSegmentFilter(
+                  selected: _segment,
+                  onChanged: (value) => setState(() => _segment = value),
+                ),
+                const SizedBox(height: AppSizes.sectionGap),
+                AdminMetricCard(
+                  label: 'Tong khach hang',
+                  value: '${customers.length}',
+                  icon: Icons.groups_rounded,
+                  delta: loading ? 'Dang tai du lieu Firestore' : 'Tu users',
+                ),
+                const SizedBox(height: 14),
+                AdminMetricCard(
+                  label: 'Khach VIP',
+                  value: '${customers.where((item) => item.isVip).length}',
+                  icon: Icons.workspace_premium_rounded,
+                  delta: 'Theo membershipTier',
+                ),
+                const SizedBox(height: AppSizes.sectionGap),
+                Text(
+                  '${visibleCustomers.length} KHACH HANG',
+                  style: const TextStyle(
+                    color: AppColors.neon,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                if (loading && customers.isEmpty)
+                  const _CustomerLoadingCard()
+                else if (visibleCustomers.isEmpty)
+                  const _CustomerEmptyCard()
+                else
+                  ...visibleCustomers.map(
+                    (customer) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _CustomerCard(
+                        customer: customer,
+                        onTap: () => _showCustomerDetail(context, customer),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        );
+      },
     );
+  }
+
+  List<UserModel> _parseUsers(QuerySnapshot<Map<String, dynamic>>? snapshot) {
+    if (snapshot == null) return [];
+    return snapshot.docs.map((doc) {
+      final data = {...doc.data(), 'id': doc.id};
+      return _userFromData(data);
+    }).toList();
+  }
+
+  List<OrderModel> _parseOrders(QuerySnapshot<Map<String, dynamic>>? snapshot) {
+    if (snapshot == null) return [];
+    return snapshot.docs.map((doc) {
+      final data = {...doc.data(), 'id': doc.id};
+      return OrderModel.fromJson(data);
+    }).toList();
+  }
+
+  List<_AdminCustomer> _buildCustomers(
+    List<UserModel> users,
+    List<OrderModel> orders,
+  ) {
+    return users.map((user) {
+      final userOrders = orders.where((order) => order.userId == user.id).toList()
+        ..sort((a, b) => b.date.compareTo(a.date));
+      final validOrders = userOrders
+          .where((order) =>
+              order.status != OrderStatus.cancelled &&
+              order.status != OrderStatus.returned)
+          .toList();
+      final totalSpent = validOrders.fold<double>(
+        0,
+        (sum, order) => sum + order.total,
+      );
+
+      return _AdminCustomer(
+        id: user.id,
+        name: user.fullName.isEmpty ? user.email : user.fullName,
+        email: user.email,
+        phone: user.phoneNumber ?? 'Chua cap nhat',
+        role: user.role.name,
+        membership: user.membershipTier.name,
+        totalOrders: validOrders.length,
+        totalSpent: totalSpent,
+        lastOrder: validOrders.isEmpty ? null : validOrders.first.date,
+      );
+    }).toList()
+      ..sort((a, b) => b.totalSpent.compareTo(a.totalSpent));
+  }
+
+  List<_AdminCustomer> _filterCustomers(List<_AdminCustomer> customers) {
+    Iterable<_AdminCustomer> result = customers;
+    if (_segment == 'VIP') {
+      result = result.where((customer) => customer.isVip);
+    } else if (_segment == 'Member') {
+      result = result.where((customer) => customer.membership == 'member');
+    } else if (_segment == 'Admin') {
+      result = result.where((customer) => customer.isAdmin);
+    } else if (_segment != 'All') {
+      result = result.where((customer) => customer.role == 'user');
+    }
+
+    final normalized = _query.trim().toLowerCase();
+    if (normalized.isNotEmpty) {
+      result = result.where((customer) {
+        return customer.name.toLowerCase().contains(normalized) ||
+            customer.email.toLowerCase().contains(normalized) ||
+            customer.phone.toLowerCase().contains(normalized);
+      });
+    }
+    return result.toList();
   }
 
   void _showCustomerDetail(BuildContext context, _AdminCustomer customer) {
@@ -142,7 +192,7 @@ class _CustomerSegmentFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const values = ['Tất cả', 'VIP', 'Member', 'Đã khóa'];
+    const values = ['All', 'VIP', 'Member', 'Admin', 'User'];
     return SizedBox(
       height: 44,
       child: ListView.separated(
@@ -203,7 +253,12 @@ class _CustomerCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.border.withOpacity(0.35)),
               ),
-              child: const Icon(Icons.person_rounded, color: AppColors.neon),
+              child: Icon(
+                customer.isAdmin
+                    ? Icons.admin_panel_settings_rounded
+                    : Icons.person_rounded,
+                color: customer.statusColor,
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -212,6 +267,8 @@ class _CustomerCard extends StatelessWidget {
                 children: [
                   Text(
                     customer.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 18,
@@ -227,7 +284,7 @@ class _CustomerCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${customer.totalOrders} đơn / ${customer.totalSpent}',
+                    '${customer.totalOrders} don / ${_money(customer.totalSpent)}',
                     style: const TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
@@ -238,7 +295,7 @@ class _CustomerCard extends StatelessWidget {
                 ],
               ),
             ),
-            AdminStatusChip(label: customer.status, color: customer.color),
+            AdminStatusChip(label: customer.statusLabel, color: customer.statusColor),
           ],
         ),
       ),
@@ -260,49 +317,17 @@ class _CustomerDetailSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            AdminSectionTitle(eyebrow: 'Khách hàng', title: customer.name),
+            AdminSectionTitle(eyebrow: 'Khach hang', title: customer.name),
             const SizedBox(height: 16),
+            _InfoRow(label: 'User ID', value: customer.id),
             _InfoRow(label: 'Email', value: customer.email),
-            _InfoRow(label: 'Số điện thoại', value: customer.phone),
-            _InfoRow(label: 'Tổng đơn', value: '${customer.totalOrders}'),
-            _InfoRow(label: 'Tổng chi tiêu', value: customer.totalSpent),
-            _InfoRow(label: 'Đơn gần nhất', value: customer.lastOrder),
+            _InfoRow(label: 'So dien thoai', value: customer.phone),
+            _InfoRow(label: 'Role', value: customer.role),
+            _InfoRow(label: 'Membership', value: customer.membership),
+            _InfoRow(label: 'Tong don', value: '${customer.totalOrders}'),
+            _InfoRow(label: 'Tong chi tieu', value: _money(customer.totalSpent)),
+            _InfoRow(label: 'Lan mua gan nhat', value: customer.lastOrderLabel),
             const SizedBox(height: 18),
-            const AdminSectionTitle(eyebrow: 'Thao tác nhanh', title: 'Tài khoản'),
-            const SizedBox(height: 12),
-            _CustomerAction(
-              icon: Icons.receipt_long_rounded,
-              label: 'Xem lịch sử đơn hàng',
-              onTap: () => Navigator.pop(context),
-            ),
-            const SizedBox(height: 10),
-            _CustomerAction(
-              icon: Icons.workspace_premium_rounded,
-              label: 'Chuyển hạng Member / VIP',
-              onTap: () => Navigator.pop(context),
-            ),
-            const SizedBox(height: 10),
-            _CustomerAction(
-              icon: Icons.admin_panel_settings_rounded,
-              label: 'Đổi quyền truy cập',
-              onTap: () => Navigator.pop(context),
-            ),
-            const SizedBox(height: 10),
-            _CustomerAction(
-              icon: Icons.block_rounded,
-              label: customer.status == 'Đã khóa'
-                  ? 'Mở khóa khách hàng'
-                  : 'Khóa khách hàng',
-              color: AppColors.error,
-              onTap: () => Navigator.pop(context),
-            ),
-            const SizedBox(height: 18),
-            GlowButton(
-              label: 'LƯU KHÁCH HÀNG',
-              icon: Icons.save_rounded,
-              expanded: true,
-              onPressed: () => Navigator.pop(context),
-            ),
           ],
         ),
       ),
@@ -310,42 +335,41 @@ class _CustomerDetailSheet extends StatelessWidget {
   }
 }
 
-class _CustomerAction extends StatelessWidget {
-  const _CustomerAction({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.color = AppColors.neon,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  final Color color;
+class _CustomerLoadingCard extends StatelessWidget {
+  const _CustomerLoadingCard();
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: SectionCard(
-        color: AppColors.surface2,
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(icon, color: color),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
-          ],
-        ),
+    return const SectionCard(
+      color: AppColors.surface2,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          SizedBox(width: 14),
+          Text(
+            'Dang tai khach hang...',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CustomerEmptyCard extends StatelessWidget {
+  const _CustomerEmptyCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SectionCard(
+      color: AppColors.surface2,
+      child: Text(
+        'Chua co khach hang phu hop.',
+        style: TextStyle(color: AppColors.textSecondary),
       ),
     );
   }
@@ -366,11 +390,14 @@ class _InfoRow extends StatelessWidget {
           Expanded(
             child: Text(label, style: const TextStyle(color: AppColors.textMuted)),
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w900,
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
         ],
@@ -381,22 +408,83 @@ class _InfoRow extends StatelessWidget {
 
 class _AdminCustomer {
   const _AdminCustomer({
+    required this.id,
     required this.name,
     required this.email,
     required this.phone,
-    required this.status,
-    required this.color,
+    required this.role,
+    required this.membership,
     required this.totalOrders,
     required this.totalSpent,
     required this.lastOrder,
   });
 
+  final String id;
   final String name;
   final String email;
   final String phone;
-  final String status;
-  final Color color;
+  final String role;
+  final String membership;
   final int totalOrders;
-  final String totalSpent;
-  final String lastOrder;
+  final double totalSpent;
+  final DateTime? lastOrder;
+
+  bool get isAdmin => role == 'admin';
+  bool get isVip => membership == 'vip';
+
+  String get statusLabel {
+    if (isAdmin) return 'Admin';
+    if (isVip) return 'VIP';
+    return 'Member';
+  }
+
+  Color get statusColor {
+    if (isAdmin) return AppColors.warning;
+    if (isVip) return AppColors.neon;
+    return AppColors.textSecondary;
+  }
+
+  String get lastOrderLabel {
+    final value = lastOrder;
+    if (value == null) return 'Chua mua hang';
+    return '${value.day}/${value.month}/${value.year}';
+  }
+}
+
+UserModel _userFromData(Map<String, dynamic> data) {
+  return UserModel(
+    id: (data['id'] ?? '').toString(),
+    email: (data['email'] ?? '').toString(),
+    fullName: (data['fullName'] ?? data['name'] ?? '').toString(),
+    phoneNumber: data['phoneNumber']?.toString(),
+    avatarUrl: data['avatarUrl']?.toString(),
+    createdAt: _parseDate(data['createdAt']),
+    role: UserRole.values.firstWhere(
+      (role) => role.name == data['role'],
+      orElse: () => UserRole.user,
+    ),
+    membershipTier: MembershipTier.values.firstWhere(
+      (tier) => tier.name == data['membershipTier'],
+      orElse: () => MembershipTier.member,
+    ),
+  );
+}
+
+DateTime _parseDate(dynamic value) {
+  if (value is Timestamp) return value.toDate();
+  if (value is DateTime) return value;
+  return DateTime.tryParse((value ?? '').toString()) ?? DateTime.now();
+}
+
+String _money(double value) {
+  final raw = value.round().toString();
+  final buffer = StringBuffer();
+  for (var i = 0; i < raw.length; i++) {
+    final remaining = raw.length - i;
+    buffer.write(raw[i]);
+    if (remaining > 1 && remaining % 3 == 1) {
+      buffer.write('.');
+    }
+  }
+  return '${buffer}d';
 }

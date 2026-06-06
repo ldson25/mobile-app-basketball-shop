@@ -6,6 +6,7 @@ import '../../../services/cart_service.dart';
 import '../../../models/product_model.dart';
 import '../cart/mycart.dart';
 import '../../features/products/presentation/product_detail_screen.dart';
+import '../../../widgets/product_image.dart';
 
 class FavoritesScreen extends StatelessWidget {
   final VoidCallback onMenuTap;
@@ -248,17 +249,18 @@ class _FavoriteProductCard extends StatelessWidget {
             Expanded(
               child: Stack(
                 children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                      image: DecorationImage(
-                        image: AssetImage(product.imageAsset),
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    child: ColorFiltered(
+                      colorFilter: const ColorFilter.mode(
+                        Colors.black54,
+                        BlendMode.saturation,
+                      ),
+                      child: ProductImage(
+                        product: product,
+                        width: double.infinity,
+                        height: double.infinity,
                         fit: BoxFit.cover,
-                        colorFilter: const ColorFilter.mode(
-                          Colors.black54,
-                          BlendMode.saturation,
-                        ),
                       ),
                     ),
                   ),
