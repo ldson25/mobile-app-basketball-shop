@@ -7,6 +7,7 @@ import '../../homeuser/homeuser.dart';
 import '../../orderhistory/orderhistory.dart';
 import '../../menudrawer/menudrawer.dart';
 import '../../../services/auth_service.dart'; // import service thật
+import '../../chatbot/presentation/chat_screen.dart' as doanltdd_chat;
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -97,6 +98,17 @@ class _AppShellState extends State<AppShell> {
       key: _scaffoldKey,
       body: IndexedStack(index: currentIndex, children: screens),
       extendBody: true,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const doanltdd_chat.ChatbotBottomSheet(),
+          );
+        },
+        child: const Icon(Icons.chat),
+      ),
       bottomNavigationBar: KineticBottomNav(
         currentIndex: currentIndex,
         onTap: _onTabTapped,

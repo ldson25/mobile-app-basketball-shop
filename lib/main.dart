@@ -21,6 +21,7 @@ import 'services/shipping_address_service.dart';
 import 'services/shipping_rule_service.dart';
 import 'services/theme_service.dart';
 import 'services/voucher_service.dart';
+import 'services/chatbot_service.dart';
 import 'widgets/app_loading_overlay.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -52,6 +53,7 @@ class KineticApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ShippingRuleService()),
         ChangeNotifierProvider(create: (_) => ThemeService()),
         ChangeNotifierProvider(create: (_) => VoucherService()),
+        ChangeNotifierProvider(create: (_) => ChatbotService()),
       ],
       child: Consumer<ThemeService>(
         builder: (context, themeService, child) {
