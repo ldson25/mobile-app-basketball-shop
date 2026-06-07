@@ -89,6 +89,7 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context); // Force rebuild on theme change
     _screenCache[currentIndex] ??= _buildScreen(currentIndex);
     final screens = List<Widget>.generate(
       4,

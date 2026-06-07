@@ -27,7 +27,7 @@ class ShippingAddressesScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Quản lý địa chỉ nhận hàng để checkout nhanh hơn.',
                   style: TextStyle(
                     fontSize: 16,
@@ -120,12 +120,12 @@ class _ShippingAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back,
                   color: AppColors.textSecondary,
                 ),
               ),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'ĐỊA CHỈ GIAO HÀNG',
                   textAlign: TextAlign.center,
@@ -145,7 +145,7 @@ class _ShippingAppBar extends StatelessWidget implements PreferredSizeWidget {
                     MaterialPageRoute(builder: (context) => const CartScreen()),
                   );
                 },
-                icon: const Icon(
+                icon: Icon(
                   Icons.shopping_bag_outlined,
                   color: AppColors.textSecondary,
                 ),
@@ -174,7 +174,7 @@ class _EmptyAddressView extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border.withAlpha(51)),
       ),
-      child: const Column(
+      child: Column(
         children: [
           Icon(Icons.location_off_outlined, color: AppColors.neon, size: 42),
           SizedBox(height: 12),
@@ -242,7 +242,7 @@ class _AddressCard extends StatelessWidget {
                   address.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -259,7 +259,7 @@ class _AddressCard extends StatelessWidget {
                     color: AppColors.neon,
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  child: const Text(
+                  child: Text(
                     'MẶC ĐỊNH',
                     style: TextStyle(
                       color: AppColors.background,
@@ -273,7 +273,7 @@ class _AddressCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             address.fullName,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w800,
             ),
@@ -281,12 +281,12 @@ class _AddressCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             address.fullAddress,
-            style: const TextStyle(color: AppColors.textSecondary, height: 1.4),
+            style: TextStyle(color: AppColors.textSecondary, height: 1.4),
           ),
           const SizedBox(height: 8),
           Text(
             address.phone,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.neon,
               fontWeight: FontWeight.w800,
             ),
@@ -326,13 +326,13 @@ class _SmallActionButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
-    this.color = AppColors.neon,
+    this.color,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -341,7 +341,7 @@ class _SmallActionButton extends StatelessWidget {
       icon: Icon(icon, size: 16),
       label: Text(label),
       style: TextButton.styleFrom(
-        foregroundColor: color,
+        foregroundColor: color ?? AppColors.neon,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       ),
     );
@@ -410,7 +410,7 @@ class _AddressFormSheetState extends State<_AddressFormSheet> {
           children: [
             Text(
               widget.address == null ? 'THÊM ĐỊA CHỈ' : 'SỬA ĐỊA CHỈ',
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.neon,
                 fontSize: 20,
                 fontWeight: FontWeight.w900,
@@ -446,7 +446,7 @@ class _AddressFormSheetState extends State<_AddressFormSheet> {
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   'Đã chọn: $_selectedWard, $_selectedDistrict, $_selectedCity',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
@@ -457,7 +457,7 @@ class _AddressFormSheetState extends State<_AddressFormSheet> {
               contentPadding: EdgeInsets.zero,
               value: isDefault,
               activeThumbColor: AppColors.neon,
-              title: const Text(
+              title: Text(
                 'Đặt làm địa chỉ mặc định',
                 style: TextStyle(color: AppColors.textPrimary),
               ),
@@ -557,14 +557,14 @@ class _AddressInput extends StatelessWidget {
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
-        style: const TextStyle(color: AppColors.textPrimary),
+        style: TextStyle(color: AppColors.textPrimary),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: AppColors.textSecondary),
-          enabledBorder: const UnderlineInputBorder(
+          labelStyle: TextStyle(color: AppColors.textSecondary),
+          enabledBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: AppColors.border),
           ),
-          focusedBorder: const UnderlineInputBorder(
+          focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: AppColors.neon),
           ),
         ),

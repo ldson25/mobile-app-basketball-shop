@@ -60,6 +60,7 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context);
     return Consumer<OrderService>(
       builder: (context, orderService, child) {
         final filteredByStatus = _status == null
@@ -82,7 +83,7 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
           subtitle: 'Theo dõi, xác nhận và cập nhật trạng thái đơn',
           trailing: IconButton(
             onPressed: () => _showExportSheet(context),
-            icon: const Icon(Icons.download_rounded, color: AppColors.neon),
+            icon: Icon(Icons.download_rounded, color: AppColors.neon),
           ),
           children: [
             GlowButton(
@@ -112,7 +113,7 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
             const SizedBox(height: AppSizes.sectionGap),
             Text(
               '${orders.length} ĐƠN HÀNG',
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.neon,
                 fontSize: 11,
                 fontWeight: FontWeight.w900,
@@ -154,8 +155,8 @@ class _AdminOrderManagementPageState extends State<AdminOrderManagementPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const AdminSectionTitle(
-                eyebrow: 'Xuat du lieu',
-                title: 'CSV don hang',
+                eyebrow: 'Xuất dữ liệu',
+                title: 'CSV đơn hàng',
               ),
               const SizedBox(height: 16),
               const _ExportOption(label: 'Các đơn đang lọc'),
@@ -303,7 +304,7 @@ class _AdminOrderCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   order.orderNumber,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 26,
                     fontWeight: FontWeight.w900,
@@ -320,7 +321,7 @@ class _AdminOrderCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             '${order.customerName.isEmpty ? 'Khách hàng' : order.customerName} / ${order.totalQuantity} sản phẩm',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 15,
             ),
@@ -328,7 +329,7 @@ class _AdminOrderCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             order.phoneNumber,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 12),
           ),
           const SizedBox(height: 18),
           Row(
@@ -336,7 +337,7 @@ class _AdminOrderCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   _formatVnd(order.total),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.neon,
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
@@ -352,7 +353,7 @@ class _AdminOrderCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             order.formattedDate,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textMuted,
               fontWeight: FontWeight.w700,
               letterSpacing: 1,
@@ -387,7 +388,7 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         width: 44,
         height: 44,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.surfaceHighest,
           shape: BoxShape.circle,
         ),
@@ -453,7 +454,7 @@ class _OrderDetailSheet extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             GlowButton(
-              label: 'CậP NHậT TRẠNG THÁI',
+              label: 'CẬP NHẬT TRẠNG THÁI',
               icon: Icons.sync_rounded,
               expanded: true,
               onPressed: () {
@@ -491,13 +492,13 @@ class _LockedOrderStatusPage extends StatelessWidget {
         backgroundColor: AppColors.background.withOpacity(0.7),
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_rounded,
             color: AppColors.textPrimary,
           ),
         ),
-        title: const Text(
-          'TRANG THAI DON',
+        title: Text(
+          'TRẠNG THÁI ĐƠN',
           style: TextStyle(
             color: AppColors.neon,
             fontWeight: FontWeight.w900,
@@ -524,7 +525,7 @@ class _LockedOrderStatusPage extends StatelessWidget {
                 const SizedBox(height: 18),
                 Text(
                   isCancelled ? 'Đơn hàng đã hủy' : 'Đơn hàng đã trả hàng',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
@@ -533,14 +534,14 @@ class _LockedOrderStatusPage extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   '${order.orderNumber} đang ở trạng thái ${order.status.label}. Admin không thể cập nhật trạng thái đơn này nữa.',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     height: 1.45,
                   ),
                 ),
                 const SizedBox(height: 18),
                 GlowButton(
-                  label: 'QUÂY LẠI',
+                  label: 'QUAY LẠI',
                   icon: Icons.arrow_back_rounded,
                   expanded: true,
                   isPrimary: false,
@@ -571,7 +572,7 @@ class _StatusActionSheet extends StatelessWidget {
             color: AppColors.surface2,
             child: Text(
               '${order.orderNumber} đã ${order.status.label.toLowerCase()}, không thể cập nhật trạng thái.',
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: AppColors.textPrimary),
             ),
           ),
         ),
@@ -641,8 +642,8 @@ class _ReturnRequestsSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const AdminSectionTitle(
-              eyebrow: 'Yeu cau',
-              title: 'Huy / Tra hang',
+              eyebrow: 'Request',
+              title: 'Hủy / Trả hàng',
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -663,7 +664,7 @@ class _ReturnRequestsSheet extends StatelessWidget {
 
                   if (snapshot.connectionState == ConnectionState.waiting &&
                       requests.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: CircularProgressIndicator(color: AppColors.neon),
                     );
                   }
@@ -707,7 +708,7 @@ class _ReturnRequestCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   '${request.requestType.toUpperCase()} / ${request.orderId}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
                   ),
@@ -719,12 +720,12 @@ class _ReturnRequestCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Reason: ${request.reason}',
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
             'Items: ${request.itemIds.length} / Refund: ${_formatVnd(request.refundAmount)}',
-            style: const TextStyle(color: AppColors.textMuted),
+            style: TextStyle(color: AppColors.textMuted),
           ),
         ],
       ),
@@ -733,17 +734,17 @@ class _ReturnRequestCard extends StatelessWidget {
 }
 
 class _StatusAction extends StatelessWidget {
-  const _StatusAction({
+  _StatusAction({
     required this.label,
     required this.icon,
     required this.onTap,
-    this.color = AppColors.neon,
+    this.color,
   });
 
   final String label;
   final IconData icon;
   final VoidCallback onTap;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -754,18 +755,18 @@ class _StatusAction extends StatelessWidget {
         onTap: onTap,
         child: Row(
           children: [
-            Icon(icon, color: color),
+            Icon(icon, color: color ?? AppColors.neon),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w900,
                 ),
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+            Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
           ],
         ),
       ),
@@ -778,14 +779,14 @@ class _EmptyOrdersCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SectionCard(
+    return SectionCard(
       color: AppColors.surface2,
       child: Column(
         children: [
           Icon(Icons.receipt_long_outlined, color: AppColors.neon, size: 42),
           SizedBox(height: 12),
           Text(
-            'Chua co don hang',
+            'Chưa có đơn hàng',
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 18,
@@ -794,7 +795,7 @@ class _EmptyOrdersCard extends StatelessWidget {
           ),
           SizedBox(height: 6),
           Text(
-            'Don hang user checkout se hien tai day.',
+            'Đơn hàng user checkout sẽ hiện tại đây.',
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.textSecondary),
           ),
@@ -816,12 +817,12 @@ class _ExportOption extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          const Icon(Icons.table_chart_rounded, color: AppColors.neon),
+          Icon(Icons.table_chart_rounded, color: AppColors.neon),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w900,
               ),
@@ -849,7 +850,7 @@ class _DetailRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(color: AppColors.textMuted),
+              style: TextStyle(color: AppColors.textMuted),
             ),
           ),
           const SizedBox(width: 12),
@@ -857,7 +858,7 @@ class _DetailRow extends StatelessWidget {
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w900,
               ),
@@ -887,12 +888,12 @@ class _OrderItemPreview extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          const Icon(Icons.inventory_2_outlined, color: AppColors.neon),
+          Icon(Icons.inventory_2_outlined, color: AppColors.neon),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               name,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w900,
               ),
@@ -900,7 +901,7 @@ class _OrderItemPreview extends StatelessWidget {
           ),
           Text(
             'Size $size / x$qty',
-            style: const TextStyle(color: AppColors.textMuted),
+            style: TextStyle(color: AppColors.textMuted),
           ),
         ],
       ),

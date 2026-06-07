@@ -21,7 +21,7 @@ class LabelValue extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 10,
             fontWeight: FontWeight.w700,

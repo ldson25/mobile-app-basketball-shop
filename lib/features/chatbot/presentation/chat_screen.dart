@@ -1,7 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
 import '../../../services/chatbot_service.dart';
+import '../../../services/product_service.dart';
+import '../../products/presentation/product_detail_screen.dart';
+import '../../discover/results_discover_screen.dart' as doanltdd_discover;
+
+class _ProductLinkBuilder extends MarkdownElementBuilder {
+  final BuildContext context;
+
+  _ProductLinkBuilder(this.context);
+
+  @override
+  Widget? visitElementAfter(md.Element element, TextStyle? preferredStyle) {
+    final href = element.attributes['href'];
+    final textContent = element.textContent;
+
+    if (href != null && href.startsWith('product:')) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: ElevatedButton.icon(
+          onPressed: () {
+            final productId = href.substring(8);
+            final product = context.read<ProductService>().getProductById(productId);
+            
+            if (product != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProductDetailScreen(product: product),
+                ),
+              );
+            } else {
+              // Fallback to searching if ID not found (e.g. legacy chat history)
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => doanltdd_discover.ResultsDiscoverScreen(
+                    categoryName: 'all',
+                    itemCount: 0,
+                    searchKeyword: textContent,
+                    onRequireAuth: () async => false, // Default auth fallback
+                  ),
+                ),
+              );
+            }
+          },
+          icon: const Icon(Icons.shopping_bag_outlined, size: 18),
+          label: Text(
+            textContent,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).primaryColor,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return InkWell(
+      onTap: () {
+        // Fallback or external link handler if needed
+      },
+      child: Text(
+        textContent,
+        style: TextStyle(
+          color: Theme.of(context).primaryColor,
+          fontWeight: FontWeight.bold,
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    );
+  }
+}
 
 class ChatbotBottomSheet extends StatefulWidget {
   const ChatbotBottomSheet({super.key});
@@ -198,6 +275,24 @@ class _ChatbotBottomSheetState extends State<ChatbotBottomSheet> {
             : MarkdownBody(
                 data: message.text,
                 selectable: true,
+                onTapLink: (text, href, title) {
+                  // Fallback for onTapLink just in case
+                  if (href != null && href.startsWith('product:')) {
+                    final productId = href.substring(8);
+                    final product = context.read<ProductService>().getProductById(productId);
+                    if (product != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetailScreen(product: product),
+                        ),
+                      );
+                    }
+                  }
+                },
+                builders: {
+                  'a': _ProductLinkBuilder(context),
+                },
                 styleSheet: MarkdownStyleSheet(
                   p: TextStyle(
                     color: Theme.of(context).textTheme.bodyLarge?.color,

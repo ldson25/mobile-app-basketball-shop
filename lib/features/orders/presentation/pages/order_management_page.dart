@@ -34,7 +34,7 @@ class OrderManagementPage extends StatelessWidget {
                 ).textTheme.displayLarge?.copyWith(fontSize: 34),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'ELITE OPERATIONAL OVERVIEW — Q4 PHASE',
                 style: TextStyle(
                   color: AppColors.textSecondary,
@@ -64,7 +64,7 @@ class OrderManagementPage extends StatelessWidget {
                 suffix: Icons.calendar_today_outlined,
               ),
               const SizedBox(height: 14),
-              const SectionCard(
+              SectionCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -90,7 +90,7 @@ class OrderManagementPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSizes.sectionGap),
-              const OrderItemCard(
+              OrderItemCard(
                 orderId: '#ORD-8821',
                 customer: 'Marcus V.',
                 itemCount: '2 Items',
@@ -100,7 +100,7 @@ class OrderManagementPage extends StatelessWidget {
                 statusColor: AppColors.warning,
               ),
               const SizedBox(height: 16),
-              const OrderItemCard(
+              OrderItemCard(
                 orderId: '#ORD-8790',
                 customer: 'Elena S.',
                 itemCount: '1 Item',
@@ -110,7 +110,7 @@ class OrderManagementPage extends StatelessWidget {
                 statusColor: AppColors.neon,
               ),
               const SizedBox(height: 16),
-              const OrderItemCard(
+              OrderItemCard(
                 orderId: '#ORD-8742',
                 customer: 'Jordan K.',
                 itemCount: '3 Items',
@@ -120,7 +120,7 @@ class OrderManagementPage extends StatelessWidget {
                 statusColor: AppColors.textSecondary,
               ),
               const SizedBox(height: 16),
-              const OrderItemCard(
+              OrderItemCard(
                 orderId: '#ORD-8711',
                 customer: 'Liam W.',
                 itemCount: '1 Item',
@@ -149,9 +149,9 @@ class _TopBar extends StatelessWidget {
       children: [
         IconButton(
           onPressed: () {},
-          icon: const Icon(Icons.menu_rounded, color: AppColors.neon),
+          icon: Icon(Icons.menu_rounded, color: AppColors.neon),
         ),
-        const Text(
+        Text(
           'KINETIC',
           style: TextStyle(
             color: AppColors.neon,
@@ -163,7 +163,7 @@ class _TopBar extends StatelessWidget {
         const Spacer(),
         IconButton(
           onPressed: () {},
-          icon: const Icon(Icons.shopping_bag_outlined, color: AppColors.neon),
+          icon: Icon(Icons.shopping_bag_outlined, color: AppColors.neon),
         ),
       ],
     );
@@ -185,7 +185,7 @@ class _FilterField extends StatelessWidget {
         children: [
           Text(
             label.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 10,
               fontWeight: FontWeight.w700,
@@ -198,7 +198,7 @@ class _FilterField extends StatelessWidget {
               Expanded(
                 child: Text(
                   hint,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -229,7 +229,7 @@ class _DropdownField extends StatelessWidget {
         children: [
           Text(
             label.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 10,
               fontWeight: FontWeight.w700,
@@ -242,14 +242,14 @@ class _DropdownField extends StatelessWidget {
               Expanded(
                 child: Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.keyboard_arrow_down_rounded,
                 color: AppColors.textMuted,
               ),
@@ -288,7 +288,7 @@ class _Pagination extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text('Prev', style: TextStyle(color: AppColors.textMuted)),
+        Text('Prev', style: TextStyle(color: AppColors.textMuted)),
         const SizedBox(width: 14),
         item('1', active: true),
         const SizedBox(width: 8),
@@ -296,7 +296,7 @@ class _Pagination extends StatelessWidget {
         const SizedBox(width: 8),
         item('3'),
         const SizedBox(width: 14),
-        const Text('Next', style: TextStyle(color: AppColors.textPrimary)),
+        Text('Next', style: TextStyle(color: AppColors.textPrimary)),
       ],
     );
   }

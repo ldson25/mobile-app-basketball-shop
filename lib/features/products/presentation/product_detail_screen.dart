@@ -116,10 +116,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       backgroundColor: AppColors.background.withOpacity(0.7),
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+        icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const Text(
+      title: Text(
         'CHI TIẾT',
         style: TextStyle(
           fontFamily: 'Space Grotesk',
@@ -137,7 +137,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             return Stack(
               children: [
                 IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.shopping_bag_outlined,
                     color: AppColors.textPrimary,
                   ),
@@ -157,14 +157,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     child: Container(
                       width: 16,
                       height: 16,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.neon,
                         shape: BoxShape.circle,
                       ),
                       child: Center(
                         child: Text(
                           '${cartService.itemCount}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 8,
                             fontWeight: FontWeight.w700,
                             color: AppColors.background,
@@ -234,7 +234,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       children: [
         Text(
           widget.product.name.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'Space Grotesk',
             fontSize: 40,
             fontWeight: FontWeight.w900,
@@ -247,7 +247,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         const SizedBox(height: 8),
         Text(
           widget.product.price,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'Space Grotesk',
             fontSize: 28,
             fontWeight: FontWeight.w700,
@@ -266,7 +266,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       children: [
         Text(
           widget.product.optionLabel.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.2,
@@ -346,7 +346,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         const SizedBox(height: 10),
         Text(
           'Còn $_selectedStock sản phẩm cho ${widget.product.optionLabel.toLowerCase()} $_selectedOption',
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -360,7 +360,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'SỐ LƯỢNG',
           style: TextStyle(
             fontSize: 12,
@@ -391,7 +391,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
               Text(
                 '$_quantity',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
@@ -449,7 +449,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1,
@@ -462,7 +462,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Space Grotesk',
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -628,7 +628,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               setState(() => _isDescriptionExpanded = !_isDescriptionExpanded),
         ),
         if (_isDescriptionExpanded)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 16, bottom: 8),
             child: Text(
               'Thiết kế cho lối chơi tốc độ và bứt phá. Sản phẩm tập trung vào độ thoải mái, độ bền và cảm giác kiểm soát khi vận động.',
@@ -646,7 +646,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               setState(() => _isShippingExpanded = !_isShippingExpanded),
         ),
         if (_isShippingExpanded)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 16, bottom: 8),
             child: Text(
               'Hỗ trợ giao hàng toàn quốc. Sản phẩm chưa qua sử dụng được hỗ trợ đổi trả trong 30 ngày theo chính sách cửa hàng.',
@@ -665,7 +665,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget _buildReviewsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         Text(
           'ĐÁNH GIÁ',
           style: TextStyle(
@@ -715,9 +715,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           children: [
             Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'DANH GIA',
+                    'ĐÁNH GIÁ',
                     style: TextStyle(
                       fontFamily: 'Space Grotesk',
                       fontSize: 18,
@@ -803,7 +803,7 @@ class _ExpandableRow extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(color: AppColors.border, width: 0.5),
           ),
@@ -813,7 +813,7 @@ class _ExpandableRow extends StatelessWidget {
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Space Grotesk',
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -846,7 +846,7 @@ class _ReviewSummary extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Text(
+          Text(
             '4.8',
             style: TextStyle(
               color: AppColors.neon,
@@ -854,11 +854,11 @@ class _ReviewSummary extends StatelessWidget {
               fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 _Stars(rating: 5),
                 SizedBox(height: 6),
                 Text(
@@ -885,15 +885,15 @@ class _FirestoreReviewSummary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface2,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withOpacity(0.25)),
+        border: Border.all(color: AppColors.border.withOpacity(0.5)),
       ),
       child: Row(
         children: [
           Text(
             count == 0 ? '0.0' : average.toStringAsFixed(1),
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.neon,
               fontSize: 38,
               fontWeight: FontWeight.w900,
@@ -908,7 +908,7 @@ class _FirestoreReviewSummary extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   count == 0 ? 'Chưa có đánh giá' : 'Dựa trên $count đánh giá',
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -950,7 +950,7 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'VIẾT ĐÁNH GIÁ',
               style: TextStyle(
                 color: AppColors.textPrimary,
@@ -979,10 +979,10 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
               controller: _commentController,
               minLines: 3,
               maxLines: 5,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: AppColors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Nhập cảm nhận về sản phẩm...',
-                hintStyle: const TextStyle(color: AppColors.textMuted),
+                hintStyle: TextStyle(color: AppColors.textMuted),
                 filled: true,
                 fillColor: AppColors.surface2,
                 border: OutlineInputBorder(
@@ -999,7 +999,7 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.neon),
+                  borderSide: BorderSide(color: AppColors.neon),
                 ),
               ),
             ),
@@ -1070,12 +1070,13 @@ class _ReviewMessageCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface2,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border.withOpacity(0.5)),
       ),
       child: Text(
         message,
-        style: const TextStyle(color: AppColors.textSecondary),
+        style: TextStyle(color: AppColors.textSecondary),
       ),
     );
   }
@@ -1097,8 +1098,9 @@ class _ReviewTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface2,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border.withOpacity(0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1108,7 +1110,7 @@ class _ReviewTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w900,
@@ -1121,7 +1123,7 @@ class _ReviewTile extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             comment,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               height: 1.45,
             ),

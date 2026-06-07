@@ -25,7 +25,7 @@ class PaymentMethodsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'PHUONG THUC THANH TOAN',
               style: TextStyle(
                 fontFamily: 'Space Grotesk',
@@ -36,7 +36,7 @@ class PaymentMethodsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Hien tai app uu tien COD. Vi dien tu va the ngan hang se lam sau.',
               style: TextStyle(color: AppColors.textSecondary, height: 1.5),
             ),
@@ -62,7 +62,7 @@ class PaymentMethodsScreen extends StatelessWidget {
                           icon: Icons.payments_rounded,
                           title: 'Thanh toan khi nhan hang',
                           subtitle: 'Tao va dat COD lam mac dinh',
-                          trailing: const Icon(
+                          trailing: Icon(
                             Icons.add_circle_outline_rounded,
                             color: AppColors.neon,
                           ),
@@ -116,9 +116,9 @@ class _PaymentAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       leading: IconButton(
         onPressed: () => Navigator.of(context).pop(),
-        icon: const Icon(Icons.arrow_back, color: AppColors.textSecondary),
+        icon: Icon(Icons.arrow_back, color: AppColors.textSecondary),
       ),
-      title: const Text(
+      title: Text(
         'THANH TOAN',
         style: TextStyle(
           fontFamily: 'Space Grotesk',
@@ -137,7 +137,7 @@ class _PaymentAppBar extends StatelessWidget implements PreferredSizeWidget {
               MaterialPageRoute(builder: (context) => const CartScreen()),
             );
           },
-          icon: const Icon(
+          icon: Icon(
             Icons.shopping_bag_outlined,
             color: AppColors.textSecondary,
           ),
@@ -168,7 +168,7 @@ class _SavedPaymentMethodCard extends StatelessWidget {
           ? 'Đang là mặc định'
           : 'Nhấn để đặt làm mặc định',
       trailing: method.isDefault
-          ? const Icon(Icons.check_circle_rounded, color: AppColors.neon)
+          ? Icon(Icons.check_circle_rounded, color: AppColors.neon)
           : const Icon(Icons.radio_button_unchecked_rounded),
       onTap: method.isDefault ? null : onSetDefault,
     );
@@ -192,7 +192,7 @@ class _ComingSoonPaymentCard extends StatelessWidget {
       icon: icon,
       title: title,
       subtitle: subtitle,
-      trailing: const Text(
+      trailing: Text(
         'SOON',
         style: TextStyle(
           color: AppColors.textMuted,
@@ -264,7 +264,7 @@ class _PaymentActionCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(color: AppColors.textMuted),
+                    style: TextStyle(color: AppColors.textMuted),
                   ),
                 ],
               ),

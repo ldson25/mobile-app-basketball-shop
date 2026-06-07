@@ -48,7 +48,7 @@ class OrderDetailScreen extends StatelessWidget {
           final order = orderService.getOrderById(orderId);
 
           if (order == null) {
-            return const Center(
+            return Center(
               child: Text(
                 'Không tìm thấy đơn hàng',
                 style: TextStyle(color: AppColors.textSecondary),
@@ -91,10 +91,10 @@ class _OrderDetailAppBar extends StatelessWidget
       backgroundColor: AppColors.background.withOpacity(0.7),
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+        icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const Text(
+      title: Text(
         'CHI TIET DON',
         style: TextStyle(
           fontFamily: 'Space Grotesk',
@@ -107,7 +107,7 @@ class _OrderDetailAppBar extends StatelessWidget
       centerTitle: true,
       actions: [
         IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.shopping_bag_outlined,
             color: AppColors.textPrimary,
           ),
@@ -200,7 +200,7 @@ class _OrderStatusCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       statusMessage,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
                       ),
@@ -215,7 +215,7 @@ class _OrderStatusCard extends StatelessWidget {
             LinearProgressIndicator(
               value: progressValue,
               backgroundColor: AppColors.border,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.neon),
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.neon),
               borderRadius: BorderRadius.circular(10),
             ),
             const SizedBox(height: 10),
@@ -304,7 +304,7 @@ class _ProductsList extends StatelessWidget {
               const Expanded(child: _SectionTitle('SẢN PHẨM TRONG ĐƠN')),
               Text(
                 '${order.totalQuantity} sản phẩm',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12,
                 ),
@@ -345,7 +345,7 @@ class _OrderItemCard extends StatelessWidget {
               width: 74,
               height: 74,
               color: AppColors.surface3,
-              child: const Icon(
+              child: Icon(
                 Icons.image_not_supported,
                 color: AppColors.textSecondary,
               ),
@@ -361,7 +361,7 @@ class _OrderItemCard extends StatelessWidget {
                 item.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
@@ -370,7 +370,7 @@ class _OrderItemCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 'Size: ${item.size} / SL: ${item.quantity}',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12,
                 ),
@@ -378,7 +378,7 @@ class _OrderItemCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 formatVnd(item.price * item.quantity),
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.neon,
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
@@ -418,7 +418,7 @@ class _PaymentSummary extends StatelessWidget {
                   : 'Voucher ${order.voucherCode}',
               value: '-${formatVnd(order.discount)}',
             ),
-          const Divider(color: AppColors.border, height: 24),
+          Divider(color: AppColors.border, height: 24),
           _InfoRow(
             label: 'Tổng cộng',
             value: formatVnd(order.total),
@@ -456,13 +456,13 @@ class _ActionButtons extends StatelessWidget {
                 );
               },
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.error),
+                side: BorderSide(color: AppColors.error),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(999),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text(
+              child: Text(
                 'HUY DON',
                 style: TextStyle(
                   color: AppColors.error,
@@ -485,13 +485,13 @@ class _ActionButtons extends StatelessWidget {
                 );
               },
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.neon),
+                side: BorderSide(color: AppColors.neon),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(999),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text(
+              child: Text(
                 'YEU CAU TRA HANG',
                 style: TextStyle(
                   color: AppColors.neon,
@@ -556,7 +556,7 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         color: AppColors.textSecondary,
         fontSize: 12,
         fontWeight: FontWeight.w900,
@@ -628,7 +628,7 @@ class _ProgressLabel extends StatelessWidget {
         textAlign: TextAlign.center,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: const TextStyle(color: AppColors.textSecondary, fontSize: 10),
+        style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
       ),
     );
   }

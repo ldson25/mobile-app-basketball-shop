@@ -21,12 +21,12 @@ class KineticBottomNav extends StatelessWidget {
     ];
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF121212),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        boxShadow: [
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black54,
+            color: Colors.black12,
             blurRadius: 24,
             offset: Offset(0, -6),
           ),
@@ -70,7 +70,7 @@ class KineticBottomNav extends StatelessWidget {
                         duration: const Duration(milliseconds: 180),
                         width: selected ? 6 : 0,
                         height: selected ? 6 : 0,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: AppColors.neon,
                           shape: BoxShape.circle,
                         ),

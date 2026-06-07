@@ -16,6 +16,7 @@ class AdminShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Theme.of(context);
     final currentIndex = ref.watch(adminTabIndexProvider);
 
     const pages = <Widget>[

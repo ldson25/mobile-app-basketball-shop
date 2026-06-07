@@ -154,10 +154,10 @@ class _CancelAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: AppColors.background.withOpacity(0.7),
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+        icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const Text(
+      title: Text(
         'HỦY ĐƠN HÀNG',
         style: TextStyle(
           fontFamily: 'Space Grotesk',
@@ -191,7 +191,7 @@ class _OrderIdentity extends StatelessWidget {
             color: AppColors.neon.withOpacity(0.2),
             borderRadius: BorderRadius.circular(999),
           ),
-          child: const Text(
+          child: Text(
             'CẦN XÁC NHẬN',
             style: TextStyle(
               fontSize: 10,
@@ -204,7 +204,7 @@ class _OrderIdentity extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           'ĐƠN ${order.orderNumber}',
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'Space Grotesk',
             fontSize: 34,
             fontWeight: FontWeight.w900,
@@ -219,11 +219,11 @@ class _OrderIdentity extends StatelessWidget {
           children: [
             Text(
               order.formattedDate,
-              style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
             ),
             Text(
               '${order.totalQuantity} sản phẩm',
-              style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -292,7 +292,7 @@ class _CancelItemCard extends StatelessWidget {
             value: isSelected,
             onChanged: (value) => onToggle(value ?? false),
             activeColor: AppColors.neon,
-            side: const BorderSide(color: AppColors.border),
+            side: BorderSide(color: AppColors.border),
           ),
           const SizedBox(width: 6),
           ClipRRect(
@@ -308,7 +308,7 @@ class _CancelItemCard extends StatelessWidget {
                   item.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 14,
                     color: AppColors.textPrimary,
@@ -317,7 +317,7 @@ class _CancelItemCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Size: ${item.size} / SL: ${item.quantity}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -325,7 +325,7 @@ class _CancelItemCard extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             formatVnd(item.price * item.quantity),
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w900,
               fontSize: 14,
               color: AppColors.textPrimary,
@@ -369,9 +369,9 @@ class _ReasonSection extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.neon.withOpacity(0.15),
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  border: const Border(bottom: BorderSide(color: AppColors.border)),
+                  border: Border(bottom: BorderSide(color: AppColors.border)),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(Icons.warning_amber_rounded, color: AppColors.neon, size: 20),
                     SizedBox(width: 10),
@@ -424,15 +424,15 @@ class _ReasonSection extends StatelessWidget {
                         child: TextField(
                           controller: otherController,
                           maxLines: 3,
-                          style: const TextStyle(color: AppColors.textPrimary),
+                          style: TextStyle(color: AppColors.textPrimary),
                           decoration: InputDecoration(
                             hintText: 'Nhập lý do hủy đơn',
-                            hintStyle: const TextStyle(color: AppColors.textMuted),
+                            hintStyle: TextStyle(color: AppColors.textMuted),
                             filled: true,
                             fillColor: AppColors.surface,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.border),
+                              borderSide: BorderSide(color: AppColors.border),
                             ),
                           ),
                         ),
@@ -492,17 +492,17 @@ class _RefundNotice extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface2,
         borderRadius: BorderRadius.circular(16),
-        border: const Border(left: BorderSide(color: AppColors.neon, width: 3)),
+        border: Border(left: BorderSide(color: AppColors.neon, width: 3)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.info_outline, color: AppColors.neon),
+          Icon(Icons.info_outline, color: AppColors.neon),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'THÔNG TIN HOÀN TIỀN',
                   style: TextStyle(
                     fontSize: 12,
@@ -511,14 +511,14 @@ class _RefundNotice extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   'Nếu đơn chưa giao, hệ thống sẽ loại đơn này khỏi doanh thu báo cáo.',
                   style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Số tiền dự kiến: ${formatVnd(amount)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w900,
                     color: AppColors.neon,
                     fontSize: 14,
@@ -574,11 +574,11 @@ class _ActionButtons extends StatelessWidget {
           child: OutlinedButton(
             onPressed: () => Navigator.pop(context),
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: AppColors.border),
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
             ),
-            child: const Text(
+            child: Text(
               'GIỮ LẠI ĐƠN',
               style: TextStyle(
                 color: AppColors.textPrimary,
@@ -601,7 +601,7 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w900,
         letterSpacing: 1.2,
@@ -655,7 +655,7 @@ class _ImageFallback extends StatelessWidget {
       width: width,
       height: height,
       color: AppColors.surface,
-      child: const Icon(
+      child: Icon(
         Icons.image_not_supported,
         color: AppColors.textSecondary,
       ),

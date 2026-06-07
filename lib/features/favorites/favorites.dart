@@ -83,7 +83,7 @@ class _EmptyFavoritesView extends StatelessWidget {
             color: AppColors.textSecondary,
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'CHƯA CÓ SẢN PHẨM YÊU THÍCH',
             style: TextStyle(
               fontFamily: 'Space Grotesk',
@@ -94,7 +94,7 @@ class _EmptyFavoritesView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Lưu những sản phẩm bạn thích tại đây',
             style: TextStyle(
               color: AppColors.textSecondary,
@@ -144,9 +144,9 @@ class _FavoritesAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary), 
+                icon: Icon(Icons.arrow_back, color: AppColors.textPrimary), 
               ),
-              const Text(
+              Text(
                 'YÊU THÍCH',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
@@ -314,7 +314,7 @@ class _FavoriteProductCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         product.price,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'Space Grotesk',
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -343,7 +343,7 @@ class _FavoriteProductCard extends StatelessWidget {
                         color: AppColors.neon,
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
                           'THÊM VÀO GIỎ',
                           style: TextStyle(

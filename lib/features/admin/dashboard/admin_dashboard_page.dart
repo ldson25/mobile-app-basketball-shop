@@ -29,6 +29,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context);
     final orderService = context.watch<OrderService>();
     final productService = context.watch<ProductService>();
     final orders = orderService.orders;
@@ -89,7 +90,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         const AdminSectionTitle(eyebrow: 'Vận Hành', title: 'Việc cần xử lý'),
         const SizedBox(height: 14),
         _ActionQueueCard(
-          title: 'ác nhận đơn chờ xử lý',
+          title: 'Xác nhận đơn chờ xử lý',
           detail: '$pendingOrders đơn hàng đang chờ admin xác nhận',
           icon: Icons.task_alt_rounded,
           color: pendingOrders == 0
@@ -126,7 +127,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         ? (order.userId ?? 'user')
                         : order.customerName,
                     action:
-                        'da tao don ${order.orderNumber} - ${order.status.label}',
+                        'Đã tạo đơn ${order.orderNumber} - ${order.status.label}',
                     time: order.formattedDate,
                   ),
                 ),
@@ -164,7 +165,7 @@ class _NewCustomersMetric extends StatelessWidget {
           label: 'Khách hàng mới',
           value: '$newToday',
           icon: Icons.groups_rounded,
-          delta: '${users.length} tong tai khoan',
+          delta: '${users.length} tổng tài khoản',
         );
       },
     );
@@ -198,7 +199,7 @@ class _ActionQueueCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
                     fontSize: 16,
@@ -207,12 +208,12 @@ class _ActionQueueCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   detail,
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+          Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
         ],
       ),
     );
@@ -237,7 +238,7 @@ class _ActivityLogTile extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             backgroundColor: AppColors.neon,
             foregroundColor: AppColors.background,
             child: Icon(Icons.receipt_long_rounded, size: 18),
@@ -249,7 +250,7 @@ class _ActivityLogTile extends StatelessWidget {
               children: [
                 Text(
                   actor,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w900,
                   ),
@@ -257,14 +258,14 @@ class _ActivityLogTile extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   action,
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
               ],
             ),
           ),
           Text(
             time,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 11),
           ),
         ],
       ),
@@ -277,10 +278,10 @@ class _EmptyActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SectionCard(
+    return SectionCard(
       color: AppColors.surface2,
       child: Text(
-        'Chua co don hang nao.',
+        'Chưa có đơn hàng nào.',
         style: TextStyle(color: AppColors.textSecondary),
       ),
     );
@@ -295,5 +296,5 @@ String _formatVnd(double value) {
     buffer.write(number[i]);
     if (fromEnd > 1 && fromEnd % 3 == 1) buffer.write('.');
   }
-  return '${buffer}d';
+  return '${buffer}đ';
 }

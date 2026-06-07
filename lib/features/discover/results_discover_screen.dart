@@ -128,13 +128,13 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
         backgroundColor: AppColors.background.withOpacity(0.7),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textSecondary),
+          icon: Icon(Icons.arrow_back, color: AppColors.textSecondary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           _title.toUpperCase(),
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w900,
             fontStyle: FontStyle.italic,
@@ -153,7 +153,7 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
               children: [
                 Text(
                   'TÌM THẤY ${products.length} SẢN PHẨM',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1.4,
@@ -173,7 +173,7 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
           ),
           Expanded(
             child: products.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(
                       'Không tìm thấy sản phẩm',
                       style: TextStyle(color: AppColors.textSecondary),
@@ -299,7 +299,7 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
                 const SizedBox(height: 20),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
@@ -323,7 +323,7 @@ class _ResultsDiscoverScreenState extends State<ResultsDiscoverScreen> {
                       ),
                     ),
                     trailing: selected
-                        ? const Icon(Icons.check, color: AppColors.neon)
+                        ? Icon(Icons.check, color: AppColors.neon)
                         : null,
                     onTap: () {
                       onSelected(entry.key);
@@ -373,7 +373,7 @@ class _ToolbarButton extends StatelessWidget {
               child: Text(
                 label.toUpperCase(),
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.8,

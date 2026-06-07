@@ -8,7 +8,7 @@ class AppTheme {
 
     return base.copyWith(
       scaffoldBackgroundColor: const Color(0xFFF7F7F3),
-      colorScheme: const ColorScheme.light(
+      colorScheme: ColorScheme.light(
         primary: AppColors.neon,
         secondary: Color(0xFF2F5A00),
         surface: Colors.white,
@@ -42,7 +42,7 @@ class AppTheme {
         centerTitle: true,
         foregroundColor: Color(0xFF111111),
       ),
-      inputDecorationTheme: const InputDecorationTheme(
+      inputDecorationTheme: InputDecorationTheme(
         hintStyle: TextStyle(color: Color(0xFF777777)),
         labelStyle: TextStyle(color: Color(0xFF555555)),
         filled: true,
@@ -71,34 +71,34 @@ class AppTheme {
 
     return base.copyWith(
       scaffoldBackgroundColor: AppColors.background,
-      colorScheme: const ColorScheme.dark(
+      colorScheme: ColorScheme.dark(
         primary: AppColors.neon,
         secondary: AppColors.neonSoft,
         surface: AppColors.surface,
         error: AppColors.error,
       ),
       textTheme: base.textTheme.copyWith(
-        displayLarge: const TextStyle(
+        displayLarge: TextStyle(
           color: AppColors.textPrimary,
           fontWeight: FontWeight.w900,
           letterSpacing: -1.4,
           height: 0.95,
         ),
-        headlineLarge: const TextStyle(
+        headlineLarge: TextStyle(
           color: AppColors.textPrimary,
           fontWeight: FontWeight.w900,
           letterSpacing: -1.0,
         ),
-        titleLarge: const TextStyle(
+        titleLarge: TextStyle(
           color: AppColors.textPrimary,
           fontWeight: FontWeight.w800,
         ),
-        bodyLarge: const TextStyle(color: AppColors.textPrimary, height: 1.35),
-        bodyMedium: const TextStyle(
+        bodyLarge: TextStyle(color: AppColors.textPrimary, height: 1.35),
+        bodyMedium: TextStyle(
           color: AppColors.textSecondary,
           height: 1.35,
         ),
-        labelLarge: const TextStyle(
+        labelLarge: TextStyle(
           color: AppColors.textPrimary,
           fontWeight: FontWeight.w700,
         ),
@@ -109,7 +109,7 @@ class AppTheme {
         scrolledUnderElevation: 0,
         centerTitle: true,
       ),
-      inputDecorationTheme: const InputDecorationTheme(
+      inputDecorationTheme: InputDecorationTheme(
         hintStyle: TextStyle(color: AppColors.textMuted),
         labelStyle: TextStyle(color: AppColors.textSecondary),
         filled: true,

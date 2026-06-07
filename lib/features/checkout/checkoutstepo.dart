@@ -113,7 +113,7 @@ class _CheckoutShippingScreenState extends State<CheckoutShippingScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.location_on,
                           color: AppColors.neon,
                           size: 24,
@@ -234,7 +234,7 @@ class _CheckoutAppBar extends StatelessWidget implements PreferredSizeWidget {
                 constraints: const BoxConstraints(),
               ),
               const SizedBox(width: 40),
-              const Expanded(
+              Expanded(
                 child: Center(
                   child: Text(
                     'Thanh toán',
@@ -394,7 +394,7 @@ class _SavedAddressSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
             Icon(Icons.location_on_rounded, color: AppColors.neon, size: 24),
             SizedBox(width: 12),
@@ -447,7 +447,7 @@ class _SavedAddressSection extends StatelessWidget {
                         children: [
                           Text(
                             address.label,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textPrimary,
                               fontWeight: FontWeight.w900,
                             ),
@@ -455,7 +455,7 @@ class _SavedAddressSection extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             address.fullAddress,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textSecondary,
                               height: 1.35,
                             ),
@@ -463,7 +463,7 @@ class _SavedAddressSection extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             '${address.fullName} / ${address.phone}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.neon,
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
@@ -508,7 +508,7 @@ class _SelectedAddressPreview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Địa chỉ đang sử dụng',
             style: TextStyle(
               color: AppColors.neon,
@@ -520,7 +520,7 @@ class _SelectedAddressPreview extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             address!.fullName,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w900,
             ),
@@ -528,12 +528,12 @@ class _SelectedAddressPreview extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             address!.fullAddress,
-            style: const TextStyle(color: AppColors.textSecondary, height: 1.4),
+            style: TextStyle(color: AppColors.textSecondary, height: 1.4),
           ),
           const SizedBox(height: 6),
           Text(
             address!.phone,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.neon,
               fontWeight: FontWeight.w800,
             ),
@@ -560,7 +560,7 @@ class _PersonalInfoSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.person, color: AppColors.neon, size: 24),
+            Icon(Icons.person, color: AppColors.neon, size: 24),
             const SizedBox(width: 12),
             const Text(
               'Thông tin người nhận',
@@ -591,7 +591,7 @@ class _PersonalInfoSection extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'QUỐC GIA *',
               style: TextStyle(
                 fontSize: 12,
@@ -624,7 +624,7 @@ class _PersonalInfoSection extends StatelessWidget {
                         )
                         .toList(),
                     onChanged: (value) {},
-                    icon: const Icon(Icons.expand_more, color: AppColors.neon),
+                    icon: Icon(Icons.expand_more, color: AppColors.neon),
                   ),
                 ),
               ),
@@ -656,7 +656,7 @@ class _InputField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.5,
@@ -670,20 +670,20 @@ class _InputField extends StatelessWidget {
           style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: AppColors.border),
+            hintStyle: TextStyle(color: AppColors.border),
             filled: true,
             fillColor: AppColors.surface2,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: AppColors.border),
+              borderSide: BorderSide(color: AppColors.border),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: AppColors.border),
+              borderSide: BorderSide(color: AppColors.border),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: AppColors.neon, width: 1),
+              borderSide: BorderSide(color: AppColors.neon, width: 1),
             ),
             contentPadding: const EdgeInsets.all(16),
           ),
@@ -720,7 +720,7 @@ class _ShippingMethodSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.local_shipping, color: AppColors.neon, size: 24),
+            Icon(Icons.local_shipping, color: AppColors.neon, size: 24),
             const SizedBox(width: 12),
             const Text(
               'Phương thức giao hàng',
@@ -808,7 +808,7 @@ class _ShippingOption extends StatelessWidget {
                           child: Container(
                             width: 10,
                             height: 10,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: AppColors.neon,
                             ),
@@ -833,7 +833,7 @@ class _ShippingOption extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondary,
                       ),
@@ -878,14 +878,14 @@ class _BillingCheckbox extends StatelessWidget {
               if (states.contains(WidgetState.selected)) return AppColors.neon;
               return Colors.transparent;
             }),
-            side: const BorderSide(color: AppColors.border),
+            side: BorderSide(color: AppColors.border),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(4),
             ),
           ),
         ),
         const SizedBox(width: 12),
-        const Text(
+        Text(
           'Địa chỉ thanh toán giống địa chỉ giao hàng.',
           style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
         ),

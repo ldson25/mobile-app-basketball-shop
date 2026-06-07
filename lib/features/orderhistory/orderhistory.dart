@@ -32,6 +32,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context); // Force rebuild on theme change
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: _CustomAppBar(onMenuTap: widget.onMenuTap),
@@ -93,7 +94,7 @@ class _EmptyOrderView extends StatelessWidget {
             color: AppColors.textSecondary,
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'CHƯA CÓ ĐƠN HÀNG',
             style: TextStyle(
               fontFamily: 'Space Grotesk',
@@ -104,7 +105,7 @@ class _EmptyOrderView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Lịch sử đơn hàng của bạn sẽ hiển thị tại đây',
             style: TextStyle(color: AppColors.textSecondary),
           ),
@@ -137,9 +138,9 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               IconButton(
                 onPressed: onMenuTap,
-                icon: const Icon(Icons.menu, color: AppColors.textPrimary),
+                icon: Icon(Icons.menu, color: AppColors.textPrimary),
               ),
-              const Text(
+              Text(
                 'LỊCH SỬ ĐƠN',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
@@ -157,9 +158,9 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     MaterialPageRoute(builder: (context) => const CartScreen()),
                   );
                 },
-                icon: const Icon(
+                icon: Icon(
                   Icons.shopping_bag_outlined,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -227,7 +228,7 @@ class _FilterTabs extends StatelessWidget {
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       fontStyle: FontStyle.italic,
-                      color: isSelected ? AppColors.background : Colors.white,
+                      color: isSelected ? AppColors.background : AppColors.textPrimary,
                     ),
                   ),
                 ),
@@ -272,18 +273,18 @@ class _OrderCard extends StatelessWidget {
                 children: [
                   Text(
                     'Đơn ${order.orderNumber}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Space Grotesk',
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       fontStyle: FontStyle.italic,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     order.formattedDate,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondary,
                     ),
@@ -305,7 +306,7 @@ class _OrderCard extends StatelessWidget {
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.5,
-                    color: isStatusColored ? order.status.color : Colors.white,
+                    color: isStatusColored ? order.status.color : AppColors.textPrimary,
                   ),
                 ),
               ),
@@ -315,15 +316,15 @@ class _OrderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Mã vận đơn:',
                 style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               Text(
                 order.trackingNumber,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   fontFamily: 'monospace',
                 ),
               ),
@@ -333,13 +334,13 @@ class _OrderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Số lượng:',
                 style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               Text(
                 '${order.totalQuantity}',
-                style: const TextStyle(fontSize: 14, color: Colors.white),
+                style: TextStyle(fontSize: 14, color: AppColors.textPrimary),
               ),
             ],
           ),
@@ -347,7 +348,7 @@ class _OrderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'TẠM TÍNH',
                 style: TextStyle(
                   fontSize: 10,
@@ -361,7 +362,7 @@ class _OrderCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: isStatusColored ? AppColors.neon : Colors.white,
+                  color: isStatusColored ? AppColors.neon : AppColors.textPrimary,
                 ),
               ),
             ],
@@ -398,7 +399,7 @@ class _OrderCard extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                   fontStyle: FontStyle.italic,
                   letterSpacing: 0.5,
-                  color: isStatusColored ? AppColors.neon : Colors.white,
+                  color: isStatusColored ? AppColors.neon : AppColors.textPrimary,
                 ),
               ),
             ),

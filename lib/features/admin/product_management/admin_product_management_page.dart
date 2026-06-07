@@ -49,6 +49,7 @@ class _AdminProductManagementPageState
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context);
     final service = context.watch<ProductService>();
     final products = _visibleProducts(service);
 
@@ -57,7 +58,7 @@ class _AdminProductManagementPageState
       subtitle: 'Danh mục, tồn kho và trạng thái hiển thị',
       trailing: IconButton(
         onPressed: () => _showProductForm(context),
-        icon: const Icon(Icons.add_circle_outline, color: AppColors.neon),
+        icon: Icon(Icons.add_circle_outline, color: AppColors.neon),
       ),
       children: [
         _ProductSummaryStrip(products: service.adminProducts),
@@ -97,7 +98,7 @@ class _AdminProductManagementPageState
         const SizedBox(height: AppSizes.sectionGap),
         Text(
           '${products.length} SẢN PHẨM',
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.neon,
             fontSize: 11,
             fontWeight: FontWeight.w900,
@@ -216,7 +217,7 @@ class _ProductSummaryStrip extends StatelessWidget {
       children: [
         Expanded(
           child: _MiniMetric(
-            label: 'Dang hien',
+            label: 'Đang hiện',
             value: '$active',
             icon: Icons.visibility_rounded,
             color: AppColors.neon,
@@ -225,7 +226,7 @@ class _ProductSummaryStrip extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: _MiniMetric(
-            label: 'Sap het',
+            label: 'Sắp hết',
             value: '$lowStock',
             icon: Icons.inventory_2_rounded,
             color: lowStock > 0 ? AppColors.warning : AppColors.textSecondary,
@@ -264,7 +265,7 @@ class _MiniMetric extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
@@ -274,7 +275,7 @@ class _MiniMetric extends StatelessWidget {
                   label.toUpperCase(),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
@@ -310,7 +311,7 @@ class _SwitchTile extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w900,
               ),
@@ -366,8 +367,8 @@ class _ProductAdminCard extends StatelessWidget {
                 Text(
                   product.isActive
                       ? product.badgeText.toUpperCase()
-                      : 'DANG AN',
-                  style: const TextStyle(
+                      : 'ĐANG ẨN',
+                  style: TextStyle(
                     color: AppColors.neon,
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
@@ -379,7 +380,7 @@ class _ProductAdminCard extends StatelessWidget {
                   product.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -442,7 +443,7 @@ class _IconAction extends StatelessWidget {
       child: Container(
         width: 40,
         height: 40,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.surfaceHighest,
           shape: BoxShape.circle,
         ),
@@ -476,14 +477,14 @@ class _ProductFormPage extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_rounded,
             color: AppColors.textPrimary,
           ),
         ),
         title: Text(
-          editing ? 'SUA SAN PHAM' : 'THEM SAN PHAM',
-          style: const TextStyle(
+          editing ? 'SỬA SẢN PHẨM' : 'THÊM SẢN PHẨM',
+          style: TextStyle(
             color: AppColors.neon,
             fontWeight: FontWeight.w900,
             fontStyle: FontStyle.italic,
@@ -573,19 +574,19 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             AdminSectionTitle(
-              eyebrow: editing ? 'Chinh sua' : 'Tao moi',
+              eyebrow: editing ? 'Chỉnh sửa' : 'Tạo mới',
               title: editing ? widget.product!.name : 'Thêm sản phẩm',
             ),
             const SizedBox(height: 18),
             _TextInput(label: 'Tên sản phẩm', controller: _nameController),
             const SizedBox(height: 12),
-            _TextInput(label: 'Gia ban', controller: _priceController),
+            _TextInput(label: 'Giá bán', controller: _priceController),
             const SizedBox(height: 12),
             _CategoryPicker(value: _category, onChanged: _changeCategory),
             const SizedBox(height: 12),
             if (_category != ProductCategory.equipment) ...[
               _TextInput(
-                label: 'Nhan tuy chon',
+                label: 'Nhãn tùy chọn',
                 controller: _optionLabelController,
               ),
               const SizedBox(height: 12),
@@ -604,7 +605,7 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
               const SizedBox(height: 12),
             ],
             const SizedBox(height: 12),
-            _TextInput(label: 'Badge tuy chon', controller: _badgeController),
+            _TextInput(label: 'Badge tùy chọn', controller: _badgeController),
             const SizedBox(height: 12),
             _FlagRow(
               isNewArrival: _isNewArrival,
@@ -632,7 +633,7 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
             ),
             const SizedBox(height: 18),
             GlowButton(
-              label: editing ? 'CậP NHậT SẢN PHẨM' : 'LưU SẢN PHẨM',
+              label: editing ? 'CẬP NHẬT SẢN PHẨM' : 'LƯU SẢN PHẨM',
               icon: Icons.save_rounded,
               expanded: true,
               onPressed: _saveProduct,
@@ -712,7 +713,7 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
     }
     if (_normalizedStock().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nhap it nhat mot size/tuy chon ton kho')),
+        const SnackBar(content: Text('Nhập ít nhất một size/tùy chọn tồn kho')),
       );
       return;
     }
@@ -735,7 +736,7 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
   }
 
   String _optionLabel() {
-    if (_category == ProductCategory.equipment) return 'Phan loai';
+    if (_category == ProductCategory.equipment) return 'Phân loại';
     final value = _optionLabelController.text.trim();
     return value.isEmpty ? _defaultOptionLabel(_category) : value;
   }
@@ -797,11 +798,11 @@ class _ProductFormSheetState extends State<_ProductFormSheet> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Xoá sản phẩm'),
-        content: Text('Xoa ${product.name}?'),
+        content: Text('Xoá ${product.name}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('HUY'),
+            child: const Text('HỦY'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
@@ -857,16 +858,16 @@ class _StockSheetState extends State<_StockSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AdminSectionTitle(eyebrow: 'Ton kho', title: widget.product.name),
+            AdminSectionTitle(eyebrow: 'Tồn kho', title: widget.product.name),
             const SizedBox(height: 16),
             AdminMetricCard(
-              label: 'Ton kho hien tai',
+              label: 'Tồn kho hiện tại',
               value: '${widget.product.stockQuantity}',
               icon: Icons.inventory_2_rounded,
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Quan ly tung size/tuy chon rieng de tranh sai format du lieu.',
+            Text(
+              'Quản lý từng size/tùy chọn riêng để tránh sai format dữ liệu.',
               style: TextStyle(color: AppColors.textSecondary, height: 1.4),
             ),
             const SizedBox(height: 10),
@@ -884,7 +885,7 @@ class _StockSheetState extends State<_StockSheet> {
               ),
             const SizedBox(height: 18),
             GlowButton(
-              label: 'LUU TON KHO',
+              label: 'LƯU TỒN KHO',
               icon: Icons.check_rounded,
               expanded: true,
               onPressed: () {
@@ -895,7 +896,7 @@ class _StockSheetState extends State<_StockSheet> {
                 if (nextStock.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Nhap it nhat mot size/tuy chon'),
+                      content: Text('Nhập ít nhất một size/tùy chọn'),
                     ),
                   );
                   return;
@@ -961,13 +962,13 @@ class _VisibilitySheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AdminSectionTitle(eyebrow: 'Hien thi', title: product.name),
+            AdminSectionTitle(eyebrow: 'Hiển thị', title: product.name),
             const SizedBox(height: 16),
             Text(
               product.isActive
-                  ? 'San pham dang hien thi cho user.'
-                  : 'San pham dang bi an khoi danh muc user.',
-              style: const TextStyle(
+                  ? 'Sản phẩm đang hiển thị cho user.'
+                  : 'Sản phẩm đang bị ẩn khỏi danh mục user.',
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 height: 1.45,
               ),
@@ -1004,7 +1005,7 @@ class _TextInput extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      style: const TextStyle(color: AppColors.textPrimary),
+      style: TextStyle(color: AppColors.textPrimary),
       decoration: InputDecoration(labelText: label),
     );
   }
@@ -1031,8 +1032,8 @@ class _StockRowsEditor extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Size / tuy chon va ton kho',
+          Text(
+            'Size / tùy chọn và tồn kho',
             style: TextStyle(
               color: AppColors.textSecondary,
               fontWeight: FontWeight.w900,
@@ -1051,7 +1052,7 @@ class _StockRowsEditor extends StatelessWidget {
                       controller: row.option,
                       onChanged: (_) => onChanged(),
                       textCapitalization: TextCapitalization.characters,
-                      style: const TextStyle(color: AppColors.textPrimary),
+                      style: TextStyle(color: AppColors.textPrimary),
                       decoration: const InputDecoration(
                         labelText: 'Size',
                         hintText: '8 / M / Default',
@@ -1065,16 +1066,16 @@ class _StockRowsEditor extends StatelessWidget {
                       controller: row.quantity,
                       onChanged: (_) => onChanged(),
                       keyboardType: TextInputType.number,
-                      style: const TextStyle(color: AppColors.textPrimary),
+                      style: TextStyle(color: AppColors.textPrimary),
                       decoration: const InputDecoration(
-                        labelText: 'Ton',
+                        labelText: 'Tồn',
                         hintText: '10',
                       ),
                     ),
                   ),
                   IconButton(
                     onPressed: () => onRemove(row),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.remove_circle_outline_rounded,
                       color: AppColors.error,
                     ),
@@ -1085,11 +1086,11 @@ class _StockRowsEditor extends StatelessWidget {
           ),
           OutlinedButton.icon(
             onPressed: onAdd,
-            icon: const Icon(Icons.add_rounded),
-            label: const Text('THEM SIZE'),
+            icon: const Icon(Icons.add_rounded, size: 16),
+            label: const Text('THÊM SIZE'),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.neon,
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: AppColors.border),
             ),
           ),
         ],
@@ -1112,7 +1113,7 @@ class _NoSizeNotice extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Sản phẩm này không cần size',
             style: TextStyle(
               color: AppColors.textPrimary,
@@ -1120,15 +1121,15 @@ class _NoSizeNotice extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Phu kien/bong ro se luu ton kho bang Default va khong hien size cho user.',
-            style: TextStyle(color: AppColors.textSecondary, height: 1.35),
+          Text(
+            'Phụ kiện/bóng rổ sẽ lưu tồn kho bằng Default và không hiện size cho user.',
+            style: TextStyle(color: AppColors.textSecondary, height: 1.45),
           ),
           const SizedBox(height: 12),
           TextFormField(
             initialValue: stock.toString(),
             keyboardType: TextInputType.number,
-            style: const TextStyle(color: AppColors.textPrimary),
+            style: TextStyle(color: AppColors.textPrimary),
             decoration: const InputDecoration(labelText: 'Ton kho'),
             onChanged: (value) => onChanged(int.tryParse(value.trim()) ?? 0),
           ),
@@ -1218,7 +1219,7 @@ class _CategoryPicker extends StatelessWidget {
     return DropdownButtonFormField<ProductCategory>(
       value: value,
       dropdownColor: AppColors.surface2,
-      style: const TextStyle(color: AppColors.textPrimary),
+      style: TextStyle(color: AppColors.textPrimary),
       decoration: const InputDecoration(labelText: 'Danh muc'),
       items: ProductCategory.values
           .map(
@@ -1309,7 +1310,7 @@ class _FlagChip extends StatelessWidget {
         color: value ? AppColors.background : AppColors.textPrimary,
         fontWeight: FontWeight.w800,
       ),
-      side: const BorderSide(color: AppColors.border),
+      side: BorderSide(color: AppColors.border),
     );
   }
 }
@@ -1346,15 +1347,15 @@ class _ImagePreview extends StatelessWidget {
           Expanded(
             child: Text(
               isUploading
-                  ? 'Dang upload Cloudinary...'
-                  : 'Chon anh tu dien thoai hoac chup moi. URL se tu dong luu Firestore.',
-              style: const TextStyle(color: AppColors.textSecondary),
+                  ? 'Đang upload Cloudinary...'
+                  : 'Chọn ảnh từ điện thoại hoặc chụp mới. URL sẽ tự động lưu Firestore.',
+              style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
           IconButton(
             onPressed: onPickGallery,
             icon: isUploading
-                ? const SizedBox(
+                ? SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
@@ -1362,14 +1363,14 @@ class _ImagePreview extends StatelessWidget {
                       color: AppColors.neon,
                     ),
                   )
-                : const Icon(
+                : Icon(
                     Icons.photo_library_rounded,
                     color: AppColors.neon,
                   ),
           ),
           IconButton(
             onPressed: isUploading ? null : onPickCamera,
-            icon: const Icon(Icons.photo_camera_rounded, color: AppColors.neon),
+            icon: Icon(Icons.photo_camera_rounded, color: AppColors.neon),
           ),
         ],
       ),

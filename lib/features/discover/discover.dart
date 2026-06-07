@@ -17,6 +17,7 @@ class DiscoverScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context); // Force rebuild on theme change
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: PreferredSize(
@@ -66,11 +67,11 @@ class _CustomAppBar extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: IconButton(
                   onPressed: onMenuTap,
-                  icon: const Icon(Icons.menu, color: AppColors.textPrimary),
+                  icon: Icon(Icons.menu, color: AppColors.textPrimary),
                 ),
               ),
             ),
-            const Center(
+            Center(
               child: Text(
                 'KHÁM PHÁ',
                 style: TextStyle(
@@ -96,9 +97,9 @@ class _CustomAppBar extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.shopping_bag_outlined,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                   ),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -128,12 +129,12 @@ class _SearchSection extends StatelessWidget {
       child: Row(
         children: [
           const SizedBox(width: 20),
-          const Icon(Icons.search, color: AppColors.textSecondary),
+          Icon(Icons.search, color: AppColors.textSecondary),
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
+              style: TextStyle(color: AppColors.textPrimary),
+              decoration: InputDecoration(
                 hintText: 'TÌM SẢN PHẨM',
                 hintStyle: TextStyle(
                   fontSize: 12,
@@ -168,7 +169,7 @@ class _SearchSection extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () => _showSearchFilter(context),
-            child: const Icon(Icons.tune, color: AppColors.textSecondary),
+            child: Icon(Icons.tune, color: AppColors.textSecondary),
           ),
           const SizedBox(width: 20),
         ],
@@ -221,7 +222,7 @@ class _CategoriesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'DANH MỤC',
           style: TextStyle(
             fontSize: 12,
@@ -312,19 +313,19 @@ class _CategoryItem extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'Space Grotesk',
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         fontStyle: FontStyle.italic,
                         letterSpacing: -0.5,
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '$itemCount sản phẩm',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
                       ),
@@ -333,7 +334,7 @@ class _CategoryItem extends StatelessWidget {
                 ),
               ],
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+            Icon(Icons.chevron_right, color: AppColors.textSecondary),
           ],
         ),
       ),

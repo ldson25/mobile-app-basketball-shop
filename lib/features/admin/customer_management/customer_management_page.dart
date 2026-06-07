@@ -23,6 +23,7 @@ class _AdminCustomerManagementPageState
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context);
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance.collection('users').snapshots(),
       builder: (context, usersSnapshot) {
@@ -38,11 +39,11 @@ class _AdminCustomerManagementPageState
                     ordersSnapshot.connectionState == ConnectionState.waiting;
 
             return AdminPageScaffold(
-              title: 'QUAN LY\nKHACH HANG',
-              subtitle: 'Du lieu that tu users va orders',
+              title: 'QUẢN LÝ\nKHÁCH HÀNG',
+              subtitle: 'Dữ liệu thật từ users và orders',
               children: [
                 AdminSearchField(
-                  hint: 'Tim ten, email hoac so dien thoai...',
+                  hint: 'Tìm tên, email hoặc số điện thoại...',
                   onChanged: (value) => setState(() => _query = value),
                 ),
                 const SizedBox(height: 14),
@@ -52,22 +53,22 @@ class _AdminCustomerManagementPageState
                 ),
                 const SizedBox(height: AppSizes.sectionGap),
                 AdminMetricCard(
-                  label: 'Tong khach hang',
+                  label: 'Tổng khách hàng',
                   value: '${customers.length}',
                   icon: Icons.groups_rounded,
-                  delta: loading ? 'Dang tai du lieu Firestore' : 'Tu users',
+                  delta: loading ? 'Đang tải dữ liệu Firestore' : 'Từ users',
                 ),
                 const SizedBox(height: 14),
                 AdminMetricCard(
-                  label: 'Khach VIP',
+                  label: 'Khách VIP',
                   value: '${customers.where((item) => item.isVip).length}',
                   icon: Icons.workspace_premium_rounded,
                   delta: 'Theo membershipTier',
                 ),
                 const SizedBox(height: AppSizes.sectionGap),
                 Text(
-                  '${visibleCustomers.length} KHACH HANG',
-                  style: const TextStyle(
+                  '${visibleCustomers.length} KHÁCH HÀNG',
+                  style: TextStyle(
                     color: AppColors.neon,
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
@@ -134,7 +135,7 @@ class _AdminCustomerManagementPageState
         id: user.id,
         name: user.fullName.isEmpty ? user.email : user.fullName,
         email: user.email,
-        phone: user.phoneNumber ?? 'Chua cap nhat',
+        phone: user.phoneNumber ?? 'Chưa cập nhật',
         role: user.role.name,
         membership: user.membershipTier.name,
         totalOrders: validOrders.length,
@@ -269,7 +270,7 @@ class _CustomerCard extends StatelessWidget {
                     customer.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -280,12 +281,13 @@ class _CustomerCard extends StatelessWidget {
                     customer.email,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${customer.totalOrders} don / ${_money(customer.totalSpent)}',
-                    style: const TextStyle(
+                    '${customer.totalOrders} đơn / ${_money(customer.totalSpent)}',
+                    maxLines: 1,
+                    style: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
@@ -317,16 +319,16 @@ class _CustomerDetailSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            AdminSectionTitle(eyebrow: 'Khach hang', title: customer.name),
+            AdminSectionTitle(eyebrow: 'Khách hàng', title: customer.name),
             const SizedBox(height: 16),
             _InfoRow(label: 'User ID', value: customer.id),
             _InfoRow(label: 'Email', value: customer.email),
-            _InfoRow(label: 'So dien thoai', value: customer.phone),
+            _InfoRow(label: 'Số điện thoại', value: customer.phone),
             _InfoRow(label: 'Role', value: customer.role),
             _InfoRow(label: 'Membership', value: customer.membership),
-            _InfoRow(label: 'Tong don', value: '${customer.totalOrders}'),
-            _InfoRow(label: 'Tong chi tieu', value: _money(customer.totalSpent)),
-            _InfoRow(label: 'Lan mua gan nhat', value: customer.lastOrderLabel),
+            _InfoRow(label: 'Tổng đơn', value: '${customer.totalOrders}'),
+            _InfoRow(label: 'Tổng chi tiêu', value: _money(customer.totalSpent)),
+            _InfoRow(label: 'Lần mua gần nhất', value: customer.lastOrderLabel),
             const SizedBox(height: 18),
           ],
         ),
@@ -340,7 +342,7 @@ class _CustomerLoadingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SectionCard(
+    return SectionCard(
       color: AppColors.surface2,
       child: Row(
         children: [
@@ -351,7 +353,7 @@ class _CustomerLoadingCard extends StatelessWidget {
           ),
           SizedBox(width: 14),
           Text(
-            'Dang tai khach hang...',
+            'Đang tải khách hàng...',
             style: TextStyle(color: AppColors.textSecondary),
           ),
         ],
@@ -365,10 +367,10 @@ class _CustomerEmptyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SectionCard(
+    return SectionCard(
       color: AppColors.surface2,
       child: Text(
-        'Chua co khach hang phu hop.',
+        'Chưa có khách hàng phù hợp.',
         style: TextStyle(color: AppColors.textSecondary),
       ),
     );
@@ -388,13 +390,13 @@ class _InfoRow extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(label, style: const TextStyle(color: AppColors.textMuted)),
+            child: Text(label, style: TextStyle(color: AppColors.textMuted)),
           ),
           Flexible(
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w900,
               ),
@@ -446,7 +448,7 @@ class _AdminCustomer {
 
   String get lastOrderLabel {
     final value = lastOrder;
-    if (value == null) return 'Chua mua hang';
+    if (value == null) return 'Chưa mua hàng';
     return '${value.day}/${value.month}/${value.year}';
   }
 }

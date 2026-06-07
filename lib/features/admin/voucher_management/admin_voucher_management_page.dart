@@ -22,23 +22,24 @@ class _AdminVoucherManagementPageState extends State<AdminVoucherManagementPage>
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context);
     return AdminPageScaffold(
-      title: 'QUAN LY\nVOUCHER',
-      subtitle: 'Ma giam gia cho Member, VIP va tat ca user',
+      title: 'QUẢN LÝ\nVOUCHER',
+      subtitle: 'Mã giảm giá cho Member, VIP và tất cả user',
       trailing: IconButton(
         onPressed: () => Navigator.maybePop(context),
-        icon: const Icon(Icons.arrow_back_rounded, color: AppColors.neon),
+        icon: Icon(Icons.arrow_back_rounded, color: AppColors.neon),
       ),
       children: [
         GlowButton(
-          label: 'THEM VOUCHER',
+          label: 'THÊM VOUCHER',
           icon: Icons.add_rounded,
           expanded: true,
           onPressed: () => _showVoucherForm(context),
         ),
         const SizedBox(height: 14),
         AdminSearchField(
-          hint: 'Tim ma voucher hoac ten chuong trinh...',
+          hint: 'Tìm mã voucher hoặc tên chương trình...',
           onChanged: (value) => setState(() => _query = value),
         ),
         const SizedBox(height: AppSizes.sectionGap),
@@ -57,7 +58,7 @@ class _AdminVoucherManagementPageState extends State<AdminVoucherManagementPage>
               children: [
                 Text(
                   '${vouchers.length} VOUCHER',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.neon,
                     fontSize: 11,
                     fontWeight: FontWeight.w900,
@@ -111,7 +112,7 @@ class _VoucherCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   voucher.code,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
@@ -119,7 +120,7 @@ class _VoucherCard extends StatelessWidget {
                 ),
               ),
               AdminStatusChip(
-                label: voucher.isActive ? 'Dang bat' : 'Da tat',
+                label: voucher.isActive ? 'Đang bật' : 'Đã tắt',
                 color: voucher.isActive ? AppColors.neon : AppColors.textMuted,
               ),
             ],
@@ -127,7 +128,7 @@ class _VoucherCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             voucher.name,
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 14),
           Wrap(
@@ -166,15 +167,15 @@ class _VoucherCard extends StatelessWidget {
 }
 
 class _CircleAction extends StatelessWidget {
-  const _CircleAction({
+  _CircleAction({
     required this.icon,
     required this.onTap,
-    this.color = AppColors.textPrimary,
+    this.color,
   });
 
   final IconData icon;
   final VoidCallback onTap;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -183,11 +184,11 @@ class _CircleAction extends StatelessWidget {
       child: Container(
         width: 42,
         height: 42,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.surfaceHighest,
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: color, size: 19),
+        child: Icon(icon, color: color ?? AppColors.textPrimary, size: 19),
       ),
     );
   }
@@ -231,26 +232,26 @@ class _VoucherFormSheetState extends State<_VoucherFormSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const AdminSectionTitle(eyebrow: 'Voucher', title: 'Tao ma giam gia'),
+            const AdminSectionTitle(eyebrow: 'Voucher', title: 'Tạo mã giảm giá'),
             const SizedBox(height: 18),
-            _Input(label: 'Ma voucher', controller: codeController),
+            _Input(label: 'Mã voucher', controller: codeController),
             const SizedBox(height: 12),
-            _Input(label: 'Ten chuong trinh', controller: nameController),
+            _Input(label: 'Tên chương trình', controller: nameController),
             const SizedBox(height: 12),
             _Input(
-              label: 'Gia tri giam',
+              label: 'Giá trị giảm',
               controller: valueController,
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 12),
             _Input(
-              label: 'Don toi thieu',
+              label: 'Đơn tối thiểu',
               controller: minOrderController,
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
             _EnumRow<VoucherDiscountType>(
-              label: 'Loai giam',
+              label: 'Loại giảm',
               value: discountType,
               values: VoucherDiscountType.values,
               text: (value) => value.name,
@@ -258,7 +259,7 @@ class _VoucherFormSheetState extends State<_VoucherFormSheet> {
             ),
             const SizedBox(height: 16),
             _EnumRow<VoucherTargetTier>(
-              label: 'Ap dung cho',
+              label: 'Áp dụng cho',
               value: targetTier,
               values: VoucherTargetTier.values,
               text: (value) => value.name,
@@ -266,7 +267,7 @@ class _VoucherFormSheetState extends State<_VoucherFormSheet> {
             ),
             const SizedBox(height: 18),
             GlowButton(
-              label: 'LUU VOUCHER',
+              label: 'LƯU VOUCHER',
               icon: Icons.save_rounded,
               expanded: true,
               onPressed: _saveVoucher,
@@ -285,7 +286,7 @@ class _VoucherFormSheetState extends State<_VoucherFormSheet> {
 
     if (code.isEmpty || name.isEmpty || value <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nhap day du thong tin voucher')),
+        const SnackBar(content: Text('Vui lòng nhập đầy đủ thông tin voucher')),
       );
       return;
     }
@@ -322,7 +323,7 @@ class _Input extends StatelessWidget {
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
-      style: const TextStyle(color: AppColors.textPrimary),
+      style: TextStyle(color: AppColors.textPrimary),
       decoration: InputDecoration(labelText: label),
     );
   }
@@ -350,7 +351,7 @@ class _EnumRow<T> extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textSecondary,
             fontWeight: FontWeight.w800,
           ),
@@ -371,7 +372,7 @@ class _EnumRow<T> extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
               backgroundColor: AppColors.surface2,
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: AppColors.border),
             );
           }).toList(),
         ),

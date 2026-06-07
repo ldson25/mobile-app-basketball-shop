@@ -104,7 +104,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 children: [
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back, color: AppColors.volt),
+                    icon: Icon(Icons.arrow_back, color: AppColors.volt),
                   ),
                   Expanded(
                     child: Center(
@@ -251,7 +251,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     disabledBackgroundColor: AppColors.border,
                   ),
                   child: _isLoading
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(

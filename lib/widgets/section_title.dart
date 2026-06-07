@@ -28,7 +28,7 @@ class SectionTitle extends StatelessWidget {
         Text(
           title,
           style: GoogleFonts.spaceGrotesk(
-            color: Colors.white,
+            color: AppColors.textPrimary,
             fontSize: 22,
             fontWeight: FontWeight.w800,
             height: 1.0,

@@ -70,7 +70,7 @@ class _EditorialSection extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 100),
+              SizedBox(height: 100),
               Text(
                 'BỨT PHÁ\n',
                 style: GoogleFonts.spaceGrotesk(
@@ -92,7 +92,7 @@ class _EditorialSection extends StatelessWidget {
                         letterSpacing: -2,
                         height: 1,
                         color: AppColors.neon,
-                        shadows: const [
+                        shadows: [
                           Shadow(blurRadius: 20, color: AppColors.neonSoft),
                         ],
                       ),
@@ -275,10 +275,10 @@ class _LoginFormState extends State<_LoginForm> {
                 TextField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
-                  style: const TextStyle(color: AppColors.textPrimary),
+                  style: TextStyle(color: AppColors.textPrimary),
                   decoration: InputDecoration(
                     hintText: '••••••••',
-                    hintStyle: const TextStyle(color: AppColors.textMuted),
+                    hintStyle: TextStyle(color: AppColors.textMuted),
                     contentPadding: const EdgeInsets.symmetric(vertical: 16),
                     suffixIcon: IconButton(
                       onPressed: () {
@@ -319,7 +319,7 @@ class _LoginFormState extends State<_LoginForm> {
                   disabledBackgroundColor: AppColors.border,
                 ),
                 child: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
@@ -448,10 +448,10 @@ class _LoginFormState extends State<_LoginForm> {
         TextField(
           controller: controller,
           keyboardType: keyboardType,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.textPrimary),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: AppColors.textMuted),
+            hintStyle: TextStyle(color: AppColors.textMuted),
             contentPadding: const EdgeInsets.symmetric(vertical: 16),
           ),
         ),
@@ -474,7 +474,7 @@ class _LoginFormState extends State<_LoginForm> {
   Widget _buildDivider(String text) {
     return Row(
       children: [
-        const Expanded(child: Divider(color: AppColors.border, thickness: 0.5)),
+        Expanded(child: Divider(color: AppColors.border, thickness: 0.5)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
@@ -487,7 +487,7 @@ class _LoginFormState extends State<_LoginForm> {
             ),
           ),
         ),
-        const Expanded(child: Divider(color: AppColors.border, thickness: 0.5)),
+        Expanded(child: Divider(color: AppColors.border, thickness: 0.5)),
       ],
     );
   }
@@ -501,7 +501,7 @@ class _LoginFormState extends State<_LoginForm> {
       onPressed: onTap,
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: AppColors.border),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
         backgroundColor: AppColors.surface2,
       ),

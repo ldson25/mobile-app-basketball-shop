@@ -68,7 +68,7 @@ class _CartScreenState extends State<CartScreen> {
                           const SizedBox(width: 8),
                           Text(
                             'CHỌN TẤT CẢ (${cartItems.length})',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1.2,
@@ -82,7 +82,7 @@ class _CartScreenState extends State<CartScreen> {
                     if (selectedItems.isNotEmpty)
                       GestureDetector(
                         onTap: () => _confirmRemoveSelected(context, cartService, selectedItems.length),
-                        child: const Row(
+                        child: Row(
                           children: [
                             Icon(
                               Icons.delete_outline,
@@ -166,7 +166,7 @@ class _CartScreenState extends State<CartScreen> {
         ),
         content: Text(
           'Xóa $selectedCount sản phẩm khỏi giỏ hàng?',
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -178,7 +178,7 @@ class _CartScreenState extends State<CartScreen> {
               cartService.removeCheckedItems();
               Navigator.pop(context);
             },
-            child: const Text(
+            child: Text(
               'XÓA',
               style: TextStyle(color: AppColors.error),
             ),
@@ -204,7 +204,7 @@ class _EmptyCartView extends StatelessWidget {
             color: AppColors.textSecondary,
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'GIỎ HÀNG ĐANG TRỐNG',
             style: TextStyle(
               fontFamily: 'Space Grotesk',
@@ -215,7 +215,7 @@ class _EmptyCartView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Thêm sản phẩm để bắt đầu mua sắm',
             style: TextStyle(color: AppColors.textSecondary),
           ),
@@ -257,7 +257,7 @@ class _CartAppBar extends StatelessWidget implements PreferredSizeWidget {
                 padding: const EdgeInsets.only(left: 24),
                 child: GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
-                  child: const Icon(Icons.arrow_back, color: AppColors.neon),
+                  child: Icon(Icons.arrow_back, color: AppColors.neon),
                 ),
               ),
             ),
@@ -375,7 +375,7 @@ class _CartItem extends StatelessWidget {
                     const SizedBox(width: 8),
                     GestureDetector(
                       onTap: () => onRemove(id),
-                      child: const Icon(
+                      child: Icon(
                         Icons.delete_outline,
                         size: 20,
                         color: AppColors.error,
@@ -386,7 +386,7 @@ class _CartItem extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   'TÙY CHỌN: $size',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.2,
@@ -410,7 +410,7 @@ class _CartItem extends StatelessWidget {
                             onTap: quantity > 1
                                 ? () => onQuantityChanged(id, quantity - 1)
                                 : null,
-                            child: const SizedBox(
+                            child: SizedBox(
                               width: 32,
                               height: 32,
                               child: Icon(
@@ -434,7 +434,7 @@ class _CartItem extends StatelessWidget {
                           ),
                           GestureDetector(
                             onTap: () => onQuantityChanged(id, quantity + 1),
-                            child: const SizedBox(
+                            child: SizedBox(
                               width: 32,
                               height: 32,
                               child: Icon(
@@ -449,7 +449,7 @@ class _CartItem extends StatelessWidget {
                     ),
                     Text(
                       formatVnd(totalPrice),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'Space Grotesk',
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -480,7 +480,7 @@ class _OrderSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(top: 32),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(top: BorderSide(color: AppColors.border)),
       ),
       child: Column(
@@ -509,7 +509,7 @@ class _OrderSummary extends StatelessWidget {
               ),
               Text(
                 formatVnd(selectedSubtotal),
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Space Grotesk',
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
@@ -542,7 +542,7 @@ class _SummaryRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.2,

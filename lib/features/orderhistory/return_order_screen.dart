@@ -162,10 +162,10 @@ class _ReturnAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: AppColors.background.withOpacity(0.7),
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+        icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
         onPressed: () => Navigator.pop(context),
       ),
-      title: const Text(
+      title: Text(
         'TRẢ HÀNG',
         style: TextStyle(
           fontFamily: 'Space Grotesk',
@@ -193,7 +193,7 @@ class _OrderHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'TÓM TẮT ĐƠN HÀNG',
           style: TextStyle(
             fontSize: 12,
@@ -205,7 +205,7 @@ class _OrderHeader extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           'ĐƠN ${order.orderNumber}',
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'Space Grotesk',
             fontSize: 32,
             fontWeight: FontWeight.w900,
@@ -220,14 +220,14 @@ class _OrderHeader extends StatelessWidget {
           children: [
             Text(
               'Trạng thái: ${order.status.label}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 color: AppColors.textSecondary,
               ),
             ),
             Text(
               'Ngày giao: ${order.formattedDate}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 color: AppColors.textSecondary,
               ),
@@ -307,7 +307,7 @@ class _ReturnItemCard extends StatelessWidget {
               onChanged: (value) => onToggle(value ?? false),
               activeColor: AppColors.neon,
               checkColor: AppColors.background,
-              side: const BorderSide(color: AppColors.border),
+              side: BorderSide(color: AppColors.border),
             ),
             const SizedBox(width: 6),
             ClipRRect(
@@ -323,7 +323,7 @@ class _ReturnItemCard extends StatelessWidget {
                     item.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 14,
                       color: AppColors.textPrimary,
@@ -332,7 +332,7 @@ class _ReturnItemCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     'Size: ${item.size} / SL: ${item.quantity}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondary,
                     ),
@@ -343,7 +343,7 @@ class _ReturnItemCard extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               formatVnd(item.price * item.quantity),
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w900,
                 fontSize: 14,
                 color: AppColors.neon,
@@ -422,7 +422,7 @@ class _ReasonRadio extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       title: Text(
         label,
-        style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+        style: TextStyle(fontSize: 14, color: AppColors.textPrimary),
       ),
     );
   }
@@ -448,7 +448,7 @@ class _ConditionSection extends StatelessWidget {
           activeColor: AppColors.neon,
           checkColor: AppColors.background,
           contentPadding: EdgeInsets.zero,
-          title: const Text(
+          title: Text(
             'Tôi xác nhận sản phẩm còn bao bì, chưa sử dụng và còn đầy đủ tem mác.',
             style: TextStyle(color: AppColors.textPrimary, fontSize: 14),
           ),
@@ -585,7 +585,7 @@ class _FooterSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'SỐ TIỀN DỰ KIẾN HOÀN',
                 style: TextStyle(
                   fontSize: 12,
@@ -597,7 +597,7 @@ class _FooterSection extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 formatVnd(refundAmount),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
                   fontFamily: 'Space Grotesk',
@@ -619,7 +619,7 @@ class _FooterSection extends StatelessWidget {
                     ),
                   ),
                   child: isProcessing
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 22,
                           height: 22,
                           child: CircularProgressIndicator(
@@ -637,7 +637,7 @@ class _FooterSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
+        Text(
           'Yêu cầu trả hàng sẽ được xử lý trong 3-5 ngày làm việc sau khi nhận hàng.',
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -691,7 +691,7 @@ class _SectionTitle extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
               fontFamily: 'Space Grotesk',
@@ -703,7 +703,7 @@ class _SectionTitle extends StatelessWidget {
         if (trailing != null)
           Text(
             trailing!,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               color: AppColors.textSecondary,
             ),
@@ -757,7 +757,7 @@ class _ImageFallback extends StatelessWidget {
       width: width,
       height: height,
       color: AppColors.surface,
-      child: const Icon(
+      child: Icon(
         Icons.image_not_supported,
         color: AppColors.textSecondary,
       ),

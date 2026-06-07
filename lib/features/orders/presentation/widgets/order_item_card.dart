@@ -38,7 +38,7 @@ class OrderItemCard extends StatelessWidget {
             Container(
               width: 62,
               height: 62,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   colors: [
@@ -50,7 +50,7 @@ class OrderItemCard extends StatelessWidget {
                   end: Alignment.bottomRight,
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.inventory_2_outlined,
                 color: AppColors.textSecondary,
               ),
@@ -100,7 +100,7 @@ class OrderItemCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     '$customer   /   $itemCount',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 15,
                     ),
@@ -117,7 +117,7 @@ class OrderItemCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     date,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textMuted,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 1.0,
@@ -155,7 +155,7 @@ class _ActionButton extends StatelessWidget {
     return Container(
       width: 44,
       height: 44,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surfaceHighest,
         shape: BoxShape.circle,
       ),

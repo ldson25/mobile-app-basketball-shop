@@ -26,7 +26,7 @@ class CheckoutSuccessScreen extends StatelessWidget {
                   color: AppColors.neon.withAlpha(26),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check_circle,
                   size: 64,
                   color: AppColors.neon,
@@ -46,7 +46,7 @@ class CheckoutSuccessScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'Cảm ơn bạn đã mua hàng tại Kinetic.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -144,7 +144,7 @@ class _SuccessAppBar extends StatelessWidget implements PreferredSizeWidget {
                 constraints: const BoxConstraints(),
               ),
               const SizedBox(width: 40),
-              const Expanded(
+              Expanded(
                 child: Center(
                   child: Text(
                     'Thành công',

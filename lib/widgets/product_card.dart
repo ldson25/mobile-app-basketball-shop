@@ -78,7 +78,7 @@ class ProductCard extends StatelessWidget {
                               isFavorite
                                   ? Icons.favorite
                                   : Icons.favorite_border,
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                               size: 14,
                             ),
                           ),
@@ -100,7 +100,7 @@ class ProductCard extends StatelessWidget {
                       height: 14,
                       child: Text(
                         product.badgeText.toUpperCase(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 8,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.8,
@@ -115,7 +115,7 @@ class ProductCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     product.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w900,
                       color: AppColors.textPrimary,
@@ -130,7 +130,7 @@ class ProductCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           product.price,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w900,
                             fontStyle: FontStyle.italic,
@@ -145,11 +145,11 @@ class ProductCard extends StatelessWidget {
                         child: Container(
                           width: 30,
                           height: 30,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: AppColors.neon,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.add,
                             color: AppColors.background,
                             size: 18,

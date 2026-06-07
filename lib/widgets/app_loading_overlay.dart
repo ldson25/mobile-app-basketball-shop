@@ -21,7 +21,7 @@ class AppLoadingOverlay extends StatelessWidget {
             child: IgnorePointer(
               child: Container(
                 color: Colors.black.withOpacity(0.18),
-                child: const Center(
+                child: Center(
                   child: SizedBox(
                     width: 34,
                     height: 34,

@@ -37,7 +37,7 @@ class AboutUsScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_rounded),
         ),
-        title: const Text(
+        title: Text(
           'VỀ CHÚNG TÔI',
           style: TextStyle(
             color: AppColors.neon,
@@ -65,7 +65,7 @@ class AboutUsScreen extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Trang bị thi đấu, văn hóa bóng rổ và những sản phẩm tập luyện hằng ngày dành cho cộng đồng Kinetic.',
               style: TextStyle(
                 color: AppColors.textSecondary,
@@ -131,7 +131,7 @@ class AboutUsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            const SectionCard(
+            SectionCard(
               color: AppColors.surface2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,7 +187,7 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 label.toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textMuted,
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
@@ -197,7 +197,7 @@ class _InfoRow extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,

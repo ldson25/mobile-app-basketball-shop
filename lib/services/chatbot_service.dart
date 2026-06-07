@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import '../core/constants/api_keys.dart';
+import 'product_service.dart';
 
 class ChatMessage {
   final String text;
@@ -77,14 +78,21 @@ class ChatbotService extends ChangeNotifier {
 
     for (String modelName in modelsToTry) {
       try {
+        final productListStr = ProductService().products
+            .map((p) => "- ${p.name} (ID: ${p.id}, Giá: ${p.price}đ)")
+            .join('\n');
+
         final model = GenerativeModel(
           model: modelName,
           apiKey: apiKey,
           systemInstruction: Content.system(
             'Bạn là một nhân viên tư vấn bán hàng chuyên nghiệp tại cửa hàng đồ thể thao Kinetic (chuyên đồ bóng rổ). '
             'Bạn cần giúp khách hàng chọn được sản phẩm phù hợp nhất. '
+            'Khi gợi ý một sản phẩm cụ thể, hãy ĐỊNH DẠNG tên sản phẩm dưới dạng link với cú pháp: [Tên sản phẩm](product:ID_Sản_Phẩm). Tuyệt đối không dùng dấu cách trong phần ID_Sản_Phẩm. '
             'Hãy hỏi thăm về kinh phí, sở thích màu sắc, vị trí thi đấu (nếu là giày) hoặc nhu cầu cụ thể của họ. '
-            'Trả lời ngắn gọn, thân thiện, nhiệt tình như một nhân viên bán hàng xuất sắc. Không trả lời các chủ đề ngoài thể thao và bóng rổ.'
+            'Trả lời ngắn gọn, thân thiện, nhiệt tình như một nhân viên bán hàng xuất sắc. Không trả lời các chủ đề ngoài thể thao và bóng rổ.\n\n'
+            'QUAN TRỌNG: Dưới đây là danh sách CÁC SẢN PHẨM HIỆN CÓ TẠI CỬA HÀNG. CHỈ ĐƯỢC PHÉP gợi ý các sản phẩm nằm trong danh sách này. Tuyệt đối KHÔNG gợi ý sản phẩm ngoài danh sách:\n'
+            '$productListStr'
           ),
         );
 

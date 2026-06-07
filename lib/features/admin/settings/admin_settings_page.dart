@@ -23,6 +23,7 @@ class AdminSettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context);
     final configService = context.watch<AppConfigService>();
     final config = configService.config;
 
@@ -31,7 +32,7 @@ class AdminSettingsPage extends StatelessWidget {
       subtitle: 'Cấu hình app, thanh toán, vận chuyển và log admin',
       trailing: IconButton(
         onPressed: () => Navigator.maybePop(context),
-        icon: const Icon(Icons.arrow_back_rounded, color: AppColors.neon),
+        icon: Icon(Icons.arrow_back_rounded, color: AppColors.neon),
       ),
       children: [
         AdminMetricCard(
@@ -283,11 +284,11 @@ class _ThemeModeSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeService = context.watch<ThemeService>();
     return _SettingsSwitch(
-      icon: Icons.light_mode_rounded,
-      title: 'Light mode',
-      subtitle: 'bật/tắt giao diện sáng cho admin và user',
-      value: themeService.isLightMode,
-      onChanged: themeService.setLightMode,
+      icon: Icons.dark_mode_rounded,
+      title: 'Dark mode',
+      subtitle: 'Bật/tắt giao diện tối cho admin và user',
+      value: !themeService.isLightMode,
+      onChanged: (val) => themeService.setLightMode(!val),
     );
   }
 }
@@ -321,7 +322,7 @@ class _SettingsTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 17,
                       fontWeight: FontWeight.w900,
@@ -330,12 +331,12 @@ class _SettingsTile extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: AppColors.textSecondary),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+            Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
           ],
         ),
       ),
@@ -372,7 +373,7 @@ class _SettingsSwitch extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 17,
                     fontWeight: FontWeight.w900,
@@ -381,7 +382,7 @@ class _SettingsSwitch extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -411,12 +412,12 @@ class _ShippingRuleTile extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            const Icon(Icons.local_shipping_rounded, color: AppColors.neon),
+            Icon(Icons.local_shipping_rounded, color: AppColors.neon),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 '${rule.name} - ${rule.cost.round()}d',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w900,
                 ),
@@ -464,16 +465,16 @@ class _ShippingRuleTile extends StatelessWidget {
                   const SizedBox(height: 16),
                   TextField(
                     controller: nameController,
-                    style: const TextStyle(color: AppColors.textPrimary),
-                    decoration: const InputDecoration(labelText: 'Ten rule'),
+                    style: TextStyle(color: AppColors.textPrimary),
+                    decoration: const InputDecoration(labelText: 'Tên rule'),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: costController,
                     keyboardType: TextInputType.number,
-                    style: const TextStyle(color: AppColors.textPrimary),
+                    style: TextStyle(color: AppColors.textPrimary),
                     decoration: const InputDecoration(
-                      labelText: 'Phi giao hang',
+                      labelText: 'Phí giao hàng',
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -481,8 +482,8 @@ class _ShippingRuleTile extends StatelessWidget {
                     value: active,
                     onChanged: (value) => setState(() => active = value),
                     activeThumbColor: AppColors.neon,
-                    title: const Text(
-                      'Dang bat',
+                    title: Text(
+                      'Đang bật',
                       style: TextStyle(color: AppColors.textPrimary),
                     ),
                   ),
@@ -532,12 +533,12 @@ class _BannerConfig extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            const Icon(Icons.image_rounded, color: AppColors.neon),
+            Icon(Icons.image_rounded, color: AppColors.neon),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 banner.title,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w900,
                 ),
@@ -604,8 +605,8 @@ class _BannerConfig extends StatelessWidget {
                     value: active,
                     onChanged: (value) => setState(() => active = value),
                     activeThumbColor: AppColors.neon,
-                    title: const Text(
-                      'Dang bat',
+                    title: Text(
+                      'Đang bật',
                       style: TextStyle(color: AppColors.textPrimary),
                     ),
                   ),
@@ -652,7 +653,7 @@ class _SheetInput extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      style: const TextStyle(color: AppColors.textPrimary),
+      style: TextStyle(color: AppColors.textPrimary),
       decoration: InputDecoration(labelText: label),
     );
   }
@@ -670,12 +671,12 @@ class _ActivityTile extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          const Icon(Icons.history_rounded, color: AppColors.neon),
+          Icon(Icons.history_rounded, color: AppColors.neon),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: AppColors.textPrimary),
             ),
           ),
         ],
@@ -693,7 +694,7 @@ class _EmptyConfigText extends StatelessWidget {
   Widget build(BuildContext context) {
     return SectionCard(
       color: AppColors.surface2,
-      child: Text(text, style: const TextStyle(color: AppColors.textSecondary)),
+      child: Text(text, style: TextStyle(color: AppColors.textSecondary)),
     );
   }
 }

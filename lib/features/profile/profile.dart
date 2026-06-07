@@ -21,8 +21,8 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context); // Force rebuild on theme change
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: _CustomAppBar(onMenuTap: onMenuTap),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -65,9 +65,9 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               IconButton(
                 onPressed: onMenuTap,
-                icon: const Icon(Icons.menu, color: AppColors.textPrimary),
+                icon: Icon(Icons.menu, color: AppColors.textPrimary),
               ),
-              const Text(
+              Text(
                 'HỒ SƠ',
                 style: TextStyle(
                   fontFamily: 'Space Grotesk',
@@ -85,7 +85,7 @@ class _CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     MaterialPageRoute(builder: (context) => const CartScreen()),
                   );
                 },
-                icon: const Icon(Icons.shopping_bag_outlined, color: AppColors.textPrimary),
+                icon: Icon(Icons.shopping_bag_outlined, color: AppColors.textPrimary),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -126,7 +126,7 @@ class _ProfileHeader extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 22),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'CẬP NHẬT ẢNH ĐẠI DIỆN',
@@ -189,6 +189,7 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context);
     final authService = Provider.of<AuthService>(context);
     final user = authService.currentUser;
     final avatarUrl = user?.avatarUrl;
@@ -254,7 +255,7 @@ class _ProfileHeader extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.edit,
                     size: 18,
                     color: AppColors.background,
@@ -267,18 +268,18 @@ class _ProfileHeader extends StatelessWidget {
         const SizedBox(height: 24),
         Text(
           user?.fullName.toUpperCase() ?? 'KHÁCH',
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: 'Space Grotesk',
             fontSize: 28,
             fontWeight: FontWeight.w900,
             letterSpacing: -0.5,
-            color: Colors.white,
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           user?.email ?? 'Chưa có email',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             color: AppColors.textSecondary,
           ),
@@ -287,13 +288,13 @@ class _ProfileHeader extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: AppColors.neon.withOpacity(0.2),
+            color: AppColors.neon.withAlpha(51),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(color: AppColors.neon),
           ),
           child: Text(
             user?.membershipLabel ?? 'MEMBER',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w900,
               letterSpacing: 1.2,
@@ -310,7 +311,7 @@ class _ProfileHeader extends StatelessWidget {
               color: AppColors.neon,
               borderRadius: BorderRadius.circular(999),
             ),
-            child: const Text(
+            child: Text(
               'SỬA HỒ SƠ',
               style: TextStyle(
                 fontSize: 10,
@@ -423,7 +424,7 @@ class _NavigationMenu extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 'CAI DAT TAI KHOAN',
                 style: TextStyle(
                   color: AppColors.textPrimary,
@@ -434,33 +435,33 @@ class _NavigationMenu extends StatelessWidget {
               const SizedBox(height: 16),
               TextField(
                 controller: nameController,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: AppColors.textPrimary),
                 decoration: const InputDecoration(labelText: 'Ho ten'),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: phoneController,
                 keyboardType: TextInputType.phone,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: AppColors.textPrimary),
                 decoration: const InputDecoration(labelText: 'So dien thoai'),
               ),
               const SizedBox(height: 12),
               Consumer<ThemeService>(
                 builder: (context, themeService, child) {
                   return SwitchListTile(
-                    value: themeService.isLightMode,
-                    onChanged: themeService.setLightMode,
+                    value: !themeService.isLightMode,
+                    onChanged: (val) => themeService.setLightMode(!val),
                     activeThumbColor: AppColors.neon,
                     contentPadding: EdgeInsets.zero,
-                    title: const Text(
-                      'Light mode',
+                    title: Text(
+                      'Dark mode',
                       style: TextStyle(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    subtitle: const Text(
-                      'Bật/tắt giao diện sáng',
+                    subtitle: Text(
+                      'Bật/tắt giao diện tối',
                       style: TextStyle(color: AppColors.textSecondary),
                     ),
                   );
@@ -522,16 +523,16 @@ class _MenuItem extends StatelessWidget {
                 const SizedBox(width: 16),
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     letterSpacing: -0.5,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ],
             ),
-            const Icon(
+            Icon(
               Icons.chevron_right,
               color: AppColors.textSecondary,
             ),
@@ -547,6 +548,7 @@ class _SignOutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context);
     final authService = Provider.of<AuthService>(context, listen: false);
 
     return GestureDetector(
@@ -556,11 +558,11 @@ class _SignOutButton extends StatelessWidget {
           context: context,
           builder: (context) => AlertDialog(
             backgroundColor: AppColors.surface,
-            title: const Text(
+            title: Text(
               'Đăng xuất',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.textPrimary),
             ),
-            content: const Text(
+            content: Text(
               'Bạn có chắc muốn đăng xuất?',
               style: TextStyle(color: AppColors.textSecondary),
             ),
@@ -571,7 +573,7 @@ class _SignOutButton extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text(
+                child: Text(
                   'ĐĂNG XUẤT',
                   style: TextStyle(color: AppColors.error),
                 ),
@@ -582,6 +584,7 @@ class _SignOutButton extends StatelessWidget {
 
         if (confirm == true) {
           await authService.logout();
+          if (!context.mounted) return;
           // Navigate to login screen and remove all previous screens
           Navigator.pushAndRemoveUntil(
             context,
@@ -599,13 +602,13 @@ class _SignOutButton extends StatelessWidget {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             Icon(
               Icons.logout,
               size: 18,
               color: AppColors.error,
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(
               'ĐĂNG XUẤT',
               style: TextStyle(
@@ -627,6 +630,7 @@ class _AvatarFallback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context);
     return Container(
       color: AppColors.surface2,
       child: const Icon(
@@ -657,7 +661,7 @@ class _AvatarSourceTile extends StatelessWidget {
       leading: Container(
         width: 44,
         height: 44,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.neon,
           shape: BoxShape.circle,
         ),
@@ -665,12 +669,12 @@ class _AvatarSourceTile extends StatelessWidget {
       ),
       title: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.textPrimary,
           fontWeight: FontWeight.w700,
         ),
       ),
-      trailing: const Icon(
+      trailing: Icon(
         Icons.chevron_right_rounded,
         color: AppColors.textSecondary,
       ),

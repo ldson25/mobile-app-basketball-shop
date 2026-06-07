@@ -74,7 +74,7 @@ class _MomoPaymentWebViewScreenState extends State<MomoPaymentWebViewScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
+            child: Text(
               'XONG',
               style: TextStyle(
                 color: AppColors.neon,

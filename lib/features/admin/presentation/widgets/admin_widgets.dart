@@ -22,7 +22,7 @@ class AdminPageScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final secondaryText =
-        isLight ? const Color(0xFF555555) : AppColors.textSecondary;
+        isLight ? Color(0xFF555555) : AppColors.textSecondary;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -76,7 +76,7 @@ class AdminTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final iconBg = isLight ? Colors.white : AppColors.surface2;
-    final iconColor = isLight ? const Color(0xFF111111) : AppColors.textPrimary;
+    final iconColor = isLight ? Color(0xFF111111) : AppColors.textPrimary;
 
     return Row(
       children: [
@@ -88,10 +88,10 @@ class AdminTopBar extends StatelessWidget {
             shape: BoxShape.circle,
             border: isLight ? Border.all(color: const Color(0xFFE2E2E2)) : null,
           ),
-          child: const Icon(Icons.admin_panel_settings, color: AppColors.neon),
+          child: Icon(Icons.admin_panel_settings, color: AppColors.neon),
         ),
         const SizedBox(width: 12),
-        const Text(
+        Text(
           'KINETIC',
           style: TextStyle(
             fontSize: 24,
@@ -128,14 +128,14 @@ class AdminSectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final textColor = isLight ? const Color(0xFF111111) : AppColors.textPrimary;
+    final textColor = isLight ? Color(0xFF111111) : AppColors.textPrimary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           eyebrow.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.neon,
             fontSize: 10,
             fontWeight: FontWeight.w900,
@@ -174,8 +174,8 @@ class AdminMetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final textColor = isLight ? const Color(0xFF111111) : AppColors.textPrimary;
-    final mutedColor = isLight ? const Color(0xFF666666) : AppColors.textSecondary;
+    final textColor = isLight ? Color(0xFF111111) : AppColors.textPrimary;
+    final mutedColor = isLight ? Color(0xFF666666) : AppColors.textSecondary;
 
     return SectionCard(
       color: AppColors.surface2,
@@ -184,7 +184,7 @@ class AdminMetricCard extends StatelessWidget {
           Container(
             width: 48,
             height: 48,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.neon,
               shape: BoxShape.circle,
             ),
@@ -218,7 +218,7 @@ class AdminMetricCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     delta!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.neon,
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
@@ -251,8 +251,8 @@ class AdminSearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final textColor = isLight ? const Color(0xFF111111) : AppColors.textPrimary;
-    final mutedColor = isLight ? const Color(0xFF777777) : AppColors.textMuted;
+    final textColor = isLight ? Color(0xFF111111) : AppColors.textPrimary;
+    final mutedColor = isLight ? Color(0xFF777777) : AppColors.textMuted;
 
     return SectionCard(
       color: AppColors.surface2,

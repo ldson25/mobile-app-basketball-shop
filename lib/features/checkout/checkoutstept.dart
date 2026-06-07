@@ -237,7 +237,7 @@ class _PaymentAppBar extends StatelessWidget implements PreferredSizeWidget {
                 constraints: const BoxConstraints(),
               ),
               const SizedBox(width: 40),
-              const Expanded(
+              Expanded(
                 child: Center(
                   child: Text(
                     'Thanh toán',
@@ -290,19 +290,19 @@ class _ProgressIndicator extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const _ProgressStep(
+              _ProgressStep(
                 isActive: true,
                 icon: Icons.local_shipping,
                 iconColor: AppColors.surface,
                 backgroundColor: AppColors.neon,
               ),
-              const _ProgressStep(
+              _ProgressStep(
                 isActive: true,
                 icon: Icons.payment,
                 iconColor: AppColors.surface,
                 backgroundColor: AppColors.neon,
               ),
-              const _ProgressStep(
+              _ProgressStep(
                 isActive: false,
                 icon: Icons.check_circle,
                 iconColor: AppColors.textSecondary,
@@ -401,7 +401,7 @@ class _CashOnDeliveryInfo extends StatelessWidget {
               color: AppColors.neon.withAlpha(26),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.info_outline,
               color: AppColors.neon,
               size: 24,
@@ -510,7 +510,7 @@ class _PaymentNotice extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   message,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                   ),
@@ -667,7 +667,7 @@ class _PaymentOption extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondary,
                     ),
@@ -778,7 +778,7 @@ class _VoucherSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'VOUCHER',
             style: TextStyle(
               color: AppColors.textSecondary,
@@ -806,11 +806,11 @@ class _VoucherSection extends StatelessWidget {
                             onApply();
                           },
                     backgroundColor: AppColors.surfaceHighest,
-                    labelStyle: const TextStyle(
+                    labelStyle: TextStyle(
                       color: AppColors.neon,
                       fontWeight: FontWeight.w900,
                     ),
-                    side: const BorderSide(color: AppColors.border),
+                    side: BorderSide(color: AppColors.border),
                   );
                 },
               ),
@@ -824,23 +824,23 @@ class _VoucherSection extends StatelessWidget {
                   controller: controller,
                   enabled: !hasVoucher,
                   textCapitalization: TextCapitalization.characters,
-                  style: const TextStyle(color: AppColors.textPrimary),
+                  style: TextStyle(color: AppColors.textPrimary),
                   decoration: InputDecoration(
                     hintText: 'MEMBER10, VIP20, KINETIC50',
-                    hintStyle: const TextStyle(color: AppColors.textMuted),
+                    hintStyle: TextStyle(color: AppColors.textMuted),
                     filled: true,
                     fillColor: AppColors.surface,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.neon),
+                      borderSide: BorderSide(color: AppColors.neon),
                     ),
                   ),
                 ),
@@ -865,7 +865,7 @@ class _VoucherSection extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               '$appliedCode da ap dung: -${formatVnd(discount)}',
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.neon,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -900,7 +900,7 @@ class _InputField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.5,
@@ -915,20 +915,20 @@ class _InputField extends StatelessWidget {
           style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: AppColors.border),
+            hintStyle: TextStyle(color: AppColors.border),
             filled: true,
             fillColor: AppColors.surface2,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: AppColors.border),
+              borderSide: BorderSide(color: AppColors.border),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: AppColors.border),
+              borderSide: BorderSide(color: AppColors.border),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: AppColors.neon, width: 1),
+              borderSide: BorderSide(color: AppColors.neon, width: 1),
             ),
             contentPadding: const EdgeInsets.all(16),
           ),
@@ -964,7 +964,7 @@ class _OrderSummary extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text(
+          Text(
             'TÓM TẮT ĐƠN HÀNG',
             style: TextStyle(
               fontSize: 12,
@@ -984,7 +984,7 @@ class _OrderSummary extends StatelessWidget {
             const SizedBox(height: 12),
             _SummaryRow(label: 'Voucher', value: '-${formatVnd(discount)}'),
           ],
-          const Divider(color: AppColors.border, height: 24),
+          Divider(color: AppColors.border, height: 24),
           _SummaryRow(
             label: 'TỔNG CỘNG',
             value: formatVnd(total),
@@ -1203,7 +1203,7 @@ class _PlaceOrderButton extends StatelessWidget {
           disabledBackgroundColor: AppColors.border,
         ),
         child: isProcessing
-            ? const SizedBox(
+            ? SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(

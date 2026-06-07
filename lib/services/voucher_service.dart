@@ -12,6 +12,7 @@ class VoucherService extends ChangeNotifier {
 
   VoucherService._internal() {
     _subscribe();
+    seedDefaultVouchers();
   }
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -24,7 +25,7 @@ class VoucherService extends ChangeNotifier {
     VoucherModel(
       id: 'member10',
       code: 'MEMBER10',
-      name: 'Member welcome',
+      name: 'Thành viên mới',
       discountType: VoucherDiscountType.percent,
       discountValue: 10,
       minOrderValue: 0,
@@ -33,7 +34,7 @@ class VoucherService extends ChangeNotifier {
     VoucherModel(
       id: 'vip20',
       code: 'VIP20',
-      name: 'VIP exclusive',
+      name: 'Đặc quyền VIP',
       discountType: VoucherDiscountType.percent,
       discountValue: 20,
       minOrderValue: 5000000,
@@ -42,11 +43,119 @@ class VoucherService extends ChangeNotifier {
     VoucherModel(
       id: 'kinetic50',
       code: 'KINETIC50',
-      name: 'Kinetic bonus',
+      name: 'Tri ân khách hàng',
       discountType: VoucherDiscountType.fixed,
       discountValue: 50000,
       minOrderValue: 1000000,
       targetTier: VoucherTargetTier.all,
+    ),
+    VoucherModel(
+      id: 'freeship01',
+      code: 'FREESHIP',
+      name: 'Miễn phí vận chuyển',
+      discountType: VoucherDiscountType.freeShipping,
+      discountValue: 0,
+      minOrderValue: 500000,
+      targetTier: VoucherTargetTier.all,
+    ),
+    VoucherModel(
+      id: 'hoops30',
+      code: 'HOOPS30',
+      name: 'Lễ hội bóng rổ',
+      discountType: VoucherDiscountType.percent,
+      discountValue: 30,
+      minOrderValue: 2000000,
+      targetTier: VoucherTargetTier.member,
+    ),
+    VoucherModel(
+      id: 'sneakerhead',
+      code: 'SNEAKERHEAD',
+      name: 'Săn giày xịn',
+      discountType: VoucherDiscountType.fixed,
+      discountValue: 100000,
+      minOrderValue: 3000000,
+      targetTier: VoucherTargetTier.all,
+    ),
+    VoucherModel(
+      id: 'summer25',
+      code: 'SUMMER25',
+      name: 'Bộ sưu tập mùa Hè',
+      discountType: VoucherDiscountType.percent,
+      discountValue: 25,
+      minOrderValue: 1500000,
+      targetTier: VoucherTargetTier.all,
+    ),
+    VoucherModel(
+      id: 'weekend50',
+      code: 'WEEKEND50',
+      name: 'Bùng nổ cuối tuần',
+      discountType: VoucherDiscountType.fixed,
+      discountValue: 50000,
+      minOrderValue: 800000,
+      targetTier: VoucherTargetTier.all,
+    ),
+    VoucherModel(
+      id: 'newgear',
+      code: 'NEWGEAR',
+      name: 'Lên đồ cực chất',
+      discountType: VoucherDiscountType.percent,
+      discountValue: 15,
+      minOrderValue: 1000000,
+      targetTier: VoucherTargetTier.member,
+    ),
+    VoucherModel(
+      id: 'baller200',
+      code: 'BALLER200',
+      name: 'Trang bị thi đấu',
+      discountType: VoucherDiscountType.fixed,
+      discountValue: 200000,
+      minOrderValue: 5000000,
+      targetTier: VoucherTargetTier.vip,
+    ),
+    VoucherModel(
+      id: 'court15',
+      code: 'COURT15',
+      name: 'Làm chủ sân đấu',
+      discountType: VoucherDiscountType.percent,
+      discountValue: 15,
+      minOrderValue: 1200000,
+      targetTier: VoucherTargetTier.all,
+    ),
+    VoucherModel(
+      id: 'jersey20',
+      code: 'JERSEY20',
+      name: 'Sale áo đấu',
+      discountType: VoucherDiscountType.percent,
+      discountValue: 20,
+      minOrderValue: 800000,
+      targetTier: VoucherTargetTier.member,
+    ),
+    VoucherModel(
+      id: 'mamba24',
+      code: 'MAMBA24',
+      name: 'Tinh thần Mamba',
+      discountType: VoucherDiscountType.percent,
+      discountValue: 24,
+      minOrderValue: 2400000,
+      targetTier: VoucherTargetTier.all,
+    ),
+    VoucherModel(
+      id: 'flashbuy',
+      code: 'FLASHBUY',
+      name: 'Flash Sale bất ngờ',
+      discountType: VoucherDiscountType.fixed,
+      discountValue: 80000,
+      minOrderValue: 1500000,
+      targetTier: VoucherTargetTier.all,
+    ),
+    VoucherModel(
+      id: 'mvp100',
+      code: 'MVP100',
+      name: 'Phần thưởng MVP',
+      discountType: VoucherDiscountType.fixed,
+      discountValue: 100000,
+      minOrderValue: 0,
+      targetTier: VoucherTargetTier.vip,
     ),
   ];
 
@@ -55,21 +164,26 @@ class VoucherService extends ChangeNotifier {
   void _subscribe() {
     _subscription = _firestore.collection('vouchers').snapshots().listen(
       (snapshot) {
-        if (snapshot.docs.isEmpty) {
-          _vouchers = _defaultVouchers;
-        } else {
-          _vouchers = snapshot.docs.map((doc) {
-            final data = doc.data();
-            return VoucherModel.fromJson({
-              ...data,
-              'id': data['id'] ?? doc.id,
-            });
-          }).where((voucher) => voucher.code.isNotEmpty).toList()
-            ..sort((a, b) {
-              if (a.isActive != b.isActive) return a.isActive ? -1 : 1;
-              return a.code.compareTo(b.code);
-            });
+        final fetchedVouchers = snapshot.docs.map((doc) {
+          final data = doc.data();
+          return VoucherModel.fromJson({
+            ...data,
+            'id': data['id'] ?? doc.id,
+          });
+        }).where((voucher) => voucher.code.isNotEmpty).toList();
+
+        final allVouchers = [...fetchedVouchers];
+        for (final dv in _defaultVouchers) {
+          if (!fetchedVouchers.any((fv) => fv.code.toUpperCase() == dv.code.toUpperCase())) {
+            allVouchers.add(dv);
+          }
         }
+
+        _vouchers = allVouchers
+          ..sort((a, b) {
+            if (a.isActive != b.isActive) return a.isActive ? -1 : 1;
+            return a.code.compareTo(b.code);
+          });
         notifyListeners();
       },
       onError: (_) {

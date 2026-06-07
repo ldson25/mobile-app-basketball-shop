@@ -1,29 +1,31 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color background = Color(0xFF0E0E0E);
+  static bool isLightMode = false;
 
-  static const Color surface = Color(0xFF131313);
-  static const Color surface2 = Color(0xFF191919);
-  static const Color surface3 = Color(0xFF262626);
-  static const Color surfaceHighest = surface3;
+  static Color get background => isLightMode ? const Color(0xFFF7F7F3) : const Color(0xFF0E0E0E);
 
-  static const Color outline = Color(0xFF484848);
-  static const Color border = outline;
+  static Color get surface => isLightMode ? Colors.white : const Color(0xFF131313);
+  static Color get surface2 => isLightMode ? const Color(0xFFF0F0F0) : const Color(0xFF191919);
+  static Color get surface3 => isLightMode ? const Color(0xFFE5E5E5) : const Color(0xFF262626);
+  static Color get surfaceHighest => surface3;
 
-  static const Color textPrimary = Colors.white;
-  static const Color textSecondary = Color(0xFFABABAB);
-  static const Color textMuted = textSecondary;
+  static Color get outline => isLightMode ? const Color(0xFFD0D0D0) : const Color(0xFF484848);
+  static Color get border => outline;
 
-  static const Color volt = Color(0xFFCCFD00);
-  static const Color neon = volt;
+  static Color get textPrimary => isLightMode ? const Color(0xFF111111) : Colors.white;
+  static Color get textSecondary => isLightMode ? const Color(0xFF555555) : const Color(0xFFABABAB);
+  static Color get textMuted => textSecondary;
 
-  static const Color voltSoft = Color(0x1ACCFF00);
-  static const Color neonSoft = voltSoft;
+  static Color get volt => const Color(0xFFCCFD00);
+  static Color get neon => isLightMode ? const Color(0xFF2F5A00) : volt;
 
-  static const Color danger = Color(0xFFFF7351);
-  static const Color error = danger;
+  static Color get voltSoft => const Color(0x1ACCFF00);
+  static Color get neonSoft => voltSoft;
 
-  static const Color warning = Color(0xFFF7DA41);
-  static const Color success = volt;
+  static Color get danger => const Color(0xFFFF7351);
+  static Color get error => danger;
+
+  static Color get warning => const Color(0xFFF7DA41);
+  static Color get success => volt;
 }

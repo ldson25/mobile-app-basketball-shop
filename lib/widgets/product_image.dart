@@ -78,7 +78,7 @@ class ProductImage extends StatelessWidget {
       width: width,
       height: height,
       color: AppColors.surface2,
-      child: const Icon(
+      child: Icon(
         Icons.image_not_supported_outlined,
         color: AppColors.textMuted,
       ),
@@ -90,7 +90,7 @@ class ProductImage extends StatelessWidget {
       width: width,
       height: height,
       color: AppColors.surface2,
-      child: const Icon(
+      child: Icon(
         Icons.image_outlined,
         color: AppColors.textMuted,
       ),

@@ -22,8 +22,8 @@ class HomeUserScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context); // Force rebuild on theme change
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: _HomeAppBar(onMenuTap: onMenuTap),
       body: HomeBody(onRequireAuth: onRequireAuth),
     );
@@ -44,7 +44,7 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           children: [
             _CircleIconButton(icon: Icons.menu_rounded, onTap: onMenuTap),
             const Spacer(),
-            const Column(
+            Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
@@ -127,7 +127,7 @@ class HomeBody extends StatelessWidget {
     final equipment = productService.getProductsByCategory('equipment');
 
     if (footwear.isEmpty || apparel.isEmpty || equipment.isEmpty) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(color: AppColors.neon),
       );
     }
@@ -229,7 +229,7 @@ class SeasonalDropsHero extends StatelessWidget {
                       const SizedBox(height: 14),
                       Text(
                         'Còn ${product.stockQuantity} sản phẩm',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -332,7 +332,7 @@ class _SectionHeader extends StatelessWidget {
               children: [
                 Text(
                   eyebrow.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1.2,
@@ -342,7 +342,7 @@ class _SectionHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   title.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -0.5,
@@ -427,7 +427,7 @@ class _ProductCard extends StatelessWidget {
                         product.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -438,7 +438,7 @@ class _ProductCard extends StatelessWidget {
                         'Còn ${product.stockQuantity} sản phẩm',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -450,7 +450,7 @@ class _ProductCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 Text(
                   product.price,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.neon,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -490,7 +490,7 @@ class EditorialBanner extends StatelessWidget {
               children: [
                 ProductImage(product: product, fit: BoxFit.cover),
                 Container(color: Colors.black.withOpacity(0.34)),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(24),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -580,7 +580,7 @@ class FirestoreEditorialBanner extends StatelessWidget {
                       const SizedBox(height: 14),
                       Text(
                         title.toUpperCase(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 38,
                           fontStyle: FontStyle.italic,
@@ -592,7 +592,7 @@ class FirestoreEditorialBanner extends StatelessWidget {
                       const SizedBox(height: 10),
                       Text(
                         subtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -625,7 +625,7 @@ class _NeonTag extends StatelessWidget {
       ),
       child: Text(
         label.toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.background,
           fontSize: 10,
           fontWeight: FontWeight.w900,

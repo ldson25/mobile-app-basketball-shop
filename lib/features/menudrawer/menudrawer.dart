@@ -15,6 +15,7 @@ class MenuDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context); // Force rebuild on theme change
     final authService = Provider.of<AuthService>(context);
     final user = authService.currentUser;
     final avatarUrl = user?.avatarUrl;
@@ -81,11 +82,11 @@ class MenuDrawer extends StatelessWidget {
                                 isLoggedIn
                                     ? (user?.fullName.toUpperCase() ?? 'KHÁCH')
                                     : 'KHÁCH',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: 'Space Grotesk',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                                  color: AppColors.textPrimary,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -100,11 +101,11 @@ class MenuDrawer extends StatelessWidget {
                                     context: context,
                                     builder: (context) => AlertDialog(
                                       backgroundColor: AppColors.surface,
-                                      title: const Text(
+                                      title: Text(
                                         'Đăng xuất',
-                                        style: TextStyle(color: Colors.white),
+                                        style: TextStyle(color: AppColors.textPrimary),
                                       ),
-                                      content: const Text(
+                                      content: Text(
                                         'Bạn có chắc muốn đăng xuất?',
                                         style: TextStyle(
                                           color: AppColors.textSecondary,
@@ -119,7 +120,7 @@ class MenuDrawer extends StatelessWidget {
                                         TextButton(
                                           onPressed: () =>
                                               Navigator.pop(context, true),
-                                          child: const Text(
+                                          child: Text(
                                             'ĐĂNG XUẤT',
                                             style: TextStyle(
                                               color: AppColors.error,
@@ -159,7 +160,7 @@ class MenuDrawer extends StatelessWidget {
                                 ),
                                 child: Text(
                                   isLoggedIn ? 'ĐĂNG XUẤT' : 'ĐĂNG NHẬP',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800,
                                     color: AppColors.background,
@@ -172,7 +173,7 @@ class MenuDrawer extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           isLoggedIn ? (user?.email ?? '') : 'Chưa đăng nhập',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             color: AppColors.textSecondary,
                           ),
@@ -192,7 +193,7 @@ class MenuDrawer extends StatelessWidget {
                             ),
                             child: Text(
                               user?.membershipLabel ?? 'MEMBER',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 8,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.neon,
@@ -236,9 +237,9 @@ class MenuDrawer extends StatelessWidget {
               label: 'Hồ sơ',
               onTap: () => onMenuItemTap(3),
             ),
-            const Divider(color: AppColors.border, height: 32),
+            Divider(color: AppColors.border, height: 32),
             // Other Section
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 24),
               child: Text(
                 'KHÁC',
@@ -327,14 +328,14 @@ class _MenuDrawerItem extends StatelessWidget {
       leading: Icon(icon, color: AppColors.neon),
       title: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          color: Colors.white,
+          color: AppColors.textPrimary,
         ),
       ),
       trailing: label != 'Đăng xuất'
-          ? const Icon(
+          ? Icon(
               Icons.chevron_right,
               color: AppColors.textSecondary,
               size: 20,

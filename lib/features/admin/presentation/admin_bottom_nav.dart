@@ -22,15 +22,16 @@ class AdminBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Theme.of(context);
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF121212),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black54,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 24,
-            offset: Offset(0, -6),
+            offset: const Offset(0, -6),
           ),
         ],
       ),
@@ -79,7 +80,7 @@ class AdminBottomNav extends StatelessWidget {
                         duration: const Duration(milliseconds: 180),
                         width: selected ? 6 : 0,
                         height: selected ? 6 : 0,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: AppColors.neon,
                           shape: BoxShape.circle,
                         ),

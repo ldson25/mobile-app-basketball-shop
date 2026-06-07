@@ -153,7 +153,7 @@ class _AddressPickerState extends State<AddressPicker> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.neon),
+          borderSide: BorderSide(color: AppColors.neon),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
