@@ -95,16 +95,4 @@ lib/
 
 ---
 
-## 📸 Ảnh Chụp Màn Hình
-
-*(Mẹo: Hãy thay thế các link ảnh mẫu dưới đây bằng ảnh chụp màn hình ứng dụng thực tế của bạn để repository trông ấn tượng hơn!)*
-
-<p align="center">
-  <img src="https://via.placeholder.com/250x500.png?text=Home+Screen" width="22%" />
-  <img src="https://via.placeholder.com/250x500.png?text=Product+Details" width="22%" />
-  <img src="https://via.placeholder.com/250x500.png?text=Cart+%26+Checkout" width="22%" />
-  <img src="https://via.placeholder.com/250x500.png?text=Admin+Dashboard" width="22%" />
-</p>
-
----
 
